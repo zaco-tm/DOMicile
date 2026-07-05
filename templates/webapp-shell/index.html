@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Web App Shell — DOMiNice</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <script src="../../scripts/domi.js"></script>
+</head>
+<body style="margin:0;display:grid;grid-template-rows:auto 1fr;min-height:100vh;">
+  <nav class="domi-nav">
+    <div class="domi-nav__brand" data-feedback="brand">app</div>
+    <div class="domi-nav__links">
+      <a href="#" data-feedback="link-home">home</a>
+      <a href="#" data-feedback="link-projects">projects</a>
+      <a href="#" data-feedback="link-team">team</a>
+      <a href="#" data-feedback="link-settings">settings</a>
+    </div>
+    <div class="domi-nav__actions">
+      <button class="domi-btn domi-btn--sm" data-feedback="action-new" type="button">+ New</button>
+    </div>
+  </nav>
+  <div style="display:grid;grid-template-columns:240px 1fr 280px;gap:16px;padding:16px;">
+    <aside class="domi-card" style="padding:16px;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:12px;">SIDEBAR</div>
+      <ul style="list-style:none;padding:0;font-family:'SF Mono',monospace;font-size:13px;line-height:2;">
+        <li><a href="#" data-feedback="sb-inbox" style="color:inherit;text-decoration:none;">Inbox</a></li>
+        <li><a href="#" data-feedback="sb-today" style="color:inherit;text-decoration:none;">Today</a></li>
+        <li><a href="#" data-feedback="sb-week" style="color:inherit;text-decoration:none;">This week</a></li>
+      </ul>
+    </aside>
+    <main class="domi-card" style="padding:24px;">
+      <h2 class="domi-display" style="font-size:22px;margin-bottom:12px;">Main content</h2>
+      <p style="font-family:'SF Mono',monospace;font-size:13px;">Replace with your app body.</p>
+    </main>
+    <aside class="domi-card" style="padding:16px;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:12px;">NOTIFICATIONS</div>
+      <div class="domi-alert domi-alert--info" style="margin-bottom:8px;">You have 3 new messages.</div>
+      <div class="domi-alert domi-alert--success">Backup completed.</div>
+      <button class="domi-btn domi-btn--sm" data-export-feedback style="margin-top:12px;" type="button">Export feedback</button>
+    </aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard — DOMiNice</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <script src="../../scripts/domi.js"></script>
+</head>
+<body style="padding:40px;max-width:1200px;margin:0 auto;">
+  <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+    <h1 class="domi-display" style="font-size:32px;">DASHBOARD.</h1>
+    <nav class="domi-label" style="display:flex;gap:16px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;">
+      <span data-feedback="nav-overview" style="cursor:pointer;">overview</span>
+      <span data-feedback="nav-reports" style="cursor:pointer;">reports</span>
+      <span data-feedback="nav-settings" style="cursor:pointer;">settings</span>
+    </nav>
+  </header>
+
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:32px;">
+    <div class="domi-card" data-feedback="kpi-revenue" style="padding:20px;cursor:pointer;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:8px;">REVENUE</div>
+      <div class="domi-display" style="font-size:28px;">$48.2K</div>
+      <div class="domi-label" style="font-size:11px;color:#9caf88;margin-top:6px;">↑ 12.4%</div>
+    </div>
+    <div class="domi-card" data-feedback="kpi-users" style="padding:20px;cursor:pointer;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:8px;">USERS</div>
+      <div class="domi-display" style="font-size:28px;">2,847</div>
+      <div class="domi-label" style="font-size:11px;color:#9caf88;margin-top:6px;">↑ 4.1%</div>
+    </div>
+    <div class="domi-card" data-feedback="kpi-orders" style="padding:20px;cursor:pointer;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:8px;">ORDERS</div>
+      <div class="domi-display" style="font-size:28px;">312</div>
+      <div class="domi-label" style="font-size:11px;color:#c2410c;margin-top:6px;">↓ 2.0%</div>
+    </div>
+    <div class="domi-card" data-feedback="kpi-churn" style="padding:20px;cursor:pointer;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:8px;">CHURN</div>
+      <div class="domi-display" style="font-size:28px;">1.8%</div>
+      <div class="domi-label" style="font-size:11px;color:#9caf88;margin-top:6px;">↓ 0.3%</div>
+    </div>
+  </section>
+
+  <section class="domi-card" style="padding:20px;margin-bottom:32px;">
+    <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:12px;">REVENUE — LAST 30 DAYS</div>
+    <div style="height:200px;display:flex;align-items:flex-end;gap:6px;">
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:60%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:75%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:45%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:90%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:55%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:80%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:65%;"></div>
+      <div style="flex:1;background:linear-gradient(180deg,#f4978e,#a89cc8);border-radius:4px 4px 0 0;height:85%;"></div>
+    </div>
+  </section>
+
+  <section class="domi-card" style="padding:20px;">
+    <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:12px;">RECENT ACTIVITY</div>
+    <table class="domi-table" style="width:100%;border-collapse:collapse;font-family:'SF Mono',monospace;font-size:12px;">
+      <thead><tr style="text-align:left;opacity:.6;"><th>TIME</th><th>USER</th><th>ACTION</th></tr></thead>
+      <tbody>
+        <tr><td>14:02</td><td>alice@</td><td>created invoice #1042</td></tr>
+        <tr><td>13:51</td><td>bob@</td><td>updated settings</td></tr>
+        <tr><td>13:30</td><td>carol@</td><td>deleted record #871</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="domi-btn domi-btn--primary" data-feedback="primary-action" type="button">Primary action</button>
+      <button class="domi-btn" data-export-feedback type="button">Export feedback</button>
+    </div>
+  </section>
+</body>
+</html>

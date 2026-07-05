@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>POS Kiosk — DOMiNice</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <script src="../../scripts/domi.js"></script>
+  <style>
+    .pos-btn { min-width: 56px; min-height: 56px; font-size: 16px; padding: 16px 20px; }
+    .pos-tile { min-height: 96px; padding: 16px; }
+  </style>
+</head>
+<body style="margin:0;">
+  <header style="padding:16px 24px;background:rgba(255,255,255,0.4);backdrop-filter:blur(12px);border-bottom:1px solid rgba(61,35,66,0.4);display:flex;justify-content:space-between;align-items:center;">
+    <div class="domi-display" style="font-size:20px;">REGISTER 1.</div>
+    <div class="domi-display" style="font-size:24px;">$24.50</div>
+  </header>
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;padding:16px;min-height:calc(100vh - 80px);box-sizing:border-box;">
+    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;align-content:start;">
+      <div class="domi-card pos-tile" data-feedback="item-coffee"><div class="domi-display" style="font-size:18px;">COFFEE</div><div class="domi-label" style="margin-top:8px;">$3.50</div></div>
+      <div class="domi-card pos-tile" data-feedback="item-sandwich"><div class="domi-display" style="font-size:18px;">SANDWICH</div><div class="domi-label" style="margin-top:8px;">$8.00</div></div>
+      <div class="domi-card pos-tile" data-feedback="item-pastry"><div class="domi-display" style="font-size:18px;">PASTRY</div><div class="domi-label" style="margin-top:8px;">$4.25</div></div>
+      <div class="domi-card pos-tile" data-feedback="item-salad"><div class="domi-display" style="font-size:18px;">SALAD</div><div class="domi-label" style="margin-top:8px;">$9.75</div></div>
+      <div class="domi-card pos-tile" data-feedback="item-soda"><div class="domi-display" style="font-size:18px;">SODA</div><div class="domi-label" style="margin-top:8px;">$2.50</div></div>
+      <div class="domi-card pos-tile" data-feedback="item-cookie"><div class="domi-display" style="font-size:18px;">COOKIE</div><div class="domi-label" style="margin-top:8px;">$2.00</div></div>
+    </section>
+    <aside class="domi-card" style="padding:16px;display:flex;flex-direction:column;">
+      <div class="domi-label" style="font-size:11px;opacity:.6;margin-bottom:12px;">CART</div>
+      <ul style="list-style:none;padding:0;font-family:'SF Mono',monospace;font-size:14px;line-height:2;flex:1;">
+        <li style="display:flex;justify-content:space-between;"><span>Coffee ×1</span><span>$3.50</span></li>
+        <li style="display:flex;justify-content:space-between;"><span>Pastry ×2</span><span>$8.50</span></li>
+        <li style="display:flex;justify-content:space-between;"><span>Salad ×1</span><span>$9.75</span></li>
+      </ul>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+        <button class="domi-btn pos-btn" data-feedback="action-clear" type="button">Clear</button>
+        <button class="domi-btn domi-btn--primary pos-btn" data-feedback="action-checkout" type="button">CHECKOUT — $24.50</button>
+        <button class="domi-btn domi-btn--ghost" data-export-feedback type="button">Export feedback</button>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

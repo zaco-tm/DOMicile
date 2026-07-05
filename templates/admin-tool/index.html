@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Admin Tool — DOMiNice</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <script src="../../scripts/domi.js"></script>
+</head>
+<body style="padding:0;margin:0;">
+  <nav class="domi-nav">
+    <div class="domi-nav__brand">admin</div>
+    <div class="domi-nav__links">
+      <a href="#" data-feedback="nav-records">records</a>
+      <a href="#" data-feedback="nav-audit">audit</a>
+      <a href="#" data-feedback="nav-config">config</a>
+    </div>
+    <div class="domi-nav__actions">
+      <button class="domi-btn domi-btn--sm" data-feedback="action-export" type="button">Export CSV</button>
+    </div>
+  </nav>
+  <div style="padding:16px;">
+    <div class="domi-card" style="margin-bottom:12px;">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <input class="domi-input" placeholder="Search…" name="search" style="flex:1;min-width:240px;">
+        <select class="domi-select" name="status" style="width:auto;">
+          <option>All statuses</option><option>Active</option><option>Idle</option>
+        </select>
+        <button class="domi-btn domi-btn--primary" data-feedback="apply-filter" type="button">Apply filter</button>
+      </div>
+    </div>
+    <div class="domi-card" style="padding:0;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid rgba(61,35,66,0.1);">
+        <span class="domi-label" style="font-size:11px;opacity:.6;">3 SELECTED</span>
+        <button class="domi-btn domi-btn--sm domi-btn--danger" data-feedback="bulk-delete" type="button">Delete</button>
+        <button class="domi-btn domi-btn--sm" data-feedback="bulk-archive" type="button">Archive</button>
+      </div>
+      <table class="domi-table" style="width:100%;border-collapse:collapse;font-family:'SF Mono',monospace;font-size:12px;">
+        <thead><tr><th></th><th>NAME</th><th>STATUS</th><th>UPDATED</th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox" class="domi-check" data-feedback="row-1"></td><td>Alice</td><td><span class="domi-badge domi-badge--success">Active</span></td><td>2h ago</td></tr>
+          <tr><td><input type="checkbox" class="domi-check" data-feedback="row-2" checked></td><td>Bob</td><td><span class="domi-badge">Idle</span></td><td>1d ago</td></tr>
+          <tr><td><input type="checkbox" class="domi-check" data-feedback="row-3" checked></td><td>Carol</td><td><span class="domi-badge domi-badge--warning">Pending</span></td><td>4h ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
