@@ -1,0 +1,19 @@
+# Runtime / agent
+.domi/
+.superpowers/
+
+# Build artifacts
+target/
+node_modules/
+dist/
+build/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Env
+.env
+.env.local
