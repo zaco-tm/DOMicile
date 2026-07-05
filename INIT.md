@@ -20,3 +20,8 @@ hello agent! we are making something for you to use, yay! so your input is most 
 
 ##building info:
 - use the /superpowers skills to think through, ask questions, plan, and then inline build/execute the plan.
+
+##how to start work:
+- when you start a UI task, answer two questions first — see `SKILL.md`: is this a **working doc** (audit surface) or a **deliverable**, and are we **creating new** UI or **iterating on existing**?
+- the combination of those two questions selects one of three output modes. Pick before you write any HTML.
+- the skill's job is to (a) help you create UI libraries / components / layouts / themes using DOMiNice, and (b) audit & iterate on UI work with the user through shared HTML docs.
