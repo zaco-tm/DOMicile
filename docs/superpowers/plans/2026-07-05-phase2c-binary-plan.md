@@ -376,7 +376,7 @@ mod tests {
         let mut rx = state.broadcaster.subscribe();
         let ev = sample_event();
         let _ = state.broadcaster.send(ev.clone());
-        let received = rx.try_recv().expect("event delivered").expect("not lagged");
+        let received = rx.try_recv().expect("event delivered");
         assert_eq!(received.id, ev.id);
     }
 
