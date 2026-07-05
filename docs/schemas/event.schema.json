@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dominice.dev/schemas/event.schema.json",
+  "title": "DOMiNice Feedback Event",
+  "description": "Protocol v2 event payload. See docs/WIRE-PROTOCOL.md.",
+  "type": "object",
+  "required": ["v", "id", "ts", "src", "doc", "kind", "target", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "v": {
+      "type": "integer",
+      "const": 2,
+      "description": "Protocol version. Hard-pinned to 2 in this schema; v1 events are detected separately for rotation."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID. Crockford base-32, 26 chars, time-sortable."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp from the client at event-creation time."
+    },
+    "src": {
+      "type": "string",
+      "enum": ["domi.js", "domi-audit.js", "browser-ext", "unknown"],
+      "description": "Which runtime produced the event."
+    },
+    "doc": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Doc name. Matches the localStorage key suffix and the state file basename."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["click", "input", "submit", "rail-add", "rail-resolve", "custom"],
+      "description": "Event kind. Determines the shape of `data`."
+    },
+    "target": {
+      "type": "object",
+      "required": ["id", "selector", "rect"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": ["string", "null"],
+          "description": "data-feedback attribute value, or null."
+        },
+        "selector": {
+          "type": ["string", "null"],
+          "description": "CSS selector path the runtime computed, or null."
+        },
+        "rect": {
+          "type": "object",
+          "required": ["x", "y", "w", "h"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "w": { "type": "number", "minimum": 0 },
+            "h": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "description": "Kind-specific payload. Validated by if/then branches on `kind`."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "click" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "properties": {
+              "value": { "type": ["string", "number", "boolean", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "input" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["name", "value"],
+            "properties": {
+              "name": { "type": "string" },
+              "value": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "submit" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["formId", "fields"],
+            "properties": {
+              "formId": { "type": "string" },
+              "fields": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "rail-add" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["body", "targetId"],
+            "properties": {
+              "body": { "type": "string", "minLength": 1 },
+              "targetId": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "rail-resolve" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["entryId"],
+            "properties": {
+              "entryId": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "custom" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["payload"],
+            "properties": {
+              "payload": { "type": "object" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
