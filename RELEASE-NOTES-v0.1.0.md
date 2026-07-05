@@ -64,3 +64,24 @@ MIT
 - 22 new Rust tests (7 watcher + 8 file + 3 shim + 4 banner parity + 1 integration gated). 3 new JS shim tests.
 - Companion doc updates: `docs/PHASE2-SCOPE.md`, `docs/WIRE-PROTOCOL.md`.
 - JS half (tokens, primitives, templates, `domi.js`, `domi-audit.js`, examples): untouched.
+
+---
+
+## Phase 2b — Server-attached JS mode (2026-07-05)
+
+- `scripts/domi.js` and `scripts/domi-audit.js` now branch on `window.__DOMI_SERVER__ === true`.
+- **Standalone mode** (Phase 1) is unchanged: localStorage is the source of truth, all 4 prior `domi.js` and 4 prior `domi-audit.js` tests still pass.
+- **Server mode:**
+  - `domi.js` POSTs v2 click/input events to `/api/events` with `id: null`; server stamps the ULID.
+  - `domi-audit.js` POSTs v2 `rail-add` / `rail-resolve` events; hydrates via `GET /api/events?doc=<doc>` on mount. Boot-mirror from localStorage renders immediately, server state merges in.
+  - WebSocket bridge: `domi-event` CustomEvents render comments / resolve events live as they arrive.
+  - `localStorage` becomes a read-only boot mirror — read once on init, never written.
+  - `DomiAudit.resolveEntry(entryId)` is new in 2b; phase 1 had no resolve path.
+- New `scripts/domi-wire.js`: stateless `isServerMode`, `postEvent`, `getEvents`, `onServerEvent`, `onServerOpen`, `serverOrigin` helpers used by both runtimes.
+- 22 new tests: 12 for `domi-wire` (helper coverage), 3 server-mode for `domi.js`, 5 server-mode for `domi-audit.js`, 1 server-stamps rule for `wire-protocol`, plus the schema annotation allowing `id: null`.
+- Spec + companion docs:
+  - `docs/superpowers/specs/2026-07-05-phase2b-server-attached-js-design.md`
+  - `docs/AUDIT.md` (new "Server-attached mode" section)
+  - `docs/WIRE-PROTOCOL.md` (server stamps `id` if absent rule)
+  - `docs/schemas/event.schema.json` (top-level `id` accepts `null`)
+- Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/domi-server.js`): untouched.
