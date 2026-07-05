@@ -31,12 +31,45 @@ pub async fn healthz(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     }))
 }
 
-// --- stubs (replaced by Tasks 5–7) ---
 pub async fn static_serve(
-    _state: State<Arc<AppState>>,
-    _path: axum::extract::Path<String>,
+    State(state): State<Arc<AppState>>,
+    uri: axum::http::Uri,
 ) -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, "static_serve stub")
+    use crate::serve::file::{serve_file, ContentType, ServeError};
+
+    let req_path = uri.path().trim_start_matches('/');
+    let requested = std::path::PathBuf::from(req_path);
+    match serve_file(&state.root, &requested) {
+        Ok(served) => {
+            let mime = match served.content_type {
+                ContentType::Html => "text/html; charset=utf-8",
+                ContentType::Css => "text/css; charset=utf-8",
+                ContentType::Js => "application/javascript; charset=utf-8",
+                ContentType::Json => "application/json; charset=utf-8",
+                ContentType::Png => "image/png",
+                ContentType::Jpeg => "image/jpeg",
+                ContentType::Svg => "image/svg+xml",
+                ContentType::PlainText => "text/plain; charset=utf-8",
+                ContentType::OctetStream => "application/octet-stream",
+            };
+            (
+                StatusCode::OK,
+                [(axum::http::header::CONTENT_TYPE, mime)],
+                served.body,
+            )
+                .into_response()
+        }
+        Err(ServeError::NotFound | ServeError::NotAFile | ServeError::EscapedRoot) => {
+            (StatusCode::NOT_FOUND, "not found").into_response()
+        }
+        Err(ServeError::Io(e)) => {
+            eprintln!(
+                "DBG serve_file Io error: {e:?} root={:?} requested={:?}",
+                state.root, requested
+            );
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("io: {e}")).into_response()
+        }
+    }
 }
 
 pub async fn post_event(
@@ -70,7 +103,7 @@ mod tests {
     use tempfile::tempdir;
     use tower::ServiceExt;
 
-    fn test_state() -> Arc<AppState> {
+    fn test_state() -> (Arc<AppState>, tempfile::TempDir) {
         let dir = tempdir().unwrap();
         let root = dir.path().join("root");
         let state = dir.path().join("state");
@@ -78,12 +111,13 @@ mod tests {
         std::fs::create_dir_all(&state).unwrap();
         let events = state.join("events.jsonl");
         let writer = Arc::new(EventWriter::new(&events));
-        Arc::new(AppState::new(root, state, writer, 16))
+        let app_state = Arc::new(AppState::new(root, state, writer, 16));
+        (app_state, dir)
     }
 
     #[tokio::test]
     async fn banner_returns_expected_json_shape() {
-        let state = test_state();
+        let (state, _dir) = test_state();
         let app = super::super::router::build_router(state);
         let response = app
             .oneshot(Request::builder().uri("/").body(Body::empty()).unwrap())
@@ -100,7 +134,7 @@ mod tests {
 
     #[tokio::test]
     async fn healthz_returns_ok() {
-        let state = test_state();
+        let (state, _dir) = test_state();
         let app = super::super::router::build_router(state.clone());
         let response = app
             .oneshot(
@@ -117,4 +151,72 @@ mod tests {
         assert_eq!(json["status"], "ok");
         assert_eq!(json["serverId"], state.server_id.to_string());
     }
+
+    use std::io::Write;
+
+    #[tokio::test]
+    async fn serve_html_200_with_shim_injected() {
+        let (state, _dir) = test_state();
+        std::fs::write(
+            state.root.join("dashboard.html"),
+            r#"<!doctype html><html><body><script src="../scripts/domi.js"></script></body></html>"#,
+        ).unwrap();
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/dashboard.html")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let s = std::str::from_utf8(&body).unwrap();
+        assert!(s.contains("window.__DOMI_SERVER__"), "shim injected");
+        assert!(s.contains("domi.js"), "original script tag preserved");
+        // shim must come BEFORE the original `<script>` so it sets the flag first.
+        let shim_pos = s.find("window.__DOMI_SERVER__").unwrap();
+        let original_pos = s.find("domi.js").unwrap();
+        assert!(shim_pos < original_pos, "shim before original");
+    }
+
+    #[tokio::test]
+    async fn serve_css_200_unchanged() {
+        let (state, _dir) = test_state();
+        let mut f = std::fs::File::create(state.root.join("style.css")).unwrap();
+        f.write_all(b"body { color: red; }").unwrap();
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/style.css")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let s = std::str::from_utf8(&body).unwrap();
+        assert!(s.contains("color: red"));
+    }
+
+    #[tokio::test]
+    async fn serve_404_on_missing() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/nope.html")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
 }
