@@ -18,3 +18,7 @@ build/
 # Env
 .env
 .env.local
+
+# Rust — Cargo.lock is gitignored for both library-only and binary builds (Phase 2c-α/β/γ policy).
+Cargo.lock
+
