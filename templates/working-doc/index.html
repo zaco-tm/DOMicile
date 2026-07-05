@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Working Doc — example</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <style>
+    body { display: grid; grid-template-columns: 1fr 320px; gap: 16px; padding: 24px; }
+    aside[data-domini-rail] { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow: auto; }
+    .domini-rail-form textarea { width: 100%; }
+    .domini-rail-form button { margin-top: 4px; }
+    .domini-rail-list { padding-left: 16px; }
+    [data-domini-status-chip] { position: fixed; top: 12px; right: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 data-feedback="doc-title">Example working doc</h1>
+    <p>This is a reference working doc. Clone it; replace content with the thing you're actually working on.</p>
+    <section data-feedback="section-kpis">
+      <h2>KPIs</h2>
+      <article class="domi-card" data-feedback="kpi-revenue">
+        <h3>Revenue</h3>
+        <p>$0</p>
+      </article>
+    </section>
+  </main>
+  <aside data-domini-rail></aside>
+  <span data-domini-status-chip>v0.1.0-working</span>
+  <script src="../../scripts/domi-audit.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      DomiAudit.mount({ statePath: '.domi/state/example-audit.json', docName: 'example-audit' });
+    });
+  </script>
+</body>
+</html>
