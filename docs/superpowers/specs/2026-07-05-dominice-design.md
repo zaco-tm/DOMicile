@@ -201,16 +201,19 @@ One JSON object per line in `.domi/state/events.jsonl`:
 
 ### 6.3 Inlined `domi.js` runtime
 
-Single ~10KB script. Default behavior (standalone, no server):
+Single ~10KB script. Two modes, mode-detected at runtime.
 
-- Click handlers on `[data-feedback]` elements log structured events to `localStorage`
-- Form inputs debounce-save their values to `localStorage`
+**Standalone mode** (default — Phase 1, no server):
+
+- Click handlers on `[data-feedback]` elements log structured events to `localStorage` under key `domi:events:<page>`
+- Form inputs debounce-save their values to `localStorage` under key `domi:inputs:<page>`
 - Hover annotations reveal element metadata
 - Version chips show last-modified timestamp
+- A built-in "Export feedback" button (rendered when `[data-export-feedback]` is present on the page) lets the user download `events.jsonl` and paste it back to the agent
 
-Server-attached mode (when `window.__DOMI_SERVER__ === true`):
+**Server-attached mode** (Phase 2, when `window.__DOMI_SERVER__ === true`):
 
-- WebSocket sync to the agent session
+- WebSocket sync to the agent session (replaces the manual export step)
 - Live file change push without reload
 - Version history panel
 - v2: chat-back-to-agent input box
@@ -219,10 +222,11 @@ Server-attached mode (when `window.__DOMI_SERVER__ === true`):
 
 `SKILL.md` instructs the agent:
 
-1. Check `.domi/state/server-info.json` — if present, read the URL and connect via WebSocket
-2. Otherwise, run `domi serve` (the user already has the binary on PATH after install)
-3. Write HTML to `<project>/.domi/output/.html`
-4. Read `events.jsonl` periodically (or subscribe to WebSocket) for feedback
+1. Check `.domi/state/server-info.json` — if present, the server is running; connect via WebSocket for real-time feedback
+2. Otherwise, optionally run `domi serve` to enable live mode (Phase 2+); in Phase 1 the agent can skip this and rely on the user manually exporting feedback
+3. Write HTML to `<project>/.domi/output/<page>.html`
+4. In live mode: read `events.jsonl` periodically (or subscribe to WebSocket) for feedback
+5. In standalone mode: ask the user to click "Export feedback" and paste the JSONL back when they want feedback processed
 
 ## 7. Multi-target Components
 
