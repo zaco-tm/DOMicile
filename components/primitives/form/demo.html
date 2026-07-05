@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>form — domi</title>
+  <link rel="stylesheet" href="../../domi.css">
+</head>
+<body style="padding:40px;max-width:520px;">
+  <form class="domi-form" onsubmit="event.preventDefault()">
+    <div class="domi-form__row">
+      <div class="domi-form__col">
+        <label class="domi-form__label" for="fn">First</label>
+        <input class="domi-input" id="fn" type="text">
+      </div>
+      <div class="domi-form__col">
+        <label class="domi-form__label" for="ln">Last</label>
+        <input class="domi-input" id="ln" type="text">
+      </div>
+    </div>
+    <div class="domi-form__col">
+      <label class="domi-form__label" for="em">Email</label>
+      <input class="domi-input" id="em" type="email">
+      <span class="domi-form__help">Help text</span>
+    </div>
+    <button class="domi-btn domi-btn--primary" type="submit">Submit</button>
+  </form>
+</body>
+</html>
