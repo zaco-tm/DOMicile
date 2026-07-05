@@ -330,3 +330,9 @@ All parts ship by v1.0, in 4 implementation phases.
 - Which 3 example projects to ship in Phase 4 — to be decided
 - License choice (MIT vs Apache-2.0) — to be decided
 - Whether to ship a Homebrew tap in Phase 4 (vs GitHub releases only)
+
+## 12. Branding & Sponsorship
+
+- DOMiNice is **sponsored by [stoopery](https://stoopery.app)**.
+- The stoopery sponsor icon is stored at `branding/sponsor-stoopery.svg` and should appear in the project README and GitHub release notes (typically as a small badge in the footer or "Sponsored by" section).
+- Final placement and sizing decisions are made during the README polish work in Phase 4.

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 4096 4096" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+<defs/>
+<clipPath id="ArtboardFrame"><rect height="4096" width="4096" x="0" y="0"/></clipPath>
+<g clip-path="url(#ArtboardFrame)" id="Layer-1">
+<path d="M-1 718.6C-1 321.728 320.728-1.13687e-13 717.6 0L3376.4 0C3773.27 0 4095 321.728 4095 718.6L4095 3377.4C4095 3774.27 3773.27 4096 3376.4 4096L717.6 4096C320.728 4096-1 3774.27-1 3377.4L-1 718.6Z" fill="#b74a34" fill-rule="nonzero" stroke="none"/>
+</g>
+<g id="Layer-2">
+<g opacity="1">
+<path d="M3647.42 3353.39L3629.2 689.593L2525.5 729.443L2571.95 1594.54L1534.53 1644.87L1605.28 2464.81L575.617 2509.03L498.722 3406.41L3647.42 3353.39Z" fill="#752b1c" fill-rule="nonzero" stroke="none"/>
+<path d="M3416.73 3265.54L3379.58 774.096L2448.79 787.771L2452.54 1668.01L1442.74 1595.52L1502.71 2469.69L458.35 2475.53L448.575 3324.29L777.316 3317.78L3416.73 3265.54Z" fill="#c06c36" fill-rule="nonzero" stroke="none"/>
+<path d="M3353.79 801.291L3384.69 3160.06L607.051 3142.89L583.017 2366.93L1554.68 2366.93L1513.48 1632.18L2437.07 1656.22L2433.64 821.892L3353.79 801.291Z" fill="#e8cfb1" fill-rule="nonzero" stroke="none"/>
+</g>
+</g>
+</svg>
