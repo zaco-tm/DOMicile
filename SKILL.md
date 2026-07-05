@@ -1,65 +1,79 @@
 ---
 name: dominice
-description: Cross-platform UI design system. Use when authoring interactive HTML artifacts for human-agent communication. Generates standalone HTML files using locked Neo-Glass-Vintage "Sunset Pastel" tokens, 15 primitives, and 5 archetypes. Triggers on "make me a [dashboard|pricing|...]", "open this in a tab", or any request for an interactive HTML deliverable.
+description: Skill for authoring and iterating on UI work — components, primitives, layouts, themes — and for working through UI/UX changes with the user via shared HTML docs. Triggers on "build a UI library", "design a X", "let's work on Y", "review this UI", or any task where the user will open an HTML file in a browser to read or annotate it.
 ---
 
 # DOMiNice
 
-You are an agent that produces interactive HTML artifacts using the DOMiNice design system. The driving documents in any agent↔human loop are HTML, not markdown.
+Use this skill when the user wants to *create* UI work (a component, primitive, layout, theme, or archetype) using the DOMiNice design system, OR when the user wants to *audit / iterate on* existing UI through a shared HTML document they can open in a tab and annotate.
 
-## When to use this skill
+Do NOT use this skill for: pure markdown reports, server-side code, anything the user won't open in a browser as HTML.
 
-Load this skill when the user asks for:
+## Answer two questions first
 
-- An interactive HTML page, dashboard, report, or app prototype
-- A UI mockup, wireframe, or visual comparison
-- Any artifact where the user will view it in a browser and may want to give feedback
+Before writing any HTML, decide:
 
-Do NOT use this skill for: pure text/markdown reports, code generation, server-side logic, or anything the user won't open in a browser.
+1. **Create-new or audit-existing?** ("let's build X" vs. "review this thing")
+2. **Working doc or deliverable?** ("let's work on it" vs. "ship the final")
 
-## The pattern
+The combination yields three output modes:
 
-1. **Identify the archetype.** Pick the closest fit from: `dashboard`, `webapp-shell`, `mobile-app-shell`, `admin-tool`, `pos-kiosk`. Copy from `templates/<archetype>/index.html`.
-2. **Compose primitives.** Use only DOMiNice primitives (button, card, input, table, nav, modal, alert, badge, tabs, toast, tooltip, select, checkbox, radio, form). Reference: `components/primitives/<name>/README.md`.
-3. **Apply tokens, not raw colors.** Use CSS classes (`.domi-btn`, `.domi-card`, etc.) instead of inline styles for color/typography/radius. Inline styles are OK for layout-only properties (display, padding, margin, grid).
-4. **Single CSS link.** Include `<link rel="stylesheet" href="../../components/domi.css">` (relative path from `templates/`) or copy the contents inline for fully self-contained files.
-5. **Optional interactivity.** Add `<script src="../../scripts/domi.js"></script>` for click feedback and form capture. Add `data-feedback="<name>"` to elements you want the user to be able to click on.
-6. **Standalone-first.** Every artifact must open via `file://` with zero infra. No CDN, no build step, no fetch.
+| Mode | Trigger | What you write |
+|---|---|---|
+| **Working doc — create** | "let's build," "draft," "I want to start on" | `.domi/output/<name>.html` with feedback rail + `data-feedback` hooks. `.domi/state/<name>.json` seeded empty. Neo skin. |
+| **Working doc — audit** | "review," "iterate," "what should change" | Same chrome as create; load existing thread. |
+| **Deliverable** | "ship," "give me the final," "hand off" | Clean HTML using agreed DOMiNice primitives, no rail, no status chip. Theme is whatever the user picked (default neo). |
 
-## Output location
+If you're not sure which mode, ask one question with the linguistic signal you saw, then proceed.
 
-Write to `.domi/output/<artifact>.html` in the user's project. If `.domi/state/server-info.json` exists (Phase 2 live server is running), the user will see it hot-reload in their browser.
+## Output locations
+
+- Working artifacts: `.domi/output/<name>.html`
+- Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
+- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/domi.js`, `scripts/domi-audit.js`, `templates/<archetype>/index.html`
+
+Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
+
+## Working-doc chrome (audit mode)
+
+The agent includes on every working-doc page:
+
+- A right-side feedback rail (loaded from `scripts/domi-audit.js`).
+- `data-feedback="<meaningful-id>"` on every element the user is likely to want to comment on (section headers, interactive primitives, layout decisions).
+- A status chip showing `vN` of the working doc, visible top-right.
+- Thread entries are scoped to a target id and rendered next to the element on reload.
+
+See `docs/AUDIT.md` for the JSON schema, domi-audit API, and end-to-end loop.
+
+## Authoring new UI work (not consuming existing)
+
+To *consume* the library, point at the path. To *add to it*, follow the contribution rules:
+
+- New theme → `docs/EXTENDING.md#new-theme`
+- New primitive → `docs/EXTENDING.md#new-primitive`
+- New archetype → `docs/EXTENDING.md#new-archetype`
+- New layout recipe → `docs/LAYOUTS.md`
 
 ## Aesthetic — Neo-Glass-Vintage Sunset Pastel
 
-- **Background:** primary gradient `plum → coral → peach` (`#a89cc8 → #f4978e → #ffd6b3`) at 135°
-- **Surfaces:** glass (`rgba(255,255,255,0.4–0.8)` with `backdrop-filter: blur(12px)`)
-- **Display:** Helvetica Neue Black, uppercase, tight tracking
-- **Body/labels:** JetBrains Mono / SF Mono
-- **Text:** dark plum `#3d2342`
-- **Accents:** sage `#9caf88` for success, terracotta `#c2410c` for danger
+Neo is the **default skin for working docs and audit surfaces**. Deliverables can be in any theme; default to neo only if the user does not specify one.
 
-## Examples
-
-### "Make me a sales dashboard"
-
-1. Copy `templates/dashboard/index.html`
-2. Replace KPI numbers with real data
-3. Replace chart bars with real data (or inject inline SVG)
-4. Add `data-feedback="metric-revenue"` etc. to KPI cards
-5. Write to `.domi/output/dashboard.html`
-
-### "Show me three pricing options side by side"
-
-1. Compose three `.domi-card` elements in a `.split` layout
-2. Use `.domi-btn--primary` for the recommended tier
-3. Use `.domi-badge` for "POPULAR" / "BEST VALUE"
-4. Write to `.domi/output/pricing.html`
+```
+Background:  plum → coral → peach  (#a89cc8 → #f4978e → #ffd6b3) at 135°
+Surfaces:    rgba(255,255,255, 0.4–0.8) + backdrop-filter blur(12px)
+Display:     Helvetica Neue Black, uppercase, tight tracking
+Body/labels: JetBrains Mono / SF Mono
+Text:        dark plum #3d2342
+Success:     sage #9caf88     Danger: terracotta #c2410c
+```
 
 ## Reference
 
+- Audit loop how-to: `docs/AUDIT.md`
+- Library extension how-to: `docs/EXTENDING.md`
+- Layout recipes: `docs/LAYOUTS.md`
 - Design tokens: `tokens/tokens.json`
-- Primitives: `components/primitives/<name>/README.md`
-- Archetypes: `templates/<name>/README.md`
-- Full docs: `docs/DESIGN.md`, `docs/USAGE.md`, `docs/STANDARDS.md`
+- Library primitives: `components/primitives/<name>/README.md`
+- Library archetypes: `templates/<name>/README.md`
+- Full library docs: `docs/DESIGN.md`, `docs/USAGE.md`, `docs/STANDARDS.md`
 - Status: `status/STATUS.html`
