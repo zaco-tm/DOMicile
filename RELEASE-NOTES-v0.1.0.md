@@ -42,3 +42,13 @@ MIT
 - New runtime: `scripts/domi-audit.js` (additive; `domi.js` unchanged).
 - New archetype: `templates/working-doc/`.
 - No library changes — tokens, primitives, templates (other than the new archetype), and `domi.js` are untouched.
+
+---
+
+## Phase 2c-α — Events writer crate (2026-07-05)
+
+- New Rust workspace member: `crates/domi-server` (library only).
+- `events` module: `Event`, `EventWriter`, `WriteError`, `Rotation`, `FileShape`. Sync-only, TDD'd.
+- 9 tests: round-trip, append-with-newline, rotation-on-cap, force-rotate, file_shape (V2/Legacy/MalformedJson/Empty), lock-busy.
+- Companion docs: `docs/WIRE-PROTOCOL.md` (wire format), `docs/schemas/event.schema.json` (canonical shape), `docs/RUST.md` (crate layout + phasing).
+- JS half (tokens, primitives, templates, `domi.js`, `domi-audit.js`, examples): untouched.

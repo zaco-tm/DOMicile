@@ -18,9 +18,8 @@ crates/
       lib.rs                  # re-exports the events module
       events/                 # Phase 2c-α: append-only writer
         mod.rs
-        event.rs              # Event, EventData, Kind, Source, Target
-        writer.rs             # EventWriter, rotation, lock, file_shape
-        tests.rs              # 6 tests (tempfile, real fs)
+        event.rs              # Event, EventData, Kind, Source, Target, Rect (2 tests inline)
+        writer.rs             # EventWriter, rotation, lock, file_shape (7 tests inline)
 ```
 
 ## Build and test

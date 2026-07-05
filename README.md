@@ -12,6 +12,7 @@ A cross-platform UI design system with an AI-agent authoring layer. **The drivin
 - 🧱 15 HTML primitives — buttons, cards, forms, tables, navs, modals, alerts, badges, tabs, toasts, tooltips, inputs, selects, checkboxes, radios
 - 📐 5 archetype templates — dashboard, webapp-shell, mobile-app-shell, admin-tool, pos-kiosk
 - ⚡ `domi.js` standalone runtime — click-to-feedback, form capture, version chips
+- 🦀 `domi-server` Rust crate — Phase 2c-α events writer (lib only; binary lands in 2c-γ)
 - 📚 Full docs — DESIGN, USAGE, STANDARDS (md) + STATUS, UX-MEMORY (html)
 
 ## What's coming
