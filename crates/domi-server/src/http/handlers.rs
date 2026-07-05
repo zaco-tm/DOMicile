@@ -150,10 +150,64 @@ pub async fn post_event(
 }
 
 pub async fn get_events(
-    _state: State<Arc<AppState>>,
-    _q: axum::extract::Query<GetEventsParams>,
+    State(state): State<Arc<AppState>>,
+    axum::extract::Query(params): axum::extract::Query<GetEventsParams>,
 ) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, "get_events stub")
+    use crate::events::Event;
+
+    let limit = params.limit.unwrap_or(100).clamp(1, 1000);
+    let events_path = state.state_dir.join("events.jsonl");
+
+    let body = match std::fs::read_to_string(&events_path) {
+        Ok(b) => b,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            return (
+                StatusCode::OK,
+                Json(json!({"events": [], "nextSince": null})),
+            )
+                .into_response();
+        }
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("read: {e}")).into_response();
+        }
+    };
+
+    let mut kept: Vec<Event> = Vec::with_capacity(limit);
+    for line in body.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let ev: Event = match serde_json::from_str(line) {
+            Ok(e) => e,
+            Err(_) => continue, // skip malformed
+        };
+        if let Some(ref since) = params.since {
+            if ev.id.to_string().as_str() <= since.as_str() {
+                continue;
+            }
+        }
+        if let Some(ref doc) = params.doc {
+            if ev.doc != *doc {
+                continue;
+            }
+        }
+        kept.push(ev);
+        if kept.len() >= limit {
+            break;
+        }
+    }
+
+    let next_since = kept.last().map(|e| e.id.to_string());
+    let events_json: Vec<serde_json::Value> = kept
+        .iter()
+        .map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null))
+        .collect();
+
+    (
+        StatusCode::OK,
+        Json(json!({"events": events_json, "nextSince": next_since})),
+    )
+        .into_response()
 }
 
 #[derive(serde::Deserialize)]
@@ -433,5 +487,167 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+    use crate::events::{Event, EventData, Kind, Rect, Source, Target};
+    use ulid::Ulid;
+
+    fn write_three_events(state: &Arc<AppState>) -> Vec<Ulid> {
+        let w = state.writer.clone();
+        let mut ids = Vec::new();
+        for i in 0..3 {
+            let id = Ulid::new();
+            let ev = Event {
+                v: 2,
+                id,
+                ts: chrono::Utc::now(),
+                src: Source::DomiJs,
+                doc: format!("doc-{i}"),
+                kind: Kind::Click,
+                target: Target {
+                    id: None,
+                    selector: None,
+                    rect: Rect {
+                        x: 0.0,
+                        y: 0.0,
+                        w: 1.0,
+                        h: 1.0,
+                    },
+                },
+                data: EventData::Click {
+                    value: Some(format!("v{i}").into()),
+                },
+            };
+            w.write(&ev).unwrap();
+            ids.push(id);
+        }
+        ids
+    }
+
+    #[tokio::test]
+    async fn get_events_returns_filtered_after_since() {
+        let (state, _dir) = test_state();
+        let ids = write_three_events(&state);
+        let app = super::super::router::build_router(state);
+        let url = format!("/api/events?since={}", ids[0]);
+        let response = app
+            .oneshot(Request::builder().uri(&url).body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        let events = json["events"].as_array().unwrap();
+        assert_eq!(events.len(), 2, "expected events 2 and 3, got {:?}", events);
+        assert_eq!(json["nextSince"].as_str().unwrap(), ids[2].to_string());
+    }
+
+    #[tokio::test]
+    async fn get_events_filters_by_doc() {
+        let (state, _dir) = test_state();
+        write_three_events(&state);
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/events?doc=doc-1")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        let events = json["events"].as_array().unwrap();
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0]["doc"], "doc-1");
+    }
+
+    #[tokio::test]
+    async fn get_events_default_limit_100() {
+        let (state, _dir) = test_state();
+        // Write 150 events directly to the file (faster than going through HTTP).
+        let mut lines = String::new();
+        for _i in 0..150 {
+            let id = Ulid::new();
+            let ev = Event {
+                v: 2,
+                id,
+                ts: chrono::Utc::now(),
+                src: Source::DomiJs,
+                doc: "x".into(),
+                kind: Kind::Click,
+                target: Target {
+                    id: None,
+                    selector: None,
+                    rect: Rect {
+                        x: 0.0,
+                        y: 0.0,
+                        w: 1.0,
+                        h: 1.0,
+                    },
+                },
+                data: EventData::Click { value: None },
+            };
+            lines.push_str(&serde_json::to_string(&ev).unwrap());
+            lines.push('\n');
+        }
+        std::fs::write(state.state_dir.join("events.jsonl"), lines).unwrap();
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/events")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["events"].as_array().unwrap().len(), 100);
+    }
+
+    #[tokio::test]
+    async fn get_events_limit_clamped_to_1000() {
+        let (state, _dir) = test_state();
+        let mut lines = String::new();
+        for _ in 0..1500 {
+            let id = Ulid::new();
+            let ev = Event {
+                v: 2,
+                id,
+                ts: chrono::Utc::now(),
+                src: Source::DomiJs,
+                doc: "x".into(),
+                kind: Kind::Click,
+                target: Target {
+                    id: None,
+                    selector: None,
+                    rect: Rect {
+                        x: 0.0,
+                        y: 0.0,
+                        w: 1.0,
+                        h: 1.0,
+                    },
+                },
+                data: EventData::Click { value: None },
+            };
+            lines.push_str(&serde_json::to_string(&ev).unwrap());
+            lines.push('\n');
+        }
+        std::fs::write(state.state_dir.join("events.jsonl"), lines).unwrap();
+        let app = super::super::router::build_router(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/events?limit=9999")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["events"].as_array().unwrap().len(), 1000);
     }
 }
