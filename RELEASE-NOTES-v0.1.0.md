@@ -32,3 +32,13 @@ Open `templates/dashboard/index.html` in a browser.
 ## License
 
 MIT
+
+---
+
+## SKILL reframe (post-v0.1.0 docs patch, 2026-07-05)
+
+- `SKILL.md` rewritten to lead with the *authoring* + *audit-loop* purpose; neo aesthetic moved to a scoped section.
+- New docs: `docs/AUDIT.md`, `docs/EXTENDING.md`, `docs/LAYOUTS.md`.
+- New runtime: `scripts/domi-audit.js` (additive; `domi.js` unchanged).
+- New archetype: `templates/working-doc/`.
+- No library changes — tokens, primitives, templates (other than the new archetype), and `domi.js` are untouched.
