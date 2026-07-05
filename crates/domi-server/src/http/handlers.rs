@@ -73,10 +73,80 @@ pub async fn static_serve(
 }
 
 pub async fn post_event(
-    _state: State<Arc<AppState>>,
-    _body: axum::Json<serde_json::Value>,
+    State(state): State<Arc<AppState>>,
+    axum::Json(mut raw): axum::Json<serde_json::Value>,
 ) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, "post_event stub")
+    // 0. Body must be a JSON object.
+    if !raw.is_object() {
+        return (StatusCode::BAD_REQUEST, "expected JSON object".to_string()).into_response();
+    }
+
+    // 1. Validate v == 2.
+    let v = raw.get("v").and_then(|x| x.as_u64());
+    match v {
+        Some(2) => {}
+        Some(other) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!("unsupported protocol version: {other}"),
+            )
+                .into_response();
+        }
+        None => {
+            return (StatusCode::BAD_REQUEST, "missing v".to_string()).into_response();
+        }
+    }
+
+    // 2. Stamp id if missing or null.
+    if raw.get("id").map_or(true, |x| x.is_null()) {
+        raw["id"] = json!(ulid::Ulid::new().to_string());
+    }
+
+    // 3. Stamp ts if missing.
+    if raw.get("ts").is_none() {
+        raw["ts"] = json!(chrono::Utc::now().to_rfc3339());
+    }
+
+    // 4. Substitute default Target if null (2b rail-resolve sends `target: null`).
+    if raw.get("target").map_or(false, |x| x.is_null()) {
+        raw["target"] = json!({
+            "id": null,
+            "selector": null,
+            "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0}
+        });
+    }
+
+    // 5. Deserialize to typed Event.
+    let event: crate::events::Event = match serde_json::from_value(raw) {
+        Ok(e) => e,
+        Err(e) => {
+            return (StatusCode::BAD_REQUEST, format!("invalid event: {e}")).into_response();
+        }
+    };
+
+    // 6. Doc non-empty.
+    if event.doc.is_empty() {
+        return (StatusCode::BAD_REQUEST, "doc must be non-empty".to_string()).into_response();
+    }
+
+    // 7. spawn_blocking write.
+    let writer = Arc::clone(&state.writer);
+    let ev_clone = event.clone();
+    let write_result = tokio::task::spawn_blocking(move || writer.write(&ev_clone)).await;
+    let write_result = match write_result {
+        Ok(r) => r,
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("join: {e}")).into_response();
+        }
+    };
+    if let Err(e) = write_result {
+        return (StatusCode::INTERNAL_SERVER_ERROR, format!("write: {e}")).into_response();
+    }
+
+    // 8. Broadcast (ignore send errors — no subscribers is fine).
+    let _ = state.broadcaster.send(event);
+
+    (StatusCode::NO_CONTENT, "").into_response()
 }
 
 pub async fn get_events(
@@ -218,5 +288,150 @@ mod tests {
             .unwrap();
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
+    fn post_url() -> &'static str {
+        "/api/events"
+    }
 
+    fn sample_payload(doc: &str) -> serde_json::Value {
+        json!({
+            "v": 2,
+            "id": null,
+            "ts": "2026-07-05T18:21:00Z",
+            "src": "domi.js",
+            "doc": doc,
+            "kind": "click",
+            "target": {"id": "btn-save", "selector": null, "rect": {"x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0}},
+            "data": {"value": "Save"}
+        })
+    }
+
+    #[tokio::test]
+    async fn post_event_204_and_appends_to_file() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state.clone());
+        let payload = sample_payload("smoke-1");
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+        // File should now have one line.
+        let events_path = state.state_dir.join("events.jsonl");
+        let body = std::fs::read_to_string(&events_path).unwrap();
+        assert_eq!(body.lines().count(), 1);
+    }
+
+    #[tokio::test]
+    async fn post_event_stamps_id_when_null() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state.clone());
+        let payload = sample_payload("smoke-id-null");
+        let _ = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let events_path = state.state_dir.join("events.jsonl");
+        let body = std::fs::read_to_string(&events_path).unwrap();
+        let ev: serde_json::Value = serde_json::from_str(body.lines().next().unwrap()).unwrap();
+        assert!(ev["id"].is_string());
+        let s = ev["id"].as_str().unwrap();
+        assert_eq!(s.len(), 26, "stamped id is a ULID (26 chars)");
+        assert!(!s.contains("null"));
+    }
+
+    #[tokio::test]
+    async fn post_event_stamps_id_when_missing() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state.clone());
+        let mut payload = sample_payload("smoke-id-missing");
+        payload.as_object_mut().unwrap().remove("id");
+        let _ = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let events_path = state.state_dir.join("events.jsonl");
+        let body = std::fs::read_to_string(&events_path).unwrap();
+        let ev: serde_json::Value = serde_json::from_str(body.lines().next().unwrap()).unwrap();
+        assert_eq!(ev["id"].as_str().unwrap().len(), 26);
+    }
+
+    #[tokio::test]
+    async fn post_event_400_on_v_not_2() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state);
+        let mut payload = sample_payload("smoke-v1");
+        payload["v"] = json!(1);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn post_event_400_on_empty_doc() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state);
+        let payload = sample_payload("");
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn post_event_400_on_bad_kind() {
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state);
+        let mut payload = sample_payload("smoke-bad-kind");
+        payload["kind"] = json!("bogus");
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
 }
