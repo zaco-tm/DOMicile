@@ -63,6 +63,8 @@ Consumers pick one or both. The server's contract is identical for both — neit
 
 `POST /api/events` validates the body against the schema (`docs/schemas/event.schema.json`). Reject anything missing required fields or with a non-`2` `v`. The server is allowed to reject in either direction; the agent's reader (2d) keeps the file as the durable copy.
 
+**`id` stamping rule (since Phase 2b):** clients MAY omit `id` (or send `null`) when posting; the **server MUST stamp a fresh ULID before append**. The schema's `id` field stays required — the server enforces it. Phase 2 JS clients use this to avoid carrying a ULID library; they delegate ID generation to the server.
+
 ## WebSocket protocol summary
 
 Connection lifecycle:

@@ -44,6 +44,21 @@ When `<script src="scripts/domi-audit.js" defer>` is loaded, the global `DomiAud
 
 The runtime does **not** require any server. The JSON mirror (under Phase 2) is a hot-reload hook only — `statePath` is reserved for it; today it is stored but not read or written.
 
+## Server-attached mode (Phase 2b)
+
+When the runtime loads on a doc served by the Phase 2 binary, the server-side shim (`scripts/domi-server.js`, injected by `serve_file` in 2c-β) sets `window.__DOMI_SERVER__ = true` and opens a WebSocket before `domi-audit.js` runs.
+
+In this mode, `domi-audit.js` switches behavior:
+
+- **`mount({ statePath, docName })`** fetches `GET /api/events?doc=<docName>` and populates the rail from the response. `localStorage` is read once as a boot mirror and then ignored.
+- **`addComment({ targetId, body })`** POSTs a v2 `rail-add` event to `/api/events` and lets the WebSocket round-trip deliver it back into the local render. Local mutation is suppressed to avoid duplicate entries.
+- **`resolveEntry(entryId)`** (new in 2b) POSTs a v2 `rail-resolve` event.
+- **`export()`** reads `GET /api/events?doc=<docName>` and returns a snapshot of the thread as JSON (same shape as standalone mode).
+
+The WS bridge dispatches `CustomEvent('domi-event', { detail: <event> })` for each new server event. `domi-audit.js` listens for these and renders comments / mark-resolves live.
+
+**Fallback:** if `fetch` is unavailable or the server is unreachable, the runtime falls back to standalone (localStorage) mode automatically — same fallback as Phase 1.
+
 ## What the agent does
 
 - Maintain `data-feedback` ids that don't drift across edits; rename consistently between versions.
