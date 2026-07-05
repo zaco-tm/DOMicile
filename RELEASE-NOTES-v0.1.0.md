@@ -52,3 +52,15 @@ MIT
 - 9 tests: round-trip, append-with-newline, rotation-on-cap, force-rotate, file_shape (V2/Legacy/MalformedJson/Empty), lock-busy.
 - Companion docs: `docs/WIRE-PROTOCOL.md` (wire format), `docs/schemas/event.schema.json` (canonical shape), `docs/RUST.md` (crate layout + phasing).
 - JS half (tokens, primitives, templates, `domi.js`, `domi-audit.js`, examples): untouched.
+
+---
+
+## Phase 2c-β — HTML serving + folder watcher (2026-07-05)
+
+- New `crates/domi-server/src/serve/` module: `banner`, `file`, `shim`, `watcher`.
+- `serve_file(root, path)` returns content + content-type with HTML shim injection when the file references `domi.js`.
+- `Watcher` trait + `NotifyWatcher` (notify-backed, gated integration test) + `MockWatcher` (test-only).
+- New `scripts/domi-server.js` shim (≤ 1 KB): sets `window.__DOMI_SERVER__=true`, opens WS, surfaces `DomiServer.{subscribe,export}`. Embedded into Rust as `SHIM_BYTES` via `build.rs` so `serve_file` injects without runtime I/O.
+- 22 new Rust tests (7 watcher + 8 file + 3 shim + 4 banner parity + 1 integration gated). 3 new JS shim tests.
+- Companion doc updates: `docs/PHASE2-SCOPE.md`, `docs/WIRE-PROTOCOL.md`.
+- JS half (tokens, primitives, templates, `domi.js`, `domi-audit.js`, examples): untouched.

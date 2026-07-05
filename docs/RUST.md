@@ -15,11 +15,18 @@ crates/
   domi-server/
     Cargo.toml                # crate manifest
     src/
-      lib.rs                  # re-exports the events module
-      events/                 # Phase 2c-α: append-only writer
+      lib.rs                  # re-exports the events + serve modules
+      events/                           # 2c-α
         mod.rs
-        event.rs              # Event, EventData, Kind, Source, Target, Rect (2 tests inline)
-        writer.rs             # EventWriter, rotation, lock, file_shape (7 tests inline)
+        event.rs
+        writer.rs
+      serve/                            # 2c-β
+        mod.rs
+        banner.rs                          # GET /
+        file.rs                            # serve_file + shim injection (8 tests inline)
+        shim.rs                            # SHIM_BYTES (compile-time embedded)
+        watcher.rs                         # Watcher trait + NotifyWatcher + MockWatcher
+    build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
 ```
 
 ## Build and test
@@ -47,8 +54,8 @@ cargo test -p domi-server
 
 | Round | Crate/Subcrate | Surface |
 |---|---|---|
-| 2c-α | `domi-server` library | `events` module — done in this spec |
-| 2c-β | `domi-server` library | `serve` module — HTML serving + file watcher |
-| 2c-γ | `domi-server` binary | `main.rs` — axum + tokio + integration of 2c-α + 2c-β |
+| 2c-α | `domi-server` library | `events` module — **done** |
+| 2c-β | `domi-server` library | `serve` module — **done** |
+| 2c-γ | `domi-server` binary | `main.rs` — axum + tokio + integration of 2c-α + 2c-β — **next** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.
