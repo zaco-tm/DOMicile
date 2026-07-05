@@ -72,11 +72,18 @@ impl EventWriter {
                     return Ok(FileShape::Empty);
                 }
                 let first_line = first.lines().next().unwrap_or("");
+                if first_line.trim().is_empty() {
+                    return Ok(FileShape::Empty);
+                }
+                // JSON syntax check first: distinguishes MalformedJson (syntax error)
+                // from Legacy (parses but not a v2 Event).
+                if serde_json::from_str::<serde_json::Value>(first_line).is_err() {
+                    return Ok(FileShape::MalformedJson);
+                }
                 match serde_json::from_str::<Event>(first_line) {
                     Ok(e) if e.v == 2 => Ok(FileShape::V2),
                     Ok(_) => Ok(FileShape::Legacy),
-                    Err(_) if first_line.trim().is_empty() => Ok(FileShape::Empty),
-                    Err(_) => Ok(FileShape::MalformedJson),
+                    Err(_) => Ok(FileShape::Legacy),
                 }
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(FileShape::Empty),
@@ -119,7 +126,7 @@ impl EventWriter {
             std::fs::create_dir_all(parent)?;
         }
         let lock_file = OpenOptions::new().create(true).append(true).open(&lock_path)?;
-        lock_file.lock_exclusive().map_err(|_| WriteError::LockBusy)?;
+        lock_file.try_lock_exclusive().map_err(|_| WriteError::LockBusy)?;
 
         let result = (|| -> Result<(), WriteError> {
             if let Ok(meta) = std::fs::metadata(&self.path) {
@@ -232,5 +239,46 @@ mod tests {
         let rotated = w.rotate().unwrap();
         assert!(!path.exists());
         assert!(rotated.to.exists());
+    }
+
+    #[test]
+    fn file_shape_detects_legacy() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("events.jsonl");
+        std::fs::write(&path, r#"{"id":"a","selector":"b","text":"c"}"#).unwrap();
+        assert!(matches!(EventWriter::file_shape(&path).unwrap(), FileShape::Legacy));
+    }
+
+    #[test]
+    fn file_shape_detects_v2() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("events.jsonl");
+        std::fs::write(
+            &path,
+            r#"{"v":2,"id":"01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ0","ts":"2026-07-05T18:21:00Z","src":"domi.js","doc":"x","kind":"click","target":{"id":null,"selector":null,"rect":{"x":0,"y":0,"w":0,"h":0}},"data":{}}"#,
+        ).unwrap();
+        assert!(matches!(EventWriter::file_shape(&path).unwrap(), FileShape::V2));
+    }
+
+    #[test]
+    fn lock_busy_when_held() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("events.jsonl");
+        let _ = std::fs::File::create(&path).unwrap(); // touch
+        let lock_path = EventWriter::lock_path_for(&path);
+        let lock_file = std::fs::OpenOptions::new().create(true).append(true).open(&lock_path).unwrap();
+        lock_file.lock_exclusive().unwrap();
+
+        let w = EventWriter::new(&path);
+        let event = ev(
+            Kind::Click,
+            EventData::Click { value: None },
+            "x",
+        );
+        let err = w.write(&event).unwrap_err();
+        assert!(matches!(err, WriteError::LockBusy), "expected LockBusy, got {err:?}");
+
+        // release
+        let _ = fs2::FileExt::unlock(&lock_file);
     }
 }

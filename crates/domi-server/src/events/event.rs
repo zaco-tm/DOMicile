@@ -16,11 +16,14 @@ pub struct Target {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
 pub enum Source {
+    #[serde(rename = "domi.js")]
     DomiJs,
+    #[serde(rename = "domi-audit.js")]
     DomiAuditJs,
+    #[serde(rename = "browser-ext")]
     BrowserExt,
+    #[serde(rename = "unknown")]
     Unknown,
 }
 
@@ -36,7 +39,7 @@ pub enum Kind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "kebab-case")]
+#[serde(untagged)]
 pub enum EventData {
     Click { value: Option<String> },
     Input { name: String, value: String },
