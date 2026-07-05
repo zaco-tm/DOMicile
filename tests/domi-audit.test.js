@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const SRC = readFileSync('scripts/domi-audit.js', 'utf8');
@@ -48,5 +48,118 @@ describe('domi-audit.js runtime', () => {
     const exported = JSON.parse(globalThis.DomiAudit.export());
     expect(exported.entries.length).toBe(1);
     expect(exported.entries[0].body).toBe('pre');
+  });
+});
+
+describe('domi-audit.js server mode', () => {
+  let src;
+  beforeEach(() => {
+    src = readFileSync('scripts/domi-audit.js', 'utf8');
+    document.body.innerHTML = '';
+    localStorage.clear();
+    delete globalThis.DomiAudit;
+    delete window.__DOMI_SERVER__;
+  });
+
+  // helper: eval the source with SERVER already set, so the IIFE captures the flag.
+  function loadAsServerMode() {
+    window.__DOMI_SERVER__ = true;
+    window.location = { origin: 'http://x', pathname: '/' };
+    (0, eval)(src);
+  }
+  function loadAsStandaloneMode() {
+    window.__DOMI_SERVER__ = false;
+    window.location = { origin: 'http://x', pathname: '/' };
+    (0, eval)(src);
+  }
+
+  it('addComment POSTs a rail-add event in server mode', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204, text: async () => '' });
+    globalThis.fetch = fetchMock;
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    // Let the boot-mirror GET rehydrate settle so the POST is unambiguous.
+    await new Promise((r) => setTimeout(r, 0));
+    fetchMock.mockClear();
+    DomiAudit.addComment({ targetId: 'btn-save', body: 'too prominent' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(fetchMock).toHaveBeenCalled();
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('http://x/api/events');
+    const body = JSON.parse(init.body);
+    expect(body.v).toBe(2);
+    expect(body.kind).toBe('rail-add');
+    expect(body.src).toBe('domi-audit.js');
+    expect(body.doc).toBe('x');
+    expect(body.data.body).toBe('too prominent');
+    expect(body.data.targetId).toBe('btn-save');
+  });
+
+  it('mount rehydrates from GET /api/events?doc=<doc>', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const seedEvents = [
+      { id: '01Z', ts: '2026-07-05T00:00:00Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'first', targetId: null } },
+      { id: '02Z', ts: '2026-07-05T00:01:00Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'second', targetId: 'btn' } },
+      { id: '03Z', ts: '2026-07-05T00:02:00Z', src: 'domi.js', doc: 'x', kind: 'click',
+        target: { id: 'btn-save', selector: null, rect: null }, data: { value: 'x' } },
+    ];
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true, status: 200,
+      json: async () => ({ events: seedEvents, nextSince: '03Z' }),
+    });
+    globalThis.fetch = fetchMock;
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    // Settle async rehydration
+    await new Promise((r) => setTimeout(r, 10));
+    const exported = JSON.parse(DomiAudit.export());
+    // Only our rail-add events should be in the exported view (no click events)
+    expect(exported.entries.length).toBe(2);
+    expect(exported.entries[0].body).toBe('first');
+    expect(exported.entries[1].body).toBe('second');
+  });
+
+  it('resolveEntry POSTs a rail-resolve event in server mode', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204, text: async () => '' });
+    globalThis.fetch = fetchMock;
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    fetchMock.mockClear();
+    DomiAudit.resolveEntry('01ZENTRY');
+    await new Promise((r) => setTimeout(r, 0));
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.kind).toBe('rail-resolve');
+    expect(body.data.entryId).toBe('01ZENTRY');
+  });
+
+  it('DOMiAudit WS-bridge listener renders incoming rail-add from server', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ events: [], nextSince: null }) });
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    await new Promise((r) => setTimeout(r, 10));
+    // Simulate the shim firing a domi-event
+    window.dispatchEvent(new CustomEvent('domi-event', { detail: {
+      id: '77Z', ts: 't', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+      target: null, data: { body: 'remote', targetId: null }
+    }}));
+    // Wait for the listener to re-render
+    await new Promise((r) => setTimeout(r, 0));
+    const exported = JSON.parse(DomiAudit.export());
+    expect(exported.entries.some((e) => e.id === '77Z')).toBe(true);
+  });
+
+  it('does NOT POST in standalone mode (regression — Phase 1 path)', () => {
+    loadAsStandaloneMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock;
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    DomiAudit.addComment({ targetId: null, body: 'hi' });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
