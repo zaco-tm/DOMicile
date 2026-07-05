@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["color", "type", "radius", "glass", "border", "space", "shadow", "breakpoint"],
+  "properties": {
+    "color": {
+      "type": "object",
+      "required": ["primary", "secondary", "accent", "text", "surface"],
+      "properties": {
+        "primary": {
+          "type": "object",
+          "required": ["gradient", "angle"],
+          "properties": {
+            "gradient": { "type": "array", "items": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "minItems": 3, "maxItems": 3 },
+            "angle": { "type": "string" }
+          }
+        },
+        "secondary": { "type": "object", "required": ["sage", "sage_light"], "properties": { "sage": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "sage_light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } } },
+        "accent":    { "type": "object", "required": ["plum", "plum_light"], "properties": { "plum": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "plum_light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } } },
+        "text":      { "type": "object", "required": ["default", "muted", "inverse"], "properties": { "default": { "type": "string" }, "muted": { "type": "string" }, "inverse": { "type": "string" } } },
+        "surface":   { "type": "object", "required": ["glass", "glass_strong", "tint"], "properties": { "glass": { "type": "string" }, "glass_strong": { "type": "string" }, "tint": { "type": "string" } } }
+      }
+    },
+    "type": {
+      "type": "object",
+      "required": ["display", "body", "label"],
+      "properties": {
+        "display": { "type": "object", "required": ["family", "weight", "transform", "letterSpacing"] },
+        "body":    { "type": "object", "required": ["family", "weight"] },
+        "label":   { "type": "object", "required": ["family", "weight"] }
+      }
+    },
+    "radius":     { "type": "object", "required": ["sm", "md", "lg", "pill"], "additionalProperties": { "type": "string" } },
+    "glass":      { "type": "object", "required": ["blur", "bgOpacity", "borderOpacity"], "properties": { "blur": { "type": "string" }, "bgOpacity": { "type": "number" }, "borderOpacity": { "type": "number" } } },
+    "border":     { "type": "object", "required": ["thin", "thick"], "additionalProperties": { "type": "string" } },
+    "space":      { "type": "object", "required": ["xs", "sm", "md", "lg", "xl"], "additionalProperties": { "type": "string" } },
+    "shadow":     { "type": "object", "required": ["soft", "offset"], "additionalProperties": { "type": "string" } },
+    "breakpoint": { "type": "object", "required": ["sm", "md", "lg", "xl"], "additionalProperties": { "type": "string" } }
+  },
+  "additionalProperties": false
+}
