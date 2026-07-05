@@ -92,6 +92,12 @@ describe('event.schema.json', () => {
     bad.data = { body: '', targetId: 'btn-save' };
     expect(validate(bad)).toBe(false);
   });
+
+  it('accepts an event with id: null (server stamps before append — Phase 2b rule)', () => {
+    const ev = structuredClone(MINIMAL_EVENT);
+    ev.id = null;
+    expect(validate(ev)).toBe(true);
+  });
 });
 
 describe('WIRE-PROTOCOL.md (drift guard against the spec markdown)', () => {

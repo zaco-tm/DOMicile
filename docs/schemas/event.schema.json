@@ -13,9 +13,9 @@
       "description": "Protocol version. Hard-pinned to 2 in this schema; v1 events are detected separately for rotation."
     },
     "id": {
-      "type": "string",
+      "type": ["string", "null"],
       "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
-      "description": "ULID. Crockford base-32, 26 chars, time-sortable."
+      "description": "ULID. Crockford base-32, 26 chars, time-sortable. Clients MAY send null when posting — the server stamps a fresh ULID before append (see WIRE-PROTOCOL.md id-stamping rule). After stamping, this is always a non-null ULID."
     },
     "ts": {
       "type": "string",
