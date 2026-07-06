@@ -9,6 +9,11 @@ node_modules/
 dist/
 build/
 
+# Astro auto-generated types and content maps (created by `astro check` and `astro dev`)
+.astro/
+**/.astro/
+packages/astro/.astro/
+
 # Editor / OS
 .DS_Store
 .vscode/
