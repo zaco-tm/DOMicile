@@ -1,0 +1,26 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { InputSize } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'input'>, 'class' | 'size'> {
+  size?: InputSize;
+  error?: boolean;
+  class?: string;
+}
+
+const {
+  size = 'lg',
+  error = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'domi-input',
+  size && `domi-input--${size}`,
+  error && 'domi-input--error',
+  className,
+].filter(Boolean).join(' ');
+---
+
+<input class={classes} {...rest} />
