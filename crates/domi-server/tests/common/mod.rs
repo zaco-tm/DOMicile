@@ -32,31 +32,25 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::time::{Duration, Instant};
 
-/// Pick a high random port in [20000, 30000) by binding then dropping.
+/// Pick a free TCP port by asking the kernel for an ephemeral one
+/// (`bind("127.0.0.1:0")`).
 ///
-/// This avoids collisions with the default 4173 and most other services.
-/// The kernel may still race us (TOCTOU between drop and the test's
-/// `spawn_server`), so callers must tolerate that failure mode (the test
-/// framework will report it and the user can rerun). Task 7's
-/// `scripts/verify.sh` refines this with a retry loop if needed.
+/// The previous implementation used a deterministic `process_id() +
+/// nanos` seed inside the fixed range [20000, 30000) and probed up to
+/// 32 candidates, which produced races when two gated tests (push +
+/// replay) ran concurrently from the same test binary: both could
+/// bind-check the same candidate in sequence, both succeed, both drop,
+/// then race to `Command::spawn` on the same port — one silently failed
+/// to bind and the other returned 500 to the colliding test.
+///
+/// Asking the kernel for an ephemeral port avoids the issue: every
+/// successful `bind(0)` gets a unique port from the kernel's pool,
+/// and listener sockets (unlike connection sockets) do not enter
+/// `TIME_WAIT` on drop, so the port is immediately safe to re-bind
+/// from `spawn_server` (or to probe again from another concurrent
+/// `free_high_port` caller — vanishingly unlikely within a few-second
+/// test window).
 pub fn free_high_port() -> u16 {
-    // Seed with process id + an OS-random source for diversity.
-    let seed: u32 = std::process::id().wrapping_add(
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.subsec_nanos())
-            .unwrap_or(0),
-    );
-    // Try a small range so we don't waste cycles if the first choice is taken.
-    for offset in 0u32..32 {
-        let port = 20000_u16 + ((seed.wrapping_add(offset)) % 10000) as u16;
-        if let Ok(l) = TcpListener::bind(("127.0.0.1", port)) {
-            let p = l.local_addr().unwrap().port();
-            drop(l);
-            return p;
-        }
-    }
-    // Last-ditch: ask the kernel for an ephemeral port via bind(0).
     let l = TcpListener::bind("127.0.0.1:0").expect("bind ephemeral");
     let p = l.local_addr().unwrap().port();
     drop(l);

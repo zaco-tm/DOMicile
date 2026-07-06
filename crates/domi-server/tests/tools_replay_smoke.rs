@@ -285,6 +285,13 @@ async fn replay_unreachable_returns_one() {
     let port = free_high_port();
     let server_url = format!("http://127.0.0.1:{port}");
 
+    // Brief settle so the kernel can recycle the port we just released
+    // before another concurrent gated test (e.g. push_unreachable)
+    // races us. Without this, two tests in the same binary can briefly
+    // see the same ephemeral port and one will spuriously succeed
+    // against a sibling-test's server.
+    tokio::time::sleep(Duration::from_millis(50)).await;
+
     let start = Instant::now();
     let (stdout, stderr, code) = run_domi(&["--server", &server_url, "replay"]);
     let elapsed = start.elapsed();
