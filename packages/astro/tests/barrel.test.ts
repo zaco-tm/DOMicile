@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
   ButtonVariant,
@@ -10,8 +10,8 @@ import type {
   BadgeVariant,
 } from '../src/types';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const barrelPath = resolve(__dirname, '../src/index.ts');
+const here = dirname(fileURLToPath(import.meta.url));
+const barrelPath = resolve(here, '../src/index.ts');
 
 describe('@domi/astro barrel (static + compile-time)', () => {
   it('barrel text exports all 15 components', () => {
