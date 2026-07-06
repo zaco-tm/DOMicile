@@ -5,7 +5,7 @@ use clap::Parser;
 #[derive(Parser, Debug, Clone)]
 #[command(name = "domi-server", version, about = "DOMiNice live feedback server")]
 pub struct Args {
-    #[arg(long, default_value = "4173")]
+    #[arg(long, default_value = "4173", value_parser = clap::value_parser!(u16).range(0..=65535))]
     pub port: u16,
     #[arg(long, default_value = "127.0.0.1")]
     pub host: String,
@@ -58,5 +58,13 @@ mod tests {
     fn invalid_port_rejected() {
         let r = Args::try_parse_from(["domi-server", "--port", "not-a-number"]);
         assert!(r.is_err(), "expected parse error for non-numeric port");
+    }
+    /// Phase 2d Task 1: `--port 0` must be accepted so the verify script can
+    /// let the kernel pick an ephemeral port. Lifted lower bound from `1..`
+    /// to `0..=65535` (full `u16` range).
+    #[test]
+    fn port_zero_accepted() {
+        let a = Args::try_parse_from(["domi-server", "--port", "0"]).expect("--port 0 must parse");
+        assert_eq!(a.port, 0);
     }
 }
