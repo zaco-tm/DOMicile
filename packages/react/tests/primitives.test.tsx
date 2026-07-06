@@ -68,3 +68,101 @@ describe('DomButton', () => {
     expect(DomButton.displayName).toBe('DomButton');
   });
 });
+import { DomCard } from '../src/primitives/card';
+import { DomAlert } from '../src/primitives/alert';
+import { DomBadge } from '../src/primitives/badge';
+
+describe('DomCard', () => {
+  it('renders base class', () => {
+    const html = renderToStaticMarkup(<DomCard>body</DomCard>);
+    expect(html).toContain('class="domi-card');
+  });
+
+  it('default has no size suffix', () => {
+    const html = renderToStaticMarkup(<DomCard>body</DomCard>);
+    expect(html).not.toContain('domi-card--');
+  });
+
+  it('applies sm size', () => {
+    const html = renderToStaticMarkup(<DomCard size="sm">body</DomCard>);
+    expect(html).toContain('domi-card--sm');
+  });
+
+  it('applies lg size', () => {
+    const html = renderToStaticMarkup(<DomCard size="lg">body</DomCard>);
+    expect(html).toContain('domi-card--lg');
+  });
+
+  it('appends user className', () => {
+    const html = renderToStaticMarkup(<DomCard className="x">body</DomCard>);
+    expect(html).toMatch(/class="domi-card[^"]*x/);
+  });
+
+  it('passes through ...props', () => {
+    const html = renderToStaticMarkup(<DomCard id="c1">body</DomCard>);
+    expect(html).toContain('id="c1"');
+  });
+
+  it('sets displayName', () => {
+    expect(DomCard.displayName).toBe('DomCard');
+  });
+});
+
+describe('DomAlert', () => {
+  it('renders base class', () => {
+    const html = renderToStaticMarkup(<DomAlert>msg</DomAlert>);
+    expect(html).toContain('class="domi-alert');
+  });
+
+  it('default variant is info', () => {
+    const html = renderToStaticMarkup(<DomAlert>msg</DomAlert>);
+    expect(html).toContain('domi-alert--info');
+  });
+
+  it.each(['info', 'success', 'warning', 'danger'] as const)(
+    'applies %s variant',
+    (v) => {
+      const html = renderToStaticMarkup(<DomAlert variant={v}>msg</DomAlert>);
+      expect(html).toContain(`domi-alert--${v}`);
+    }
+  );
+
+  it('renders as <span> when as="span"', () => {
+    const html = renderToStaticMarkup(<DomAlert as="span">msg</DomAlert>);
+    expect(html).toMatch(/<span[^>]*domi-alert/);
+  });
+
+  it('sets displayName', () => {
+    expect(DomAlert.displayName).toBe('DomAlert');
+  });
+});
+
+describe('DomBadge', () => {
+  it('renders as <span> with base class', () => {
+    const html = renderToStaticMarkup(<DomBadge>label</DomBadge>);
+    expect(html).toMatch(/<span[^>]*domi-badge/);
+  });
+
+  it('default variant is primary', () => {
+    const html = renderToStaticMarkup(<DomBadge>label</DomBadge>);
+    expect(html).toContain('domi-badge--primary');
+  });
+
+  it.each(['primary', 'success', 'warning', 'danger'] as const)(
+    'applies %s variant',
+    (v) => {
+      const html = renderToStaticMarkup(<DomBadge variant={v}>label</DomBadge>);
+      expect(html).toContain(`domi-badge--${v}`);
+    }
+  );
+
+  it('renders as <a> when as="a"', () => {
+    const html = renderToStaticMarkup(<DomBadge as="a" href="/x">label</DomBadge>);
+    expect(html).toContain('<a');
+    expect(html).toContain('href="/x"');
+  });
+
+  it('sets displayName', () => {
+    expect(DomBadge.displayName).toBe('DomBadge');
+  });
+});
