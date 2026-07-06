@@ -10,6 +10,9 @@ import { DomInput } from '../src/primitives/input';
 import { DomSelect } from '../src/primitives/select';
 import { DomCheckbox } from '../src/primitives/checkbox';
 import { DomRadio } from '../src/primitives/radio';
+import { DomTable } from '../src/primitives/table';
+import { DomNav } from '../src/primitives/nav';
+import { DomTabs } from '../src/primitives/tabs';
 
 describe('DomButton', () => {
   it('renders the base class', () => {
@@ -313,6 +316,59 @@ describe('DomRadio', () => {
 
   it('sets displayName', () => {
     expect(DomRadio.displayName).toBe('DomRadio');
+  });
+});
+
+describe('DomTable', () => {
+  it('renders <table> with base class', () => {
+    const html = renderToStaticMarkup(
+      <DomTable><thead><tr><th>x</th></tr></thead></DomTable>
+    );
+    expect(html).toContain('<table');
+    expect(html).toContain('domi-table');
+  });
+
+  it('passes ...props', () => {
+    const html = renderToStaticMarkup(
+      <DomTable id="t1"><tbody /></DomTable>
+    );
+    expect(html).toContain('id="t1"');
+  });
+
+  it('sets displayName', () => {
+    expect(DomTable.displayName).toBe('DomTable');
+  });
+});
+
+describe('DomNav', () => {
+  it('renders <nav> with base class', () => {
+    const html = renderToStaticMarkup(
+      <DomNav><a href="/">x</a></DomNav>
+    );
+    expect(html).toContain('<nav');
+    expect(html).toContain('domi-nav');
+  });
+
+  it('appends user className', () => {
+    const html = renderToStaticMarkup(<DomNav className="x" />);
+    expect(html).toMatch(/class="domi-nav[^"]*x/);
+  });
+
+  it('sets displayName', () => {
+    expect(DomNav.displayName).toBe('DomNav');
+  });
+});
+
+describe('DomTabs', () => {
+  it('renders <div> with base class', () => {
+    const html = renderToStaticMarkup(
+      <DomTabs><div role="tablist">tab</div></DomTabs>
+    );
+    expect(html).toContain('domi-tabs');
+  });
+
+  it('sets displayName', () => {
+    expect(DomTabs.displayName).toBe('DomTabs');
   });
 });
 
