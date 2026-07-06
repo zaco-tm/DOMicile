@@ -8,7 +8,7 @@ Phase 2 of DOMiNice was originally scoped as "live server." The 2026-07-05 rewor
 | 2b | Server-attached JS mode | Not started | `domi.js` + `domi-audit.js` mode-switch on `__DOMI_SERVER__`; pairs with 2c-β's `scripts/domi-server.js` |
 | 2c-α | `domi-server` events writer crate | **Done** (`638b29d` + earlier) | `crates/domi-server/src/events/` |
 | **2c-β** | HTML serving + folder watcher | **Spec this round** | `crates/domi-server/src/serve/` + `scripts/domi-server.js` |
-| 2c-γ | `domi-server` binary + axum + tokio + WS | Not started | The actual `domi-server` binary; uses 2c-α + 2c-β |
+| **2c-γ** | `domi-server` binary + axum + tokio + WS | **Done** | The actual `domi-server` binary; uses 2c-α + 2c-β |
 | 2d | Agent reader + install/verify | Not started | Tail/replay/push CLI in `tools/`, install.sh + verify.sh exercising 2c-γ |
 
 ## Dependency order

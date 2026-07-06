@@ -13,9 +13,11 @@ Cargo.toml                    # workspace, at repo root
 rust-toolchain.toml           # pins stable channel
 crates/
   domi-server/
-    Cargo.toml                # crate manifest
+    Cargo.toml                # crate manifest + [[bin]] name="domi-server"
+    build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
     src/
-      lib.rs                  # re-exports the events + serve modules
+      lib.rs                  # re-exports events, serve, http
+      main.rs                 # tokio::main → http::run
       events/                           # 2c-α
         mod.rs
         event.rs
@@ -23,10 +25,16 @@ crates/
       serve/                            # 2c-β
         mod.rs
         banner.rs                          # GET /
-        file.rs                            # serve_file + shim injection (8 tests inline)
+        file.rs                            # serve_file + shim injection
         shim.rs                            # SHIM_BYTES (compile-time embedded)
         watcher.rs                         # Watcher trait + NotifyWatcher + MockWatcher
-    build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
+      http/                             # 2c-γ
+        mod.rs                            # run() — top-level orchestration + watcher spawn
+        args.rs                           # clap derive CLI
+        state.rs                          # AppState (Arc<EventWriter> + broadcast::Sender)
+        router.rs                         # build_router
+        handlers.rs                       # banner, healthz, static_serve, post_event, get_events
+        ws.rs                             # /ws/events upgrade + broadcast loop
 ```
 
 ## Build and test
@@ -56,6 +64,7 @@ cargo test -p domi-server
 |---|---|---|
 | 2c-α | `domi-server` library | `events` module — **done** |
 | 2c-β | `domi-server` library | `serve` module — **done** |
-| 2c-γ | `domi-server` binary | `main.rs` — axum + tokio + integration of 2c-α + 2c-β — **next** |
+| 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
+| 2d | `tools/` | agent CLI + install/verify — **next** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.

@@ -85,3 +85,21 @@ MIT
   - `docs/WIRE-PROTOCOL.md` (server stamps `id` if absent rule)
   - `docs/schemas/event.schema.json` (top-level `id` accepts `null`)
 - Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/domi-server.js`): untouched.
+
+
+
+---
+
+## Phase 2c-γ — `domi-server` binary (2026-07-05)
+
+- New `domi-server` binary: `cargo run -p domi-server -- --port 4173` boots the live feedback server.
+- axum 0.7 + tokio 1 + tower/tower-http + clap 4 + futures 0.3 (all permissively licensed).
+- `crates/domi-server/src/http/` module: `args` (clap derive), `state` (AppState with broadcast channel), `router` (axum Router), `handlers` (banner, healthz, static_serve, post_event, get_events), `ws` (WebSocket upgrade + broadcast loop), `mod` (top-level orchestration with graceful shutdown).
+- Routes wired per 2a spec: `GET /`, `GET /<path>` (HTML shim injection from 2c-β), `POST /api/events` (validates v=2, stamps id/ts on missing, spawn_blocking write, broadcast), `GET /api/events?since=&doc=&limit=` (filter + clamp limit 1–1000), `GET /ws/events` (hello frame + event broadcasts).
+- Additive `GET /healthz` for tooling (not in 2a route table; documented).
+- Graceful shutdown on SIGINT/SIGTERM via `tokio::signal`.
+- Watcher wired to a `tracing::debug!` loop to demonstrate end-to-end correctness of the 2c-β API; no cache layer.
+- 15 new handler tests + 1 WebSocket test + 1 gated binary smoke test (`cargo test -p domi-server -- --ignored binary_smoke`).
+- 47 passing + 1 ignored (notify watcher FSEvents, pre-existing) on the Rust side; 83/83 passing on the JS side, no regressions.
+- `Cargo.lock` continues to be gitignored (unchanged from 2c-α/2c-β).
+- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
