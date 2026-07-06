@@ -1,0 +1,19 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { CardSize } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'div'>, 'class'> {
+  size?: CardSize;
+  class?: string;
+}
+
+const { size, class: className, ...rest } = Astro.props;
+
+const classes = [
+  'domi-card',
+  size && `domi-card--${size}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+<div class={classes} {...rest}><slot /></div>

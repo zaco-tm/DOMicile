@@ -1,0 +1,29 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { BadgeVariant } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'span'>, 'class'> {
+  variant?: BadgeVariant;
+  class?: string;
+  as?: 'span' | 'a';
+}
+
+const {
+  variant = 'primary',
+  class: className,
+  as = 'span',
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'domi-badge',
+  variant && `domi-badge--${variant}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+{as === 'a' ? (
+  <a class={classes} {...rest}><slot /></a>
+) : (
+  <span class={classes} {...rest}><slot /></span>
+)}
