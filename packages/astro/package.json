@@ -1,0 +1,25 @@
+{
+  "name": "@domi/astro",
+  "version": "0.1.0",
+  "description": "Astro wrappers for DOMiNice primitives",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "astro check"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^5.9.3"
+  }
+}
