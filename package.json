@@ -10,7 +10,7 @@
     "lint": "eslint . && stylelint \"components/**/*.css\" && markdownlint \"**/*.md\"",
     "tokens:build": "node tools/tokens-to-css.mjs",
     "smoke": "node tools/smoke.mjs",
-    "build:react": "tsup --config packages/react/tsup.config.ts"
+    "build:react": "cd packages/react && tsup"
   },
   "devDependencies": {
     "vitest": "^2.0.0",
