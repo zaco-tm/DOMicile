@@ -8,6 +8,8 @@ import { DomBadge } from '../src/primitives/badge';
 import { DomForm } from '../src/primitives/form';
 import { DomInput } from '../src/primitives/input';
 import { DomSelect } from '../src/primitives/select';
+import { DomCheckbox } from '../src/primitives/checkbox';
+import { DomRadio } from '../src/primitives/radio';
 
 describe('DomButton', () => {
   it('renders the base class', () => {
@@ -273,3 +275,44 @@ describe('DomSelect', () => {
     expect(DomSelect.displayName).toBe('DomSelect');
   });
 });
+
+describe('DomCheckbox', () => {
+  it('renders <input type="checkbox"> with base class', () => {
+    const html = renderToStaticMarkup(<DomCheckbox />);
+    expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*class="domi-check/);
+  });
+
+  it('passes checked + onChange via ...props', () => {
+    const html = renderToStaticMarkup(
+      <DomCheckbox checked onChange={() => {}} />
+    );
+    expect(html).toMatch(/checked/);
+  });
+
+  it('appends user className', () => {
+    const html = renderToStaticMarkup(<DomCheckbox className="x" />);
+    expect(html).toMatch(/class="domi-check[^"]*x/);
+  });
+
+  it('sets displayName', () => {
+    expect(DomCheckbox.displayName).toBe('DomCheckbox');
+  });
+});
+
+describe('DomRadio', () => {
+  it('renders <input type="radio"> with base class', () => {
+    const html = renderToStaticMarkup(<DomRadio />);
+    expect(html).toMatch(/<input[^>]*type="radio"[^>]*class="domi-radio/);
+  });
+
+  it('passes name + value via ...props', () => {
+    const html = renderToStaticMarkup(<DomRadio name="r" value="a" />);
+    expect(html).toContain('name="r"');
+    expect(html).toContain('value="a"');
+  });
+
+  it('sets displayName', () => {
+    expect(DomRadio.displayName).toBe('DomRadio');
+  });
+});
+
