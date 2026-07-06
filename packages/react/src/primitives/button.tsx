@@ -1,6 +1,6 @@
 // packages/react/src/primitives/button.tsx
 import { forwardRef } from 'react';
-import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { cn } from '../utils/cn';
 
 export type DomButtonVariant = 'primary' | 'ghost' | 'danger';
@@ -38,7 +38,11 @@ export const DomButton = forwardRef<
 
   if (as === 'a') {
     return (
-      <a ref={ref as Ref<HTMLAnchorElement>} className={classes} {...rest}>
+      <a
+        ref={ref as Ref<HTMLAnchorElement>}
+        className={classes}
+        {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
         {children}
       </a>
     );
