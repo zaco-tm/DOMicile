@@ -123,6 +123,6 @@ MIT
 - Companion doc updates: `docs/PHASE2-SCOPE.md` (mark 2d Done), `docs/WIRE-PROTOCOL.md` (link the CLI usage section), `docs/RUST.md` (note `domi` second-binary).
 - `domi-server` now accepts `--port 0` for ephemeral-port discovery (used by `verify.sh`).
 - Test counts:
-  - `cargo test --workspace`: 60 unit tests pass by default; `cargo test --workspace -- --ignored` runs 11 gated tests (3 push + 3 replay + 4 tail + 1 binary smoke), all green.
+- `cargo test --workspace`: 60 unit tests pass by default; `cargo test --workspace -- --ignored` runs 12 gated tests (4 push + 4 replay + 3 tail + 1 binary smoke), all green.
   - `npm test`: 83 passed + 2 skipped (85) by default; `DOMI_TEST_LIVE=1 npm test` runs the 2 additional live-mode tests for 85 passed.
 - Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.

@@ -76,7 +76,7 @@ domi replay --server http://127.0.0.1:4173 --doc dashboard --since 01J8XZQ5K2J9Z
 domi push --server http://127.0.0.1:4173 \
   --type click --doc dashboard \
   --target "[data-feedback='save']" \
-  --json '{"v":2,"id":null,"ts":null,"src":"browser-ext","doc":"dashboard","kind":"click","target":null,"data":{"value":"Save"}}'
+--json '{"v":2,"id":null,"ts":null,"src":"browser-ext","doc":"dashboard","kind":"click","target":{"id":"button.ok","selector":null,"rect":{"x":0.0,"y":0.0,"w":0.0,"h":0.0}},"data":{"value":"Save"}}'
 ```
 
 `POST /api/events` validates the body against the schema (`docs/schemas/event.schema.json`). Reject anything missing required fields or with a non-`2` `v`. The server is allowed to reject in either direction; the agent's reader (2d) keeps the file as the durable copy.
