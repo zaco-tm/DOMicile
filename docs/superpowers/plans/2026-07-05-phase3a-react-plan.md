@@ -513,7 +513,7 @@ Expected: FAIL — module `../src/primitives/button` not found.
 ```tsx
 // packages/react/src/primitives/button.tsx
 import { forwardRef } from 'react';
-import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { cn } from '../utils/cn';
 
 export type DomButtonVariant = 'primary' | 'ghost' | 'danger';
@@ -551,7 +551,11 @@ export const DomButton = forwardRef<
 
   if (as === 'a') {
     return (
-      <a ref={ref as Ref<HTMLAnchorElement>} className={classes} {...rest}>
+      <a
+        ref={ref as Ref<HTMLAnchorElement>}
+        className={classes}
+        {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
         {children}
       </a>
     );
@@ -769,7 +773,7 @@ DomCard.displayName = 'DomCard';
 ```tsx
 // packages/react/src/primitives/alert.tsx
 import { forwardRef } from 'react';
-import type { HTMLAttributes, ReactNode, Ref } from 'react';
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import { cn } from '../utils/cn';
 
 export type DomAlertVariant = 'info' | 'success' | 'warning' | 'danger';
@@ -815,7 +819,7 @@ DomAlert.displayName = 'DomAlert';
 ```tsx
 // packages/react/src/primitives/badge.tsx
 import { forwardRef } from 'react';
-import type { HTMLAttributes, ReactNode, Ref } from 'react';
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import { cn } from '../utils/cn';
 
 export type DomBadgeVariant = 'primary' | 'success' | 'warning' | 'danger';
@@ -840,7 +844,11 @@ export const DomBadge = forwardRef<HTMLSpanElement | HTMLAnchorElement, DomBadge
     );
     if (as === 'a') {
       return (
-        <a ref={ref as Ref<HTMLAnchorElement>} className={classes} {...rest}>
+        <a
+          ref={ref as Ref<HTMLAnchorElement>}
+          className={classes}
+          {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
           {children}
         </a>
       );
