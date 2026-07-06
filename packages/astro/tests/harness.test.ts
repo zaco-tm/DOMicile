@@ -20,13 +20,14 @@ describe('@domi/astro test harness (static analysis)', () => {
     }
   });
 
-  it('evaluateClassExpr resolves inline pattern with props', () => {
-    const sample = `---\nconst variant = 'primary';\n---\n<div class={['domi-x', variant && \`domi-x--${'$'}{variant}\`, 'extra'].filter(Boolean).join(' ')}></div>\n`;
+  it('evaluateClassExpr resolves inline pattern with destructured prop', () => {
+    // Simulates the Button component: destructures from Astro.props.
+    const sample = `---\nconst { variant = 'primary' } = Astro.props;\n---\n<div class={['domi-x', variant && \`domi-x--${'$'}{variant}\`, 'extra'].filter(Boolean).join(' ')}></div>\n`;
     const fixture = resolve(__dirname, '_harness2.astro');
     writeFileSync(fixture, sample);
     try {
-      const { body } = parseAstro(fixture);
-      const cls = evaluateClassExpr(body, { variant: 'danger' });
+      const { frontmatter, body } = parseAstro(fixture);
+      const cls = evaluateClassExpr(frontmatter, body, { variant: 'danger' });
       expect(cls).toBe('domi-x domi-x--danger extra');
     } finally {
       unlinkSync(fixture);

@@ -5,8 +5,9 @@
 // `[object Object]` error during plugin init. Static analysis is reliable
 // for thin wrappers whose only logic is class composition.
 //
-// When Astro's vitest story stabilizes, switch this helper for `experimental_AstroContainer.renderToString`
-// in one place — all tests consume `parseAstro()`.
+// When Astro's vitest story stabilizes, switch this helper for
+// `experimental_AstroContainer.renderToString` in one place — all tests
+// consume `parseAstro()` + `evaluateClassExpr()`.
 
 import { readFileSync } from 'node:fs';
 
@@ -17,7 +18,6 @@ export interface ParsedAstro {
 
 export function parseAstro(path: string): ParsedAstro {
   const src = readFileSync(path, 'utf-8');
-  // Frontmatter delimited by `---` lines at the very start.
   if (!src.startsWith('---')) {
     throw new Error(`No frontmatter found in ${path}`);
   }
@@ -27,86 +27,106 @@ export function parseAstro(path: string): ParsedAstro {
     throw new Error(`Unclosed frontmatter in ${path}`);
   }
   const frontmatter = rest.slice(0, end + 1);
-  // Body starts after the closing `---` and its trailing newline.
   const afterClose = rest.slice(end + 4);
-  // Skip the first newline after the closing `---` if present.
   const body = afterClose.startsWith('\n') ? afterClose.slice(1) : afterClose;
   return { frontmatter, body };
 }
 
 /**
- * Extracts the `class={...}` expression from the template body and evaluates it
- * against the supplied props + children, returning the joined class string.
+ * Locates the `class={expr}` attribute in the body and returns the raw
+ * expression source — e.g. `'classes'` for the precomputed-var pattern,
+ * or `['domi-btn', variant && \`domi-btn--${variant}\`].filter(Boolean).join(' ')`
+ * for the inline pattern.
  *
- * Supports the patterns this repo uses:
- *   class={classes}                                       (precomputed var)
- *   class={['domi-foo', className].filter(Boolean).join(' ')}   (inline)
- *   class={classes}  +  conditional sibling element with same classes
- *
- * For the inline pattern, we evaluate the array literal directly with a
- * controlled `scope` that exposes the props as variables.
- *
- * This is intentionally dumb — it covers the patterns the plan mandates.
- * Anything fancier (slot composition, dynamic element choice via `as`) is
- * tested via the source assertion helpers below.
+ * The expression is everything between `class={` and the closing `}` of the
+ * attribute. We use a lookahead that requires `>` or `{` to follow the
+ * closing `}` — that catches both `class={expr}>` (inline, no other attrs)
+ * and `class={expr} {...rest}>` (precomputed, followed by spread attrs).
+ * Without the lookahead, the lazy regex would extend across
+ * `{...rest}` and capture garbage like `classes} {...rest`.
  */
-export function evaluateClassExpr(body: string, props: Record<string, unknown> = {}): string | null {
-// Find `class={...}` ending at the first `}` followed by `>` (the closing
-// of the root element). This avoids the template-literal `}` inside `${...}`
-// and the `)` from `.join(...)`.
-const m = body.match(/class=\{([\s\S]+?)\}\s*>/);
-if (!m) return null;
-const expr = m[1].trim();
-
-  // Pattern A: precomputed variable, e.g. `class={classes}`.
-  if (/^[a-zA-Z_$][\w$]*$/.test(expr)) {
-    // We don't have access to the var without running the frontmatter.
-    // Fall back to string-search.
-    return null;
-  }
-
-  // Pattern B: inline array literal, e.g.
-  //   ['domi-btn', variant && `domi-btn--${variant}`, ...].filter(Boolean).join(' ')
-  const arrayMatch = expr.match(/^(\[[\s\S]+?\])(?:\.filter\(Boolean\))?\.join\(['"`]\s['"`]\)/);
-  if (!arrayMatch) return null;
-
-  // Pull out string literals and template-literal expressions from the array.
-  const arraySrc = arrayMatch[1];
-  const parts: Array<string | false> = [];
-  // Match either a string literal 'foo' or "foo" or a template literal `foo` or a JS expression.
-  const itemRe = /'([^']*)'|"([^"]*)"|`([^`]*)`/g;
-  let match;
-  while ((match = itemRe.exec(arraySrc)) !== null) {
-    const raw = match[1] ?? match[2] ?? match[3] ?? '';
-    // Template literals may contain ${expr}; evaluate those.
-    if (match[3] !== undefined) {
-      const evaluated = raw.replace(/\$\{([^}]+)\}/g, (_full, expr2: string) => {
-        const v = evaluateSimpleExpr(expr2.trim(), props);
-        return v == null ? '' : String(v);
-      });
-      if (evaluated) parts.push(evaluated);
-    } else {
-      parts.push(raw);
-    }
-  }
-  // Filter out false/empty template-literal results.
-  return parts.filter((p): p is string => Boolean(p)).join(' ');
+export function extractClassExpr(body: string): string | null {
+  const m = body.match(/class=\{([\s\S]+?)\}(?=\s*(>|\{))/);
+  if (!m) return null;
+  return m[1].trim();
 }
 
-function evaluateSimpleExpr(expr: string, scope: Record<string, unknown>): unknown {
-  // Only handles the simple `variant && \`domi-btn--${variant}\`` shape.
-  const andMatch = expr.match(/^([a-zA-Z_$][\w$]*)\s*&&\s*`([^`]*)`$/);
-  if (andMatch) {
-    const [, ident, tmpl] = andMatch;
-    const v = scope[ident];
-    if (!v) return false;
-    return tmpl.replace(/\$\{([a-zA-Z_$][\w$]*)\}/g, (_full, name: string) => String(scope[name] ?? ''));
+/**
+ * Evaluates the component's class expression against the supplied props and
+ * returns the resulting joined class string.
+ *
+ * Strategy: dynamically compile the component's frontmatter (which only
+ * declares `const` bindings and destructures `Astro.props`) into a function,
+ * inject the props, then evaluate the class expression in the resulting
+ * scope. This faithfully covers both patterns the repo uses:
+ *   class={classes}                                            (precomputed var)
+ *   class={['domi-x', variant && `domi-x--${variant}`].filter(Boolean).join(' ')}  (inline)
+ *
+ * Safety: we strip imports and type-only declarations from the frontmatter
+ * before evaluating (they're not executable). The dynamic function has
+ * access to `Astro` and `props` via closure.
+ */
+export function evaluateClassExpr(
+  frontmatter: string,
+  body: string,
+  props: Record<string, unknown> = {},
+): string | null {
+  const expr = extractClassExpr(body);
+  if (!expr) return null;
+  // Strip imports and type aliases; what remains is executable.
+  const executable = stripTypeOnly(frontmatter);
+  // Inject props as `Astro.props = props` so destructuring works.
+  const fnSrc = `const Astro = { props: ${stringifyProps(props)} };\n${executable}\nreturn (${expr});`;
+  try {
+    const fn = new Function(fnSrc);
+    const result = fn();
+    if (typeof result === 'string') return result;
+    return null;
+  } catch (err) {
+    // If the expression uses props we don't provide (e.g. `error`, `open`),
+    // the destructuring throws. Treat as "can't evaluate" rather than failing.
+    return null;
   }
-  // Bare identifier.
-  if (/^[a-zA-Z_$][\w$]*$/.test(expr)) {
-    return scope[expr];
+}
+
+function stripTypeOnly(src: string): string {
+  // Strip `import type ...` lines, runtime `import {...} from 'astro/types'`,
+  // and TypeScript `interface { ... }` blocks (multi-line, balanced braces).
+  let out = '';
+  let i = 0;
+  while (i < src.length) {
+    // Check for `import type` or `import { ... } from 'astro/types'`.
+    const importMatch = /^(\s*import\s+type\b[^\n]*\n)|(\s*import\s*\{[^}]*\}\s*from\s+['"]astro\/types['"][^\n]*\n)/.exec(src.slice(i));
+    if (importMatch) {
+      i += importMatch[0].length;
+      continue;
+    }
+    // Check for `interface Name { ... }` (possibly multi-line).
+    const ifaceMatch = /^(\s*interface\s+\w+(\s+extends\s+[^{]+)?\s*\{)/.exec(src.slice(i));
+    if (ifaceMatch) {
+      // Skip until matching `}` accounting for nested braces.
+      let depth = 1;
+      let j = i + ifaceMatch[0].length;
+      while (j < src.length && depth > 0) {
+        const ch = src[j];
+        if (ch === '{') depth++;
+        else if (ch === '}') depth--;
+        j++;
+      }
+      i = j;
+      // Consume trailing newline if present.
+      if (src[i] === '\n') i++;
+      continue;
+    }
+    // Default: copy one char.
+    out += src[i];
+    i++;
   }
-  return undefined;
+  return out;
+}
+
+function stringifyProps(props: Record<string, unknown>): string {
+  return JSON.stringify(props);
 }
 
 /**

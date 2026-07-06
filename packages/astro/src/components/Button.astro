@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { ButtonVariant, ButtonSize } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'button'>, 'class'> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  class?: string;
+  as?: 'button' | 'a';
+}
+
+const {
+  variant = 'primary',
+  size = 'lg',
+  class: className,
+  as = 'button',
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'domi-btn',
+  variant && `domi-btn--${variant}`,
+  size && `domi-btn--${size}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+{as === 'a' ? (
+  <a class={classes} {...rest}><slot /></a>
+) : (
+  <button class={classes} {...rest}><slot /></button>
+)}
