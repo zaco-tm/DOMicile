@@ -51,13 +51,7 @@ case ":$PATH:" in
     *) echo "==> Add to PATH:  export PATH=\"$DEST:\$PATH\"" ;;
 esac
 
-# Verify step: only invoke scripts/verify.sh if it's the Phase 2d verifier
-# (detected by accepting a --prefix flag). The pre-existing scripts/verify.sh
-# is a Phase 1 stub that runs `npm test` and does not accept --prefix — Task 7
-# will replace it. Until then, the grep skips the call instead of invoking the
-# stub. After Task 7 lands, drop the grep guard and the line becomes a plain
-# `if [ "$NO_VERIFY" = 0 ] && [ "$DRY_RUN" = 0 ]; then ...`.
-if [ "$NO_VERIFY" = 0 ] && [ "$DRY_RUN" = 0 ] && grep -q -- '--prefix' "$ROOT_DIR/scripts/verify.sh" 2>/dev/null; then
+if [ "$NO_VERIFY" = 0 ] && [ "$DRY_RUN" = 0 ]; then
     echo "==> Verifying install"
     "$ROOT_DIR/scripts/verify.sh" --prefix "$PREFIX" || { echo "verify failed" >&2; exit 3; }
 fi
