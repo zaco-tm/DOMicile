@@ -1,0 +1,14 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'dialog'>, 'class' | 'open'> {
+  open?: boolean;
+  class?: string;
+}
+
+const { open = false, class: className, ...rest } = Astro.props;
+---
+
+<dialog class={['domi-modal', className].filter(Boolean).join(' ')} open={open} {...rest}>
+  <slot />
+</dialog>

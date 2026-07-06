@@ -38,17 +38,32 @@ export function parseAstro(path: string): ParsedAstro {
  * or `['domi-btn', variant && \`domi-btn--${variant}\`].filter(Boolean).join(' ')`
  * for the inline pattern.
  *
- * The expression is everything between `class={` and the closing `}` of the
- * attribute. We use a lookahead that requires `>` or `{` to follow the
- * closing `}` — that catches both `class={expr}>` (inline, no other attrs)
- * and `class={expr} {...rest}>` (precomputed, followed by spread attrs).
- * Without the lookahead, the lazy regex would extend across
- * `{...rest}` and capture garbage like `classes} {...rest`.
+ * Algorithm: find `class={`, then walk forward balancing `{}` (template
+ * literal interpolations like `${variant}` open their own `{`). The first
+ * brace that closes to depth 0 is the end of the class expression.
+ *
+ * We can't use a simple regex because the attribute may be followed by
+ * other attributes (e.g. `class={expr} open={open} {...rest}`) that
+ * confuse lookahead-based regexes.
  */
 export function extractClassExpr(body: string): string | null {
-  const m = body.match(/class=\{([\s\S]+?)\}(?=\s*(>|\{))/);
-  if (!m) return null;
-  return m[1].trim();
+  const start = body.search(/class=\{/);
+  if (start === -1) return null;
+  let i = start + 'class={'.length;
+  let depth = 1;
+  // Track whether we're inside a template literal `${...}` (its `{` opened depth).
+  // We approximate: every `{` increases depth; every `}` decreases. Template
+  // literal `}` only appears inside `${...}` so its `{` already incremented depth.
+  while (i < body.length && depth > 0) {
+    const ch = body[i];
+    if (ch === '{') depth++;
+    else if (ch === '}') depth--;
+    i++;
+    if (depth === 0) {
+      return body.slice(start + 'class={'.length, i - 1).trim();
+    }
+  }
+  return null;
 }
 
 /**
