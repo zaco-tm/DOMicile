@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "description": "Cross-platform UI design system with AI-agent authoring layer",
   "type": "module",
+  "workspaces": ["packages/*"],
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && stylelint \"components/**/*.css\" && markdownlint \"**/*.md\"",
     "tokens:build": "node tools/tokens-to-css.mjs",
-    "smoke": "node tools/smoke.mjs"
+    "smoke": "node tools/smoke.mjs",
+    "build:react": "tsup --config packages/react/tsup.config.ts"
   },
   "devDependencies": {
     "vitest": "^2.0.0",
