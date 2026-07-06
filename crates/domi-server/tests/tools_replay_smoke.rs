@@ -21,7 +21,7 @@
 
 mod common;
 
-use common::{boot_server, free_high_port, run_domi};
+use common::{boot_server, random_unbound_port, run_domi};
 // `assert_exit!` is `#[macro_export]`-ed from `common/mod.rs`, so it
 // reaches the integration-test crate root automatically — no `use`
 // needed in this file; call it directly as `assert_exit!(...)`.
@@ -280,17 +280,14 @@ async fn replay_with_doc_filter_excludes_other_docs() {
 #[tokio::test]
 #[ignore = "boots a real port; run with --ignored"]
 async fn replay_unreachable_returns_one() {
-    // Pick a port that almost certainly isn't bound. free_high_port()
-    // hands us a free one, but we never spawn a server on it.
-    let port = free_high_port();
+    // Pick a port that almost certainly isn't bound. We never spawn
+    // a server on it — this test asserts that the client fails fast
+    // when nothing is listening. `random_unbound_port` does NOT
+    // bind-check; a collision with another gated test would still
+    // produce a non-zero exit code, which is the desired assertion.
+    // (No fence needed: we're not racing for a port.)
+    let port = random_unbound_port();
     let server_url = format!("http://127.0.0.1:{port}");
-
-    // Brief settle so the kernel can recycle the port we just released
-    // before another concurrent gated test (e.g. push_unreachable)
-    // races us. Without this, two tests in the same binary can briefly
-    // see the same ephemeral port and one will spuriously succeed
-    // against a sibling-test's server.
-    tokio::time::sleep(Duration::from_millis(50)).await;
 
     let start = Instant::now();
     let (stdout, stderr, code) = run_domi(&["--server", &server_url, "replay"]);

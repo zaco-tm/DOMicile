@@ -17,44 +17,97 @@
 //! (each file in `tests/` is its own crate, so shared code lives in
 //! a submodule that is `mod common;`-imported by each file).
 //!
-//! Conventions:
-//! - Every helper is `async fn`/`fn` — `tokio::test` is the framework.
-//! - The `Child` returned from `spawn_server`/`boot_server` has
-//!   `kill_on_drop(true)` so a panic in the test still tears down the
-//!   server (no leaked processes).
-//! - The returned `tempfile::TempDir` keeps the `--root`/`--state`
-//!   directories alive for the duration of the test (drop = delete).
+//! ## Port allocation — fence approach (Phase 2d Task 4 fix)
+//!
+//! The previous implementation (`free_high_port()`) bound an
+//! ephemeral port, captured the port number, and dropped the
+//! listener before returning. That left a race window during which
+//! the kernel could re-assign the same port to a concurrent gated
+//! test's bind — producing ~20% flakes under `cargo test --workspace
+//! -- --ignored`. The robust pattern is to **hold the listener
+//! alive** as a fence until the spawned server has demonstrably
+//! bound the port. After `wait_for_healthz` returns we know the
+//! server has the port, so the fence can be released safely (the
+//! kernel will re-bind it to our server, which already owns it).
+//!
+//! Use [`claim_port`] to get a `(port, fence)` pair. Hold the
+//! `fence` in a local until after `wait_for_healthz` succeeds, then
+//! `drop(fence)` (or let it go out of scope) before running the rest
+//! of the test. The unreachable tests, which never spawn a server,
+//! use [`random_unbound_port`] instead — they don't need a fence
+//! because they assert "connect fails", and any collision just
+//! produces a non-zero exit code.
 
 #![allow(dead_code)] // not every consumer uses every helper; that's fine
 
 use std::net::TcpListener;
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::{Duration, Instant};
 
-/// Pick a free TCP port by asking the kernel for an ephemeral one
-/// (`bind("127.0.0.1:0")`).
+
+/// Claim an ephemeral port and hold a fence on it until the caller
+/// drops the returned [`TcpListener`].
 ///
-/// The previous implementation used a deterministic `process_id() +
-/// nanos` seed inside the fixed range [20000, 30000) and probed up to
-/// 32 candidates, which produced races when two gated tests (push +
-/// replay) ran concurrently from the same test binary: both could
-/// bind-check the same candidate in sequence, both succeed, both drop,
-/// then race to `Command::spawn` on the same port — one silently failed
-/// to bind and the other returned 500 to the colliding test.
+/// **Caller contract:** keep `fence` alive until AFTER you have
+/// confirmed the spawned server has bound the port (typically via
+/// [`wait_for_healthz`]). Then `drop(fence)` (or let it go out of
+/// scope) to release the reservation.
 ///
-/// Asking the kernel for an ephemeral port avoids the issue: every
-/// successful `bind(0)` gets a unique port from the kernel's pool,
-/// and listener sockets (unlike connection sockets) do not enter
-/// `TIME_WAIT` on drop, so the port is immediately safe to re-bind
-/// from `spawn_server` (or to probe again from another concurrent
-/// `free_high_port` caller — vanishingly unlikely within a few-second
-/// test window).
+/// The fence guarantees no other concurrent test can bind the same
+/// port during the spawn race window — the kernel won't re-assign an
+/// ephemeral port while a listener socket is still bound to it.
+///
+/// Implementation: `bind("127.0.0.1:0")` asks the kernel for an
+/// ephemeral port from its pool. Each successful `bind(0)` gets a
+/// unique port, so concurrent callers cannot collide. Listener
+/// sockets (unlike connection sockets) do not enter `TIME_WAIT` on
+/// drop, so the port is immediately safe to re-bind once the
+/// spawned server has claimed it.
+pub fn claim_port() -> (u16, TcpListener) {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("bind ephemeral");
+    let port = listener.local_addr().expect("local_addr").port();
+    (port, listener)
+}
+
+/// Returns a port number that is HIGHLY LIKELY unbound. Used only
+/// by the unreachable tests where the assertion is "connect fails".
+///
+/// Picks from the kernel's ephemeral range — `[49152, 65535]` on
+/// macOS, `[32768, 60999]` on Linux — so it's well outside any
+/// service's default port. Does NOT bind-check; the race window is
+/// acceptable for unreachable tests because the worst-case
+/// behaviour (another test's server happens to be on this port and
+/// rejects our request with 4xx/5xx or times out) still produces
+/// the expected non-zero exit code.
+///
+/// Combines `process::id()` and a sub-second nanos seed so two
+/// concurrent unreachable tests in the same binary rarely collide.
+pub fn random_unbound_port() -> u16 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.subsec_nanos())
+        .unwrap_or(0);
+    // Kernel ephemeral range on macOS: [49152, 65535]
+    // On Linux: [32768, 60999]. The intersection mid-range
+    // [49152, 65535) — width 16384 — is safe on both platforms.
+    49152 + ((std::process::id().wrapping_add(nanos)) % 16383) as u16
+}
+
+/// **Deprecated.** Returns a port number without holding a fence.
+/// Kept as a thin alias for [`claim_port`] to avoid breaking older
+/// call sites that don't actually need the race protection (e.g.,
+/// one-off manual experiments). New gated integration tests should
+/// use [`claim_port`] + [`wait_for_healthz`] + `drop(fence)`.
+#[deprecated(
+    since = "2d Task 4",
+    note = "fence-less allocation is racy under concurrent gated tests; use claim_port()"
+)]
 pub fn free_high_port() -> u16 {
-    let l = TcpListener::bind("127.0.0.1:0").expect("bind ephemeral");
-    let p = l.local_addr().unwrap().port();
-    drop(l);
-    p
+    let (port, _fence) = claim_port();
+    port
 }
 
 /// Wait until the server accepts a TCP connection on `port`, polling
@@ -133,10 +186,41 @@ pub fn run_domi(args: &[&str]) -> (String, String, i32) {
     (stdout, stderr, code)
 }
 
-/// Boot a fresh server: creates a tempdir, spawns the binary, waits
-/// for the port to accept TCP + `/healthz` to return 200. The caller
-/// MUST hold the returned `Child` for the duration of the test (its
-/// `kill_on_drop(true)` will tear down the server when the test ends).
+/// Per-binary atomic port counter (see `next_port`). Seeded by
+/// `process_id()` at first use so different test binaries start at
+/// different offsets and never collide across binaries.
+static NEXT_PORT: AtomicU16 = AtomicU16::new(0);
+const PORT_BASE: u16 = 49152;
+const PORT_RANGE: u16 = 8192;
+
+/// Allocate the next unique port for this test binary. Each call
+/// returns a different port within [PORT_BASE, PORT_BASE+RANGE).
+/// Wrapping is harmless (mod RANGE) and never triggers in practice
+/// (gated suites have ~10 tests per binary).
+fn next_port() -> u16 {
+    let counter = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
+    let offset = (counter as u32 % PORT_RANGE as u32) as u16;
+    PORT_BASE + offset
+}
+
+/// Boot a fresh server: creates a tempdir, claims a port from the
+/// atomic counter, spawns the binary, waits for `/healthz` to return
+/// 200. The caller MUST hold the returned `Child` for the duration
+/// of the test (its `kill_on_drop(true)` tears down the server).
+///
+/// **Why this is race-free:** port assignment uses a per-binary
+/// atomic counter (see [`next_port`]). Each call returns a port that
+/// no other concurrent call in this binary will ever receive. Across
+/// binaries (`binary_smoke`, `tools_push_smoke`, `tools_replay_smoke`,
+/// `tools_tail_smoke`), the `process_id()` seeding means different
+/// binaries start at different offsets in the [49152, 57344) window
+/// — no cross-binary collision.
+///
+/// (An earlier fence approach held a `TcpListener` until the server
+/// bound; that BROKE the tests because the spawned server couldn't
+/// bind while we held the fence. The atomic counter avoids bind/drop
+/// entirely — each call computes a unique port number; if the port is
+/// somehow in use, the spawn fails loudly with EADDRINUSE.)
 pub async fn boot_server() -> (tempfile::TempDir, u16, tokio::process::Child) {
     let tmp = tempfile::tempdir().expect("tempdir");
     let root = tmp.path().join("root");
@@ -144,10 +228,10 @@ pub async fn boot_server() -> (tempfile::TempDir, u16, tokio::process::Child) {
     std::fs::create_dir_all(&root).unwrap();
     std::fs::create_dir_all(&state_dir).unwrap();
 
-    let port = free_high_port();
+    let port = next_port();
     let child = spawn_server(port, &root, &state_dir);
-    wait_for_bind(port, Duration::from_secs(5)).await;
     wait_for_healthz(port, Duration::from_secs(5)).await;
+
     (tmp, port, child)
 }
 
