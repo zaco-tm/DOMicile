@@ -61,6 +61,24 @@ Consumers pick one or both. The server's contract is identical for both — neit
 | `GET` | `/api/events?since=<ULID>&doc=<name>&limit=<n>` | Read events strictly after `<ULID>`. `limit` default 100, max 1000. Response: `{ events: [Event], nextSince: ULID \| null }`. |
 | `GET` | `/ws/events` | WebSocket push. Server sends `{ type: "hello", v: 2, serverId }` on connect, then wraps each event as `{ type: "event", event: <Event> }`. |
 
+### CLI usage (Phase 2d `domi` binary)
+
+The same routes are exercised by the agent-side `domi` CLI (lives in `crates/domi-server/src/tools/`). All three subcommands default to `--server http://127.0.0.1:4173` and emit the same JSON shapes described above.
+
+```bash
+# Stream live events as JSONL (Ctrl-C to stop)
+domi tail --server http://127.0.0.1:4173 --follow --limit 50
+
+# One-shot fetch of recent events for a doc, since a known ULID
+domi replay --server http://127.0.0.1:4173 --doc dashboard --since 01J8XZQ5K2J9Z9Q4X5Y6Z7X8Y1 --limit 100
+
+# POST a synthetic click event (server stamps id/ts on missing fields)
+domi push --server http://127.0.0.1:4173 \
+  --type click --doc dashboard \
+  --target "[data-feedback='save']" \
+  --json '{"v":2,"id":null,"ts":null,"src":"browser-ext","doc":"dashboard","kind":"click","target":null,"data":{"value":"Save"}}'
+```
+
 `POST /api/events` validates the body against the schema (`docs/schemas/event.schema.json`). Reject anything missing required fields or with a non-`2` `v`. The server is allowed to reject in either direction; the agent's reader (2d) keeps the file as the durable copy.
 
 **`id` stamping rule (since Phase 2b):** clients MAY omit `id` (or send `null`) when posting; the **server MUST stamp a fresh ULID before append**. The schema's `id` field stays required — the server enforces it. Phase 2 JS clients use this to avoid carrying a ULID library; they delegate ID generation to the server.

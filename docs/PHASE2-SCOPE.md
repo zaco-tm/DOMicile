@@ -9,21 +9,21 @@ Phase 2 of DOMiNice was originally scoped as "live server." The 2026-07-05 rewor
 | 2c-α | `domi-server` events writer crate | **Done** (`638b29d` + earlier) | `crates/domi-server/src/events/` |
 | **2c-β** | HTML serving + folder watcher | **Spec this round** | `crates/domi-server/src/serve/` + `scripts/domi-server.js` |
 | **2c-γ** | `domi-server` binary + axum + tokio + WS | **Done** | The actual `domi-server` binary; uses 2c-α + 2c-β |
-| 2d | Agent reader + install/verify | Not started | Tail/replay/push CLI in `tools/`, install.sh + verify.sh exercising 2c-γ |
+| **2d** | Agent reader + install/verify | **Done** | Tail/replay/push CLI in `crates/domi-server/src/tools/`, `scripts/install.sh` + `scripts/verify.sh` + `scripts/ws-probe.mjs` exercising 2c-γ |
 
 ## Dependency order
 
 - 2a must land first (done).
 - 2b and 2c-β can run after 2a (both reference its schema and route table).
 - 2c-γ depends on 2c-α (events writer) and 2c-β (serve + watcher).
-- 2d depends on 2c-γ (binary must exist to be exercised by install/verify scripts and the agent CLI).
+- 2d depends on 2c-γ (binary must exist to be exercised by install/verify scripts and the agent CLI). **Done.**
 
 Smallest sequential schedule:
 
 1. **2a** — done.
 2. **2c-β** *(this round)* → unblocks the binary's storage-and-serving primitives.
 3. **2b** + **2c-γ** in parallel after 2c-β.
-4. **2d** once 2c-γ exists.
+4. **2d** once 2c-γ exists. **Done.**
 
 ## What each round ships
 

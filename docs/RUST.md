@@ -35,6 +35,14 @@ crates/
         router.rs                         # build_router
         handlers.rs                       # banner, healthz, static_serve, post_event, get_events
         ws.rs                             # /ws/events upgrade + broadcast loop
+      tools/                            # 2d (domi binary — tail / replay / push)
+        mod.rs                            # shared helpers + subcommand dispatch
+        cli.rs                            # clap derive CLI (tail / replay / push subcommands)
+        tail.rs                           # domi tail (line-delimited JSON stream)
+        replay.rs                         # domi replay (GET /api/events)
+        push.rs                           # domi push (POST /api/events)
+        types.rs                          # shared types
+        main.rs                           # tokio::main → tools::run
 ```
 
 ## Build and test
@@ -45,6 +53,13 @@ cargo test -p domi-server
 ```
 
 `cargo test` runs against real temp files (`tempfile` crate); no mocking layer.
+
+## Binaries
+
+`crates/domi-server` ships two binaries:
+
+- `domi-server` — the live feedback server (2c-γ).
+- `domi` — agent-side CLI for tailing, replaying, and pushing events (2d).
 
 ## Boundary with the JS half
 
@@ -65,6 +80,6 @@ cargo test -p domi-server
 | 2c-α | `domi-server` library | `events` module — **done** |
 | 2c-β | `domi-server` library | `serve` module — **done** |
 | 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
-| 2d | `tools/` | agent CLI + install/verify — **next** |
+| 2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.
