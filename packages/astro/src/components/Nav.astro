@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'nav'>, 'class'> {
+  class?: string;
+}
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<nav class={['domi-nav', className].filter(Boolean).join(' ')} {...rest}>
+  <slot />
+</nav>
