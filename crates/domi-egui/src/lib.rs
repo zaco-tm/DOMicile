@@ -8,6 +8,7 @@ pub mod checkbox;
 pub mod input;
 pub mod radio;
 pub mod select;
+pub mod table;
 pub mod theme;
 pub mod toast;
 pub mod tooltip;
