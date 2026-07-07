@@ -4,7 +4,7 @@ pub fn domi_tooltip(ui: &mut egui::Ui, label: &str, content: &str) -> egui::Resp
     let theme = Theme::default();
     let response = ui.label(label);
     if response.hovered() {
-        let mut popup = egui::Popup::from_response(&response);
+        let popup = egui::Popup::from_response(&response);
         popup.show(|ui| {
             ui.label(content);
             let _ = theme.text_default;
