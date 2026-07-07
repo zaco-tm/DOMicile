@@ -98,6 +98,8 @@ Playwright loads the smoke doc, simulates a click, asserts the comment lands in 
 
 Risk: zero — Playwright only sees the artifact; nothing in the project depends on it.
 
+**Status: done** as of the `playwright` dev-dep + `tools/skill-smoke-test.mjs` commit. Run via `npm run test:e2e` or `./scripts/verify-skill-loop.sh`. The shell wrapper mirrors `scripts/verify.sh`'s role for the Rust HTTP lane. Confirms 5 invariants: page loads without errors, status chip rendered, data-feedback hooks present, comment persists to localStorage, comment survives a reload. Verified that corrupting `scripts/domi-audit.js` to throw on load flips 1 check to FAIL with exit 1.
+
 ### 4. (Optional) Wire `domi serve` for events
 
 `crates/domi-server` binary already serves files; pointing it at `.domi/` and verifying events are written is the wiring `INIT.md` calls out for under "live server or human-led feedback loop." Optional because a Python static server satisfies the file-serving need; events are the value-add.
@@ -172,4 +174,4 @@ These remain valid and re-prioritize after publishing:
 
 ## Sign-off
 
-Phase 2d + 3a + 3b + 3c are on `main`. The skill loop wiring (item 1 of the priority list) is the only thing that needs to land before any distribution step. **Playability first; publishing second.** This doc replaces the previous distribution-flavored handoff; the previous commit (`1326ee2`) is reverted as part of the same change so the file map is clean.
+Phase 2d + 3a + 3b + 3c are on `main`. Items 1, 2, and 3 of the priority list are landed (skill-smoke wiring + fresh-agent drive-through + Playwright e2e test). Distribution (item 5) is now safe to start. This doc replaces the previous distribution-flavored handoff; the previous commit (`1326ee2`) is reverted as part of the same change so the file map is clean.

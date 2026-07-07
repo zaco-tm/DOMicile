@@ -3,25 +3,29 @@
   "version": "0.1.0",
   "description": "Cross-platform UI design system with AI-agent authoring layer",
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "node tools/skill-smoke-test.mjs",
     "lint": "eslint . && stylelint \"components/**/*.css\" && markdownlint \"**/*.md\"",
     "tokens:build": "node tools/tokens-to-css.mjs",
     "smoke": "node tools/smoke.mjs",
     "build:react": "cd packages/react && tsup"
   },
   "devDependencies": {
-    "vitest": "^2.0.0",
-    "jsdom": "^25.0.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.1",
     "eslint": "^9.0.0",
+    "jsdom": "^25.0.0",
+    "markdownlint-cli": "^0.42.0",
+    "playwright": "^1.61.1",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^36.0.0",
-    "ws": "^8.18.0",
-    "markdownlint-cli": "^0.42.0",
-    "ajv": "^8.17.0",
-    "ajv-formats": "^3.0.1"
+    "vitest": "^2.0.0",
+    "ws": "^8.18.0"
   },
   "license": "MIT"
 }
