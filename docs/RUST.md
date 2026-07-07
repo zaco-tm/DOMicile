@@ -81,6 +81,6 @@ cargo test -p domi-server
 | 2c-β | `domi-server` library | `serve` module — **done** |
 | 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
 |   2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
-| 3c | `domi-egui` library + smoke | `crates/domi-egui` — 15 egui leaves + 5 composites; tokens.rs build-time codegen — **wip** |
+| 3c | `domi-egui` library + smoke | `crates/domi-egui` — 15 egui leaves + 5 composites; tokens.rs build-time codegen — **done** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.
