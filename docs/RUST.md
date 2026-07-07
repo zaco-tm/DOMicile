@@ -70,7 +70,7 @@ cargo test -p domi-server
 ## Versions and pinning
 
 - `rust-toolchain.toml`: `stable`. (No `nightly` features used in 2c-α.)
-- Crate MSRV: 1.75 (will set explicitly when implementing; current toolchain is 1.96).
+- Crate MSRV: **1.83** (bumped for Phase 3c; egui 0.32.x floor; current toolchain is 1.96).
 - Dependencies: see `crates/domi-server/Cargo.toml` once added. All permissively licensed.
 
 ## Phasing within Rust
@@ -80,6 +80,7 @@ cargo test -p domi-server
 | 2c-α | `domi-server` library | `events` module — **done** |
 | 2c-β | `domi-server` library | `serve` module — **done** |
 | 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
-| 2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
+|   2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
+| 3c | `domi-egui` library + smoke | `crates/domi-egui` — 15 egui leaves + 5 composites; tokens.rs build-time codegen — **wip** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.
