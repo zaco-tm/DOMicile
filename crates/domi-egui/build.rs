@@ -113,7 +113,7 @@ fn emit_px_consts(out: &mut String, group: &str, value: &Value) {
                 .or_else(|| val.as_str().and_then(parse_px_str));
             if let Some(px) = parsed {
                 let ident = to_const_ident(&format!("{group}_{name}"));
-                out.push_str(&format!("pub const {ident}: f32 = {px};\n"));
+                out.push_str(&format!("pub const {ident}: f32 = {px:.1};\n"));
             }
         }
     }
