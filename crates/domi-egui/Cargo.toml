@@ -16,6 +16,8 @@ eframe = { version = "0.32", optional = true, default-features = false }
 [features]
 default = []
 desktop = ["dep:eframe"]
+glow = ["eframe/glow"]
+wgpu = ["eframe/wgpu"]
 
 [build-dependencies]
 serde_json = "1"
