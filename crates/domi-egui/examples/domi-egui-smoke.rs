@@ -27,6 +27,7 @@ fn main() -> eframe::Result<()> {
 fn main() {
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 struct SmokeApp {
     tabs_state: TabsState,
     modal_open: bool,
@@ -35,6 +36,7 @@ struct SmokeApp {
     _ctx: egui::Context,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl SmokeApp {
     fn new(ctx: egui::Context) -> Self {
         Self {
@@ -47,6 +49,7 @@ impl SmokeApp {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl eframe::App for SmokeApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
