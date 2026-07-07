@@ -64,7 +64,10 @@ const cloned = archetype
   .replace(/docName:\s*'[^']*'/g, `docName: '${docName}'`)
   .replace(/statePath:\s*'[^']*'/g, `statePath: '.domi/state/${docName}.json'`)
   .replace(/<title>[^<]*<\/title>/, `<title>Working Doc — ${docName}</title>`)
-  .replace(/data-domini-status-chip">[^<]*/, `data-domini-status-chip">${docName} v0`);
+  // The archetype emits the status-chip attribute unquoted
+  // (`<span data-domini-status-chip>v0.1.0-working</span>`); allow either form
+  // so a quoted version doesn't silently keep the default text.
+  .replace(/data-domini-status-chip(?:="[^"]*")?>([^<]*)/, `data-domini-status-chip>${docName} v0`);
 
 writeFileSync(outputPath, cloned, 'utf8');
 console.log(`[skill-smoke] cloned ${archetypePath}`);
@@ -156,6 +159,10 @@ setTimeout(() => {
         ['data-feedback hooks present', /data-feedback="[^"]+"/.test(buf)],
         ['scripts/domi-audit.js loaded', /\/scripts\/domi-audit\.js/.test(buf)],
         ['DomiAudit.mount invoked', /DomiAudit\.mount/.test(buf)],
+        // The status chip should reflect the docName (not the archetype's
+        // default text "v0.1.0-working"); regression-tested after a rewrite
+        // bug shipped silently.
+        [`status chip pinned to "${docName}"`, new RegExp(`>${docName} v0<`).test(buf)],
       ];
       let bad = 0;
       for (const [name, ok] of checks) {
