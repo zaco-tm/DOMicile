@@ -5,6 +5,7 @@ pub mod badge;
 pub mod button;
 pub mod card;
 pub mod checkbox;
+pub mod form;
 pub mod input;
 pub mod radio;
 pub mod select;
