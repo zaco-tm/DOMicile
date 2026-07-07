@@ -103,3 +103,26 @@ MIT
 - 47 passing + 1 ignored (notify watcher FSEvents, pre-existing) on the Rust side; 83/83 passing on the JS side, no regressions.
 - `Cargo.lock` continues to be gitignored (unchanged from 2c-α/2c-β).
 - Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
+---
+
+## Phase 2d — Agent tooling (2026-07-05)
+
+- New `domi` CLI binary (alongside `domi-server`) in `crates/domi-server/src/tools/`.
+- Three subcommands:
+  - `domi tail [--server URL] [--follow] [--limit N] [--doc NAME]` — line-delimited JSON stream of v2 events.
+  - `domi replay [--server URL] [--since ULID] [--doc NAME] [--limit N]` — one-shot fetch from `GET /api/events`.
+  - `domi push --type TYPE [--doc NAME] [--target SEL] [--json RAW] --server URL` — POST a synthetic v2 event (the `--json` flag is an escape hatch for schema-canonical bodies).
+- Wire protocol: same JSON shapes as `domi.js` server mode (2b) and the binary (2c-γ). ULID cursor semantics from 2a.
+- New `scripts/install.sh` — builds and installs `domi-server` + `domi` to `${PREFIX:-~/.local}/bin/`.
+- New `scripts/verify.sh` — boots the installed binary on an ephemeral port, asserts `/healthz`, `POST /api/events`, `GET /api/events`, `/ws/events` upgrade + hello frame.
+- New `scripts/ws-probe.mjs` — Node helper for `verify.sh` WS upgrade probe.
+- New tests in `crates/domi-server/tests/tools_{push,replay,tail}_smoke.rs` (3 subcommands × 3-4 assertions each, gated `#[ignore]`).
+- 2 new JS tests in `tests/wire-protocol.test.js` (gated on `DOMI_TEST_LIVE=1`).
+- Spec: `docs/superpowers/specs/2026-07-05-phase2d-agent-tooling-design.md`.
+- Plan: `docs/superpowers/plans/2026-07-05-phase2d-agent-tooling-plan.md`.
+- Companion doc updates: `docs/PHASE2-SCOPE.md` (mark 2d Done), `docs/WIRE-PROTOCOL.md` (link the CLI usage section), `docs/RUST.md` (note `domi` second-binary).
+- `domi-server` now accepts `--port 0` for ephemeral-port discovery (used by `verify.sh`).
+- Test counts:
+- `cargo test --workspace`: 60 unit tests pass by default; `cargo test --workspace -- --ignored` runs 12 gated tests (4 push + 4 replay + 3 tail + 1 binary smoke), all green.
+  - `npm test`: 83 passed + 2 skipped (85) by default; `DOMI_TEST_LIVE=1 npm test` runs the 2 additional live-mode tests for 85 passed.
+- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.

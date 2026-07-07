@@ -1,0 +1,29 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { AlertVariant } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'div'>, 'class'> {
+  variant?: AlertVariant;
+  class?: string;
+  as?: 'div' | 'span';
+}
+
+const {
+  variant = 'info',
+  class: className,
+  as = 'div',
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'domi-alert',
+  variant && `domi-alert--${variant}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+{as === 'span' ? (
+  <span class={classes} {...rest}><slot /></span>
+) : (
+  <div class={classes} {...rest}><slot /></div>
+)}

@@ -1,0 +1,28 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { SelectSize } from '../types';
+
+interface Props extends Omit<HTMLAttributes<'select'>, 'class' | 'size'> {
+  size?: SelectSize;
+  error?: boolean;
+  class?: string;
+}
+
+const {
+  size = 'lg',
+  error = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'domi-select',
+  size && `domi-select--${size}`,
+  error && 'domi-select--error',
+  className,
+].filter(Boolean).join(' ');
+---
+
+<select class={classes} {...rest}>
+  <slot />
+</select>

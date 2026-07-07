@@ -35,6 +35,14 @@ crates/
         router.rs                         # build_router
         handlers.rs                       # banner, healthz, static_serve, post_event, get_events
         ws.rs                             # /ws/events upgrade + broadcast loop
+      tools/                            # 2d (domi binary — tail / replay / push)
+        mod.rs                            # shared helpers + subcommand dispatch
+        cli.rs                            # clap derive CLI (tail / replay / push subcommands)
+        tail.rs                           # domi tail (line-delimited JSON stream)
+        replay.rs                         # domi replay (GET /api/events)
+        push.rs                           # domi push (POST /api/events)
+        types.rs                          # shared types
+        main.rs                           # tokio::main → tools::run
 ```
 
 ## Build and test
@@ -46,6 +54,13 @@ cargo test -p domi-server
 
 `cargo test` runs against real temp files (`tempfile` crate); no mocking layer.
 
+## Binaries
+
+`crates/domi-server` ships two binaries:
+
+- `domi-server` — the live feedback server (2c-γ).
+- `domi` — agent-side CLI for tailing, replaying, and pushing events (2d).
+
 ## Boundary with the JS half
 
 - The Rust crate produces JSON the same way `serde_json::to_writer` writes it. The JSON Schema (`docs/schemas/event.schema.json`) cross-checks the typed Rust struct against the typed JS test fixtures at `tests/wire-protocol.test.js`. If either drifts, the cross-language check fails.
@@ -55,7 +70,7 @@ cargo test -p domi-server
 ## Versions and pinning
 
 - `rust-toolchain.toml`: `stable`. (No `nightly` features used in 2c-α.)
-- Crate MSRV: 1.75 (will set explicitly when implementing; current toolchain is 1.96).
+- Crate MSRV: **1.83** (bumped for Phase 3c; egui 0.32.x floor; current toolchain is 1.96).
 - Dependencies: see `crates/domi-server/Cargo.toml` once added. All permissively licensed.
 
 ## Phasing within Rust
@@ -65,6 +80,7 @@ cargo test -p domi-server
 | 2c-α | `domi-server` library | `events` module — **done** |
 | 2c-β | `domi-server` library | `serve` module — **done** |
 | 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
-| 2d | `tools/` | agent CLI + install/verify — **next** |
+|   2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
+| 3c | `domi-egui` library + smoke | `crates/domi-egui` — 15 egui leaves + 5 composites; tokens.rs build-time codegen — **done** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.
