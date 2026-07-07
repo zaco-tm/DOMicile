@@ -1,2 +1,3 @@
 [toolchain]
 channel = "stable"
+rust-version = "1.83"

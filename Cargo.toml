@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["crates/domi-server"]
+members = ["crates/domi-server", "crates/domi-egui"]
+
 
 [profile.release]
 lto = "thin"
