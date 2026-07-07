@@ -49,6 +49,66 @@ describe('domi-audit.js runtime', () => {
     expect(exported.entries.length).toBe(1);
     expect(exported.entries[0].body).toBe('pre');
   });
+
+  function fireClick(el) {
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  it('click on [data-feedback] sets data-domini-target and updates the hint', () => {
+    document.body.innerHTML = `
+      <div data-domini-rail></div>
+      <main>
+        <h1 data-feedback="hero-title">Hero</h1>
+        <button data-feedback="cta-primary">Go</button>
+      </main>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const btn = document.querySelector('[data-feedback="cta-primary"]');
+    fireClick(btn);
+    expect(btn.getAttribute('data-domini-target')).toBe('');
+    expect(document.querySelector('[data-domini-target-id]').textContent).toBe('cta-primary');
+  });
+
+  it('submitting while a target is active uses that targetId', () => {
+    document.body.innerHTML = `
+      <div data-domini-rail></div>
+      <button data-feedback="cta-primary">Go</button>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    fireClick(document.querySelector('[data-feedback="cta-primary"]'));
+    const form = document.querySelector('[data-domini-rail-form]');
+    form.elements['body'].value = 'make this more prominent';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    const exported = JSON.parse(globalThis.DomiAudit.export());
+    expect(exported.entries.length).toBe(1);
+    expect(exported.entries[0].targetId).toBe('cta-primary');
+    expect(exported.entries[0].body).toBe('make this more prominent');
+    expect(document.querySelector('[data-domini-target-id]').textContent).toBe('(doc — click an element)');
+  });
+
+  it('click outside any [data-feedback] clears the active target', () => {
+    document.body.innerHTML = `
+      <div data-domini-rail></div>
+      <main>
+        <button data-feedback="cta-primary">Go</button>
+        <p data-feedback="para-blurb">blurb</p>
+      </main>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    fireClick(document.querySelector('[data-feedback="cta-primary"]'));
+    expect(document.querySelector('[data-domini-target]')).toBeTruthy();
+    fireClick(document.querySelector('main'));
+    expect(document.querySelector('[data-domini-target]')).toBeNull();
+    expect(document.querySelector('[data-domini-target-id]').textContent).toBe('(doc — click an element)');
+  });
+
+  it('click inside the rail does not change the active target', () => {
+    document.body.innerHTML = `
+      <div data-domini-rail></div>
+      <button data-feedback="cta-primary">Go</button>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const btn = document.querySelector('[data-feedback="cta-primary"]');
+    fireClick(btn);
+    fireClick(document.querySelector('[data-domini-rail-form] textarea'));
+    expect(document.querySelector('[data-domini-target]')).toBe(btn);
+  });
 });
 
 describe('domi-audit.js server mode', () => {

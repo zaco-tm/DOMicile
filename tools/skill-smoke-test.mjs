@@ -146,6 +146,44 @@ async function run() {
       typeof listText === 'string' && listText.includes(commentBody),
       listText ? `rail length=${listText.length}` : 'rail empty'
     );
+
+    // 4. Click-to-target wiring: clicking a [data-feedback] element scopes the
+    //    next comment to that element. Asserts the persisted targetId is not null.
+    const docFeedbackId = await page.locator('[data-feedback]').first().getAttribute('data-feedback');
+    if (docFeedbackId) {
+      await page.locator(`[data-feedback="${docFeedbackId}"]`).first().click();
+      const hintAfterClick = await page.locator('[data-domini-target-id]').textContent();
+      check(
+        'click sets the targeting hint',
+        hintAfterClick === docFeedbackId,
+        `hint="${hintAfterClick}"`
+      );
+      const targetedBody = `targeted: ${commentBody}`;
+      await page.fill('form[data-domini-rail-form] textarea[name="body"]', targetedBody);
+      await page.click('form[data-domini-rail-form] button[type="submit"]');
+      await page.waitForFunction(
+        (body) => {
+          const raw = localStorage.getItem('dominice:smoke');
+          if (!raw) return false;
+          try {
+            const parsed = JSON.parse(raw);
+            return parsed.entries.some((e) => e.body === body);
+          } catch { return false; }
+        },
+        targetedBody,
+        { timeout: 2000 }
+      );
+      const stored2 = await page.evaluate(() => localStorage.getItem('dominice:smoke'));
+      const parsed2 = stored2 ? JSON.parse(stored2) : null;
+      const targetEntry = parsed2 && parsed2.entries.find((e) => e.body === targetedBody);
+      check(
+        'clicked-element comment persists with matching targetId',
+        !!(targetEntry && targetEntry.targetId === docFeedbackId),
+        targetEntry ? `targetId=${targetEntry.targetId}` : 'no entry'
+      );
+    } else {
+      check('doc has at least one [data-feedback] element for click test', false, 'archetype missing hooks');
+    }
   } catch (err) {
     check('uncaught test error', false, String(err && err.stack || err));
   } finally {
