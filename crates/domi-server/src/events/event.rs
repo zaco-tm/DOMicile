@@ -41,6 +41,13 @@ pub enum Kind {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EventData {
+    // Order matters: serde untagged tries variants in source order. Click
+    // and RailAdd are both optional-everything (their required fields
+    // all have defaults or Option types). Listed before Click so a
+    // `{body, targetId}` payload — the rail-add wire shape from
+    // domi-audit.js — binds to RailAdd rather than accidentally binding
+    // to Click with `body` ignored as an unknown field.
+    RailAdd { body: String, #[serde(rename = "targetId")] target_id: Option<String> },
     Click { value: Option<String> },
     Input { name: String, value: String },
     Submit {
@@ -48,7 +55,6 @@ pub enum EventData {
         form_id: String,
         fields: serde_json::Map<String, serde_json::Value>,
     },
-    RailAdd { body: String, #[serde(rename = "targetId")] target_id: Option<String> },
     RailResolve {
         #[serde(rename = "entryId")]
         entry_id: ulid::Ulid,

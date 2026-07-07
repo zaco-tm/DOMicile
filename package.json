@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node tools/skill-smoke-test.mjs",
+    "test:e2e:server": "node tools/skill-smoke-server-test.mjs",
     "lint": "eslint . && stylelint \"components/**/*.css\" && markdownlint \"**/*.md\"",
     "tokens:build": "node tools/tokens-to-css.mjs",
     "smoke": "node tools/smoke.mjs",

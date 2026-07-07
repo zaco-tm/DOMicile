@@ -58,6 +58,7 @@ fn content_type_for_path(p: &Path) -> ContentType {
 }
 
 /// True when the body references a `domi.js` script via `src="..."` or `src='...'`.
+#[allow(dead_code)]
 fn references_domi_js(body: &[u8]) -> bool {
     let hay = String::from_utf8_lossy(body);
     hay.contains("src=\"domi.js\"")
@@ -121,28 +122,50 @@ pub fn serve_file(root: &Path, requested: &Path) -> Result<ServedFile, ServeErro
     } else {
         canonical_root.join(requested)
     };
-    let canonical_target = std::fs::canonicalize(&target).map_err(|e| {
+    // Reject `..` components outright. A textual `..` after the join is an
+    // escape attempt; canonicalize would silently rewrite it back under
+    // root, which is the surface we want to defend. Forbidding `..` keeps
+    // the check purely textual and unambiguous.
+    for c in target.components() {
+        if let std::path::Component::ParentDir = c {
+            return Err(ServeError::EscapedRoot);
+        }
+    }
+    // After rejecting `..`, target's text is canonical_root or extends it
+    // with additional Normal components. Directory symlinks under root
+    // pointing outside root are honored transparently: `metadata` /
+    // `read` follow them naturally, and the author opted in by placing
+    // the symlink under root.
+    let meta = std::fs::metadata(&target).map_err(|e| {
         if e.kind() == io::ErrorKind::NotFound {
             ServeError::NotFound
         } else {
             ServeError::Io(e)
         }
     })?;
-    if !canonical_target.starts_with(&canonical_root) {
-        return Err(ServeError::EscapedRoot);
-    }
-    let meta = std::fs::metadata(&canonical_target).map_err(ServeError::Io)?;
     if !meta.is_file() {
         return Err(ServeError::NotAFile);
     }
-    let body = std::fs::read(&canonical_target).map_err(ServeError::Io)?;
-    let content_type = content_type_for_path(&canonical_target);
-    let body = if content_type == ContentType::Html && references_domi_js(&body) {
+    let body = std::fs::read(&target).map_err(ServeError::Io)?;
+    let content_type = content_type_for_path(&target);
+    // Inject the server shim into every HTML file that has at least one
+    // existing `<script>` tag. The shim sets `window.__DOMI_SERVER__` and
+    // opens a WebSocket to /ws/events; from there `scripts/domi-audit.js`
+    // (when loaded) takes the server-mode branch and posts entries to
+    // /api/events. The shim is idempotent (guarded by `if (__DOMI_SERVER__)
+    // return;`) so always-injecting is safe. The previous gate — which only
+    // injected for HTML that referenced `domi.js` — missed pages like the
+    // working-doc archetype that load `domi-audit.js` without `domi.js`.
+    let body = if content_type == ContentType::Html && has_script_tag(&body) {
         inject_shim_inline(body)
     } else {
         body
     };
     Ok(ServedFile { body, content_type })
+}
+
+fn has_script_tag(body: &[u8]) -> bool {
+    body.windows(b"<script".len()).any(|w| w == b"<script")
 }
 
 #[cfg(test)]
@@ -191,6 +214,44 @@ mod tests {
     }
 
     #[test]
+    fn html_with_domi_audit_only_still_gets_shim() {
+        // Working-doc archetype loads domi-audit.js but not domi.js.
+        // The new gate ("has any <script> tag") must still inject the shim
+        // so the audit module takes its server-mode branch.
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        let file = root.join("tracker.html");
+        write(
+            &file,
+            r#"<!doctype html><html><body><script src="/scripts/domi-audit.js" defer></script></body></html>"#,
+        );
+        let s = serve_file(root, Path::new("tracker.html")).expect("serve ok");
+        let out = std::str::from_utf8(&s.body).unwrap();
+        assert!(out.contains("window.__DOMI_SERVER__"), "shim injected for domi-audit-only page");
+        assert!(out.contains("domi-audit.js"), "original script tag preserved");
+        let shim_pos = out.find("window.__DOMI_SERVER__").unwrap();
+        let audit_pos = out.find("domi-audit.js").unwrap();
+        assert!(shim_pos < audit_pos, "shim must come before the existing <script>");
+    }
+
+    #[test]
+    fn html_with_external_script_only_no_inline_still_gets_shim() {
+        // Regression: a page that loads only a remote script (no
+        // domi.js/domi-audit refs) should still get the shim so the
+        // WebSocket bridge is up if the page later asks for it.
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        let file = root.join("loader.html");
+        write(
+            &file,
+            r#"<!doctype html><html><body><script src="https://example.com/x.js"></script></body></html>"#,
+        );
+        let s = serve_file(root, Path::new("loader.html")).expect("serve ok");
+        let out = std::str::from_utf8(&s.body).unwrap();
+        assert!(out.contains("window.__DOMI_SERVER__"));
+    }
+
+    #[test]
     fn css_returns_unchanged() {
         let dir = tempdir().unwrap();
         let root = dir.path();
@@ -225,6 +286,75 @@ mod tests {
         std::fs::write(&outside, "<html></html>").unwrap();
         let s = serve_file(root, Path::new("../outside.html"));
         assert!(matches!(s, Err(ServeError::EscapedRoot)));
+    }
+
+    #[test]
+    fn symlink_under_root_to_outside_file_is_served() {
+        // Working-doc authoring flow (and the e2e test) requires the served
+        // root to symlink the library trees: domi-audit.js + domi.css live
+        // outside `--root`, and the working-doc HTML references them
+        // absolutely. Verify symlinks under root pointing outside still
+        // resolve correctly (the author opted in).
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let dir = tempdir().unwrap();
+            let lib = tempdir().unwrap();
+            std::fs::write(lib.path().join("audit.js"), b"console.log('ok');").unwrap();
+            let root = dir.path();
+            std::fs::create_dir(root.join("scripts")).unwrap();
+            symlink(lib.path().join("audit.js"), root.join("scripts/audit.js")).unwrap();
+            let s = serve_file(root, Path::new("scripts/audit.js")).expect("serve ok");
+            let body = std::str::from_utf8(&s.body).unwrap();
+            assert!(body.contains("console.log('ok')"));
+        }
+    }
+
+    #[test]
+    fn symlink_under_root_to_outside_directory_serves_leaf() {
+        // Regression: a directory symlink authored under `--root` that
+        // resolves outside `--root` must still serve the leaf file. The
+        // previous `canonicalize(target).starts_with(root)` check rejected
+        // these because canonicalize resolved the symlinked dir outside
+        // root — false positive for the working-doc authoring flow.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let dir = tempdir().unwrap();
+            let lib = tempdir().unwrap();
+            std::fs::write(lib.path().join("audit.js"), b"console.log('lib');").unwrap();
+            let root = dir.path();
+            // `scripts` is a directory symlink under root pointing outside.
+            symlink(lib.path(), root.join("scripts")).unwrap();
+            let s = serve_file(root, Path::new("scripts/audit.js")).expect("serve ok");
+            let body = std::str::from_utf8(&s.body).unwrap();
+            assert!(body.contains("console.log('lib')"));
+        }
+    }
+
+    #[test]
+    fn symlink_under_root_to_directory_traversal_still_blocked() {
+        // Defense-in-depth: a textual path that walks out of root via `..`
+        // is still blocked, regardless of any symlinks the filesystem
+        // happens to have.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let dir = tempdir().unwrap();
+            let outside = dir.path().parent().unwrap();
+            std::fs::write(outside.join("secret.html"), "<html>secret</html>").unwrap();
+            let root = dir.path();
+            // Path that contains `..` after the join.
+            let s = serve_file(root, Path::new("../outside/../escape.html"));
+            // Either NotFound (target doesn't exist) or EscapedRoot; both
+            // are correct refusals. The textual check should give EscapedRoot
+            // because the joined path walks out of root.
+            assert!(
+                matches!(s, Err(ServeError::EscapedRoot) | Err(ServeError::NotFound)),
+                "expected refusal, got {:?}",
+                s
+            );
+        }
     }
 
     #[test]

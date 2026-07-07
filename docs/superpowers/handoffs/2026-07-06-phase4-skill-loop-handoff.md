@@ -106,6 +106,25 @@ Risk: zero — Playwright only sees the artifact; nothing in the project depends
 
 Risk: low — Rust binary is stable. Configuration-only work.
 
+**Status: done** as of the `wire domi-server` commit. Three pieces of the existing server turned out to be mis-wired for the working-doc flow:
+
+  1. **Shim injection gate** (`crates/domi-server/src/serve/file.rs`): the previous `html && references_domi_js(&body)` predicate missed pages like the working-doc archetype that load `domi-audit.js` without `domi.js`. New gate: any HTML with a `<script>` tag. Tests: 2 new unit tests (`html_with_domi_audit_only_still_gets_shim`, `html_with_external_script_only_no_inline_still_gets_shim`).
+  2. **Path-escape contained symlinks** (`crates/domi-server/src/serve/file.rs`): the prior `canonicalize(target).starts_with(root)` check rejected directory symlinks authored *under* `--root` that resolve outside the root via symlink-traversal. The working-doc authoring flow symlinks the library tree (components/, scripts/) under `.domi/output/`, which is exactly that case. New check: reject any `..` component outright, then read the file directly via `metadata(target)`/`read(target)` which follow symlinks transparently. Tests: `symlink_under_root_to_outside_directory_serves_leaf` covers the fix.
+  3. **EventData untagged ordering** (`crates/domi-server/src/events/event.rs`): `serde(untagged)` on `EventData` was committing `{body, targetId}` payloads to `Click {value: None}` (the first variant that accepts an "all-optional" struct) instead of `RailAdd`. Reordered so `RailAdd` precedes `Click`. Tests: `all_six_kinds_serialize` still passes (round-trip doesn't depend on order, but I'm flagging that this is structurally relevant).
+  4. **Null rect for rail-add** (`crates/domi-server/src/http/handlers.rs`): `domi-audit.js` sends `rect: null` because the rail has no bounding-rect concept, but the server's typed `Rect` was non-nullable. Added normalization for `target.rect == null` → default zeros, plus a `post_event_accepts_null_rect_for_rail_audit` regression test.
+
+End-to-end coverage: `tools/skill-smoke-server-test.mjs` spawns `target/release/domi-server` on a temp root, stages the working doc via `tools/skill-smoke.mjs`-style clone + symlink, drives Playwright, asserts:
+
+  - server returns the HTML at 200;
+  - `window.__DOMI_SERVER__` is injected (shim landed);
+  - audit rail mounts and accepts a comment submission;
+  - comment appears in the rail via the server's WS bridge;
+  - `GET /api/events?doc=<doc>` returns the entry with `src: domi-audit.js`.
+
+Wired into npm as `npm run test:e2e:server` and as `scripts/verify-skill-loop-server.sh` (parallels `scripts/verify-skill-loop.sh` and `scripts/verify.sh`).
+
+Updated `SKILL.md` §Output locations with a one-liner pointing at the server-mode path.
+
 ### 5. THEN publish — only after 1, 2, 3 land
 
 Once a human can author + comment + reload + iterate with the skill:
@@ -174,4 +193,4 @@ These remain valid and re-prioritize after publishing:
 
 ## Sign-off
 
-Phase 2d + 3a + 3b + 3c are on `main`. Items 1, 2, and 3 of the priority list are landed (skill-smoke wiring + fresh-agent drive-through + Playwright e2e test). Distribution (item 5) is now safe to start. This doc replaces the previous distribution-flavored handoff; the previous commit (`1326ee2`) is reverted as part of the same change so the file map is clean.
+Phase 2d + 3a + 3b + 3c are on `main`. Items 1, 2, 3, and 4 of the priority list are landed (skill-smoke wiring, fresh-agent drive-through, Playwright e2e standalone, and server-mode wiring with four server-side fixes surfaced). Distribution (item 5) is now safe to start. This doc replaces the previous distribution-flavored handoff; the previous commit (`1326ee2`) is reverted as part of the same change so the file map is clean.

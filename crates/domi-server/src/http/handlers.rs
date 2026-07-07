@@ -115,6 +115,16 @@ pub async fn post_event(
             "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0}
         });
     }
+    // 4b. Substitute default Rect if target.rect is null. domi-audit.js's
+    // rail-add path sends `rect: null` because the rail itself has no
+    // bounding-rect concept (the target is the rail, not an element).
+    // Without this, serde rejects the body with "invalid event: missing
+    // field rect" and the comment is silently dropped on 400.
+    if let Some(t) = raw.get_mut("target") {
+        if t.get("rect").map_or(false, |r| r.is_null()) {
+            t["rect"] = json!({"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0});
+        }
+    }
 
     // 5. Deserialize to typed Event.
     let event: crate::events::Event = match serde_json::from_value(raw) {
@@ -487,6 +497,42 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn post_event_accepts_null_rect_for_rail_audit() {
+        // domi-audit.js rail-add sends `rect: null` (the rail has no
+        // bounding-rect concept). The server normalizes null rects to a
+        // default instead of returning 400. Without this normalization
+        // the comment is silently dropped, breaking the skill loop.
+        let (state, _dir) = test_state();
+        let app = super::super::router::build_router(state.clone());
+        let payload = json!({
+            "v": 2,
+            "id": null,
+            "ts": "2026-07-05T18:21:00Z",
+            "src": "domi-audit.js",
+            "doc": "smoke-rail",
+            "kind": "rail-add",
+            "target": {
+                "id": null,
+                "selector": null,
+                "rect": null
+            },
+            "data": { "body": "hi", "targetId": null }
+        });
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(post_url())
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
     }
     use crate::events::{Event, EventData, Kind, Rect, Source, Target};
     use ulid::Ulid;
