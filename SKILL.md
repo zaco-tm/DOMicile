@@ -45,6 +45,17 @@ The agent includes on every working-doc page:
 - A status chip showing `vN` of the working doc, visible top-right.
 - Thread entries are scoped to a target id and rendered next to the element on reload.
 
+**Per-element targeting is the whole point.** When the user clicks an element with a `data-feedback` hook, the form's "Targeting" hint updates to that id and the next comment submits with that `targetId` instead of `null`. The user's typical loop is: open the doc, click section X, leave a comment, click section Y, leave another comment, hit the agent with "iterate." Thread entries persist in `localStorage` (standalone) or the Rust server.
+
+**Iteration mode is piece-by-piece, not page-at-a-time.** When the user says "build X," "design Y," or hands you a working-doc prompt, do **not** generate the entire artifact in one turn. Instead:
+
+1. Build **one section first** with real primitives and a `data-feedback="<section-name>"` hook. Hand off with the URL ready.
+2. Wait for the user to click that section and leave a comment. They will comment on the smallest pieces — headings, card copy, button hierarchy — not the whole page.
+3. Revise that section. Bump the status chip to `vN`. Hand off again.
+4. Repeat for the next section.
+
+If the user explicitly asks for "the full thing," you may draft the whole doc in one turn, but the section hooks, status chip, and click-to-target wiring must all be in place so iteration can begin immediately.
+
 See `docs/AUDIT.md` for the JSON schema, domi-audit API, and end-to-end loop.
 
 ## Authoring new UI work (not consuming existing)

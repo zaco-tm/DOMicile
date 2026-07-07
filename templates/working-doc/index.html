@@ -11,17 +11,28 @@
     .domini-rail-form button { margin-top: 4px; }
     .domini-rail-list { padding-left: 16px; }
     [data-domini-status-chip] { position: fixed; top: 12px; right: 12px; }
+    /* The runtime sets [data-domini-target] on the element whose hook the next
+       comment will attach to. The outline is the user's only signal that they
+       clicked the right thing before submitting. */
+    [data-feedback] { cursor: copy; transition: outline-color .15s ease; }
+    [data-feedback]:hover { outline: 1px dashed rgba(60, 35, 66, 0.35); outline-offset: 4px; }
+    [data-feedback][data-domini-target] { outline: 2px solid #c2410c; outline-offset: 4px; }
   </style>
 </head>
 <body>
   <main>
     <h1 data-feedback="doc-title">Example working doc</h1>
     <p>This is a reference working doc. Clone it; replace content with the thing you're actually working on.</p>
+    <p>Click any element below to set it as the comment target, then type your note in the rail and submit.</p>
     <section data-feedback="section-kpis">
       <h2>KPIs</h2>
       <article class="domi-card" data-feedback="kpi-revenue">
         <h3>Revenue</h3>
         <p>$0</p>
+      </article>
+      <article class="domi-card" data-feedback="kpi-active-users">
+        <h3>Active users</h3>
+        <p>0</p>
       </article>
     </section>
   </main>
