@@ -31,6 +31,7 @@ If you're not sure which mode, ask one question with the linguistic signal you s
 - Working artifacts: `.domi/output/<name>.html`
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
 - Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/domi.js`, `scripts/domi-audit.js`, `templates/<archetype>/index.html`
+- Reference working doc: `templates/working-doc/index.html` — **clone it as your starting point** for any working-doc-mode artifact (audit rail, status chip, `data-feedback` hooks, neo skin all in place). `tools/skill-smoke.mjs` does the same clone + serves it on `http://127.0.0.1:8123/` for review.
 
 Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
 
