@@ -23,6 +23,7 @@
   let _docName = '';
   let _statePath = '';
   let _hydrationDone = false;
+  let _activeTargetId = null;
 
   function fetchFromServer(docName) {
     if (!SERVER || typeof fetch === 'undefined') return Promise.resolve(_state);
@@ -129,6 +130,9 @@
       const form = document.createElement('form');
       form.setAttribute('data-domini-rail-form', '');
       form.innerHTML = `
+        <div data-domini-target-hint style="font-size:12px;opacity:.7;margin-bottom:4px;">
+          Targeting: <strong data-domini-target-id>(doc — click an element)</strong>
+        </div>
         <textarea name="body" rows="2" placeholder="Comment on this doc…"></textarea>
         <button type="submit">Add</button>
       `;
@@ -137,9 +141,27 @@
         e.preventDefault();
         const body = form.elements['body'].value.trim();
         if (!body) return;
-        addComment({ targetId: null, body });
+        addComment({ targetId: _activeTargetId, body });
         form.elements['body'].value = '';
+        setActiveTarget(null);
       });
+
+      document.addEventListener('click', (ev) => {
+        if (ev.target.closest('aside[data-domini-rail]')) return;
+        if (ev.target.closest('form')) return;
+        const el = ev.target.closest('[data-feedback]');
+        if (!el) { setActiveTarget(null); return; }
+        setActiveTarget(el.getAttribute('data-feedback'), el);
+      });
+      function setActiveTarget(id, el) {
+        _activeTargetId = id || null;
+        const hint = rail.querySelector('[data-domini-target-id]');
+        if (hint) hint.textContent = id ? `${id}` : '(doc — click an element)';
+        document.querySelectorAll('[data-feedback][data-domini-target]').forEach((n) => {
+          n.removeAttribute('data-domini-target');
+        });
+        if (el) el.setAttribute('data-domini-target', '');
+      }
       const list = document.createElement('ul');
       list.setAttribute('data-domini-rail-list', '');
       rail.appendChild(list);
