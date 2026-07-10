@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "graph": "graphify --update",
+    "pretest": "node tools/check-file-size.mjs --no-fail",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node tools/skill-smoke-test.mjs",

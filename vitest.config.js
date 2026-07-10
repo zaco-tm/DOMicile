@@ -6,6 +6,7 @@ export default defineConfig({
     include: [
       "tests/**/*.test.{js,ts,tsx}",
       "packages/**/tests/**/*.test.{js,ts,tsx}",
+      "tools/tests/**/*.test.{js,mjs}",
     ],
     globals: false,
   },
