@@ -5,7 +5,7 @@
 //      (rewriting ../../components and ../../scripts paths to root-relative
 //      so they resolve under the served URL).
 //   2. Serve the project root on http://127.0.0.1:<port>/ so the cloned
-//      doc, the library's components/domi.css, and scripts/domi-audit.js
+//      doc, the library's components/domi.css, and scripts/runtime/domi-audit.js
 //      all resolve.
 //   3. Print the URL a human reviewer can open. Ctrl-C to stop.
 //
@@ -157,7 +157,7 @@ setTimeout(() => {
     r.on('end', () => {
       const checks = [
         ['data-feedback hooks present', /data-feedback="[^"]+"/.test(buf)],
-        ['scripts/domi-audit.js loaded', /\/scripts\/domi-audit\.js/.test(buf)],
+        ['scripts/runtime/domi-audit.js loaded', /\/scripts\/domi-audit\.js/.test(buf)],
         ['DomiAudit.mount invoked', /DomiAudit\.mount/.test(buf)],
         // The status chip should reflect the docName (not the archetype's
         // default text "v0.1.0-working"); regression-tested after a rewrite

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 
-const SRC = readFileSync('scripts/domi-audit.js', 'utf8');
+const SRC = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
 
 describe('domi-audit.js runtime', () => {
   beforeEach(() => {
@@ -114,7 +114,7 @@ describe('domi-audit.js runtime', () => {
 describe('domi-audit.js server mode', () => {
   let src;
   beforeEach(() => {
-    src = readFileSync('scripts/domi-audit.js', 'utf8');
+    src = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
     document.body.innerHTML = '';
     localStorage.clear();
     delete globalThis.DomiAudit;

@@ -53,7 +53,7 @@ esac
 
 if [ "$NO_VERIFY" = 0 ] && [ "$DRY_RUN" = 0 ]; then
     echo "==> Verifying install"
-    "$ROOT_DIR/scripts/verify.sh" --prefix "$PREFIX" || { echo "verify failed" >&2; exit 3; }
+    "$ROOT_DIR/scripts/shell/verify.sh" --prefix "$PREFIX" || { echo "verify failed" >&2; exit 3; }
 fi
 
 echo "==> Done."

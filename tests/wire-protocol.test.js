@@ -149,7 +149,7 @@ const LIVE = !!process.env.DOMI_TEST_LIVE;
  * Resolve the `domi-server` / `domi` binary path. Prefers the
  * `DOMI_SERVER_BIN` / `DOMI_BIN` env override (CI / sandboxed
  * environments), falls back to `$HOME/.local/bin/{name}` (the
- * `scripts/install.sh` default), and finally to PATH lookup
+ * `scripts/shell/install.sh` default), and finally to PATH lookup
  * (return bare name; `spawn` will resolve via PATH).
  */
 function resolveBin(name) {
@@ -168,7 +168,7 @@ function resolveBin(name) {
  * then close the listener and return the port. There is a TOCTOU window
  * between close and `domi-server` binding it; for a single-test
  * sequential run this is acceptable (matches the convenience pattern
- * in `scripts/verify.sh`).
+ * in `scripts/shell/verify.sh`).
  */
 function pickFreePort() {
   return new Promise((resolveP, rejectP) => {

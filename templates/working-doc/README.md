@@ -7,7 +7,7 @@ Use this archetype when the user says "let's work on X," "review this," or anywh
 ## What it ships with
 
 - `index.html` — the template; clone it.
-- It loads `../../scripts/domi-audit.js` to mount the rail.
+- It loads `../../scripts/runtime/domi-audit.js` to mount the rail.
 - It expects `.domi/state/<docName>.json` to be writable; in Phase 1, `domi-audit.js` mirrors to `localStorage`.
 - It wears the neo skin via `../../components/domi.css`.
 

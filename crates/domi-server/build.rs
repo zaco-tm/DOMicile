@@ -3,14 +3,14 @@ use std::path::PathBuf;
 fn main() {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let repo_root = manifest_dir.parent().and_then(|p| p.parent()).expect("workspace root");
-    let shim_path = repo_root.join("scripts").join("domi-server.js");
+    let shim_path = repo_root.join("scripts").join("runtime").join("domi-server.js");
     println!("cargo:rerun-if-changed={}", shim_path.display());
 
     let bytes = std::fs::read(&shim_path).unwrap_or_else(|e| {
         panic!(
             "domi-server.js shim not found at {}: {e}. \
              The Rust crate embeds the JS shim at compile time; \
-             the file must live at <repo>/scripts/domi-server.js.",
+             the file must live at <repo>/scripts/runtime/domi-server.js.",
             shim_path.display()
         )
     });

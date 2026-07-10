@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const SHIM = readFileSync(resolve(here, '../scripts/domi-server.js'), 'utf8');
+const SHIM = readFileSync(resolve(here, '../scripts/runtime/domi-server.js'), 'utf8');
 
 describe('domi-server.js shim', () => {
   it('sets window.__DOMI_SERVER__ to true', () => {

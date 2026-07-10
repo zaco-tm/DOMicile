@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const domiSrc = readFileSync(resolve(here, '../scripts/domi.js'), 'utf8');
+const domiSrc = readFileSync(resolve(here, '../scripts/runtime/domi.js'), 'utf8');
 
 describe('domi.js', () => {
   beforeEach(() => {
@@ -67,7 +67,7 @@ describe('domi.js', () => {
 describe('domi.js server mode', () => {
   let domiSrc;
   beforeEach(() => {
-    domiSrc = readFileSync(resolve(here, '../scripts/domi.js'), 'utf8');
+    domiSrc = readFileSync(resolve(here, '../scripts/runtime/domi.js'), 'utf8');
     document.body.innerHTML = '<div id="root"></div>';
     localStorage.clear();
     delete window.__DOMI_SERVER__;

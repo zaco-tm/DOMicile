@@ -4,7 +4,7 @@ Each example is a self-contained HTML file you can open with `file://` to see th
 
 ## `example-audit.html`
 
-A working-doc-mode artifact with the feedback rail wired up. It loads `../templates/working-doc/index.html`'s structure and `../scripts/domi-audit.js`.
+A working-doc-mode artifact with the feedback rail wired up. It loads `../templates/working-doc/index.html`'s structure and `../scripts/runtime/domi-audit.js`.
 
 Open it, type in the rail, reload — the comment persists via `localStorage` under `dominice:example-audit`.
 

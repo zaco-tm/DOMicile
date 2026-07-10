@@ -30,9 +30,9 @@ If you're not sure which mode, ask one question with the linguistic signal you s
 
 - Working artifacts: `.domi/output/<name>.html`
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
-- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/domi.js`, `scripts/domi-audit.js`, `templates/<archetype>/index.html`
+- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `templates/<archetype>/index.html`
 - Reference working doc: `templates/working-doc/index.html` — **clone it as your starting point** for any working-doc-mode artifact (audit rail, status chip, `data-feedback` hooks, neo skin all in place). `tools/skill-smoke.mjs` does the same clone + serves it on `http://127.0.0.1:8123/` for review. The smoke serves until SIGINT — foreground run with Ctrl-C; if you background it (common for non-interactive agents), record the PID and `kill <pid>` when finished.
-- Event-backed serving: for the audit thread to persist across reloads/devices, serve from the Rust `domi-server` binary (`cargo build --release -p domi-server`, then `domi-server --root .domi/output --state .domi/state`). The server auto-injects a `window.__DOMI_SERVER__ = true` shim into the working doc; `scripts/domi-audit.js` then routes comments to `POST /api/events` instead of `localStorage`. Use `tools/skill-smoke-server-test.mjs` to verify the loop end-to-end (boots the binary, drives Playwright, asserts `/api/events?doc=<name>` returns the comment).
+- Event-backed serving: for the audit thread to persist across reloads/devices, serve from the Rust `domi-server` binary (`cargo build --release -p domi-server`, then `domi-server --root .domi/output --state .domi/state`). The server auto-injects a `window.__DOMI_SERVER__ = true` shim into the working doc; `scripts/runtime/domi-audit.js` then routes comments to `POST /api/events` instead of `localStorage`. Use `tools/skill-smoke-server-test.mjs` to verify the loop end-to-end (boots the binary, drives Playwright, asserts `/api/events?doc=<name>` returns the comment).
 
 Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
 
@@ -40,7 +40,7 @@ Do NOT edit the library to do a one-off artifact. Edit the library only when the
 
 The agent includes on every working-doc page:
 
-- A right-side feedback rail (loaded from `scripts/domi-audit.js`).
+- A right-side feedback rail (loaded from `scripts/runtime/domi-audit.js`).
 - `data-feedback="<meaningful-id>"` on every element the user is likely to want to comment on (section headers, interactive primitives, layout decisions).
 - A status chip showing `vN` of the working doc, visible top-right.
 - Thread entries are scoped to a target id and rendered next to the element on reload.

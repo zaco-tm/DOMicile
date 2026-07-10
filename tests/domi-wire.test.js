@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { isServerMode, serverOrigin, postEvent, getEvents, onServerEvent } from '../scripts/domi-wire.js';
+import { isServerMode, serverOrigin, postEvent, getEvents, onServerEvent } from '../scripts/runtime/domi-wire.js';
 
 describe('domi-wire.js helpers', () => {
   beforeEach(() => {
