@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Library invariant held.** `tokens/`, `components/`, `components/primitives/*/`, `scripts/domi*.js`, `scripts/domi-audit.js`, `scripts/domi-server.js`, `scripts/domi-wire.js`, `examples/`, `crates/`, `templates/`, `tools/` are **untouched** by 3b. The pre-existing dirty `components/domi.css` is preserved.
+- **Library invariant held.** `tokens/`, `components/`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `scripts/runtime/domi-audit.js`, `scripts/runtime/domi-server.js`, `scripts/runtime/domi-wire.js`, `examples/`, `crates/`, `templates/`, `tools/` are **untouched** by 3b. The pre-existing dirty `components/domi.css` is preserved.
 - **TDD.** Tests written before implementation. Tests fail (red), code passes (green), then refactor. Component tests use `experimental_AstroContainer` from `astro/container`.
 - **CSS is source of truth.** Wrapper components never construct class names from JS. Every variant/size union must match an existing `.domi-*` suffix in `components/domi.css`. Verified by `tests/css-audit-consistency.test.ts` against the shared `packages/react/CSS-AUDIT.md`.
 - **`packages/astro/` is the only new directory.** No edits to `crates/`, `templates/`, `tools/`, or root `package.json` (workspaces glob already covers `packages/*`).
@@ -1682,7 +1682,7 @@ git commit -m "feat(astro): barrel index.ts + README"
 ### 11.1 Library invariant
 
 ```bash
-git status --short -- components/ tokens/ scripts/domi*.js examples/ crates/ templates/ tools/
+git status --short -- components/ tokens/ scripts/runtime/domi*.js examples/ crates/ templates/ tools/
 ```
 
 Expected: only ` M components/domi.css` (pre-existing dirty, preserved). All other paths: no output.

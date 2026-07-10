@@ -14,7 +14,7 @@ rust-toolchain.toml           # pins stable channel
 crates/
   domi-server/
     Cargo.toml                # crate manifest + [[bin]] name="domi-server"
-    build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
+    build.rs                              # reads scripts/runtime/domi-server.js → SHIM_BYTES
     src/
       lib.rs                  # re-exports events, serve, http
       main.rs                 # tokio::main → http::run
@@ -65,7 +65,7 @@ cargo test -p domi-server
 
 - The Rust crate produces JSON the same way `serde_json::to_writer` writes it. The JSON Schema (`docs/schemas/event.schema.json`) cross-checks the typed Rust struct against the typed JS test fixtures at `tests/wire-protocol.test.js`. If either drifts, the cross-language check fails.
 - The Rust crate's `Event` type is the canonical source of truth for the protocol. The JSON Schema is documentation plus a cross-language regression test.
-- The DOMiNice JS runtimes (`scripts/domi.js`, `scripts/domi-audit.js`) currently use `localStorage`. Phase 2b will switch them to write to the server's `/api/events` endpoint using the same JSON shape. The Rust writer knows nothing about the JS runtimes beyond the wire format.
+- The DOMiNice JS runtimes (`scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`) currently use `localStorage`. Phase 2b will switch them to write to the server's `/api/events` endpoint using the same JSON shape. The Rust writer knows nothing about the JS runtimes beyond the wire format.
 
 ## Versions and pinning
 
@@ -80,7 +80,7 @@ cargo test -p domi-server
 | 2c-α | `domi-server` library | `events` module — **done** |
 | 2c-β | `domi-server` library | `serve` module — **done** |
 | 2c-γ | `domi-server` binary | `main.rs` + `http/` — **done** |
-|   2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/install.sh` + `scripts/verify.sh` — **done** |
+|   2d | `domi-server` binary (`tools/`) | agent CLI (`domi tail` / `replay` / `push`) + `scripts/shell/install.sh` + `scripts/shell/verify.sh` — **done** |
 | 3c | `domi-egui` library + smoke | `crates/domi-egui` — 15 egui leaves + 5 composites; tokens.rs build-time codegen — **done** |
 
 `β` and `γ` will each get their own brainstorm + plan + execute cycle, against this crate's library API.

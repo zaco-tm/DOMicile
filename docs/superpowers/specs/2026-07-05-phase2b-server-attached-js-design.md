@@ -13,10 +13,10 @@
 
 Phase 1 produced two JS runtimes:
 
-- `scripts/domi.js` — captures clicks and inputs, writes to `localStorage`, exports JSONL.
-- `scripts/domi-audit.js` — backs the audit rail (a per-doc comment thread), also writes to `localStorage`.
+- `scripts/runtime/domi.js` — captures clicks and inputs, writes to `localStorage`, exports JSONL.
+- `scripts/runtime/domi-audit.js` — backs the audit rail (a per-doc comment thread), also writes to `localStorage`.
 
-Phase 2a pinned the v2 wire format. The event payload (`{v, id, ts, src, doc, kind, target, data}`) is structurally different from the Phase 1 localStorage entries. Phase 2c-β shipped `scripts/domi-server.js` — a tiny shim that, when served with HTML by the Phase 2 binary, sets `window.__DOMI_SERVER__ = true` and opens a WebSocket.
+Phase 2a pinned the v2 wire format. The event payload (`{v, id, ts, src, doc, kind, target, data}`) is structurally different from the Phase 1 localStorage entries. Phase 2c-β shipped `scripts/runtime/domi-server.js` — a tiny shim that, when served with HTML by the Phase 2 binary, sets `window.__DOMI_SERVER__ = true` and opens a WebSocket.
 
 What remains before the loop is closed: **the two Phase 1 runtimes need to detect the server-attached flag and route events to `POST /api/events` (or via the WebSocket) instead of localStorage.** That's 2b.
 
@@ -27,7 +27,7 @@ Lock two design defaults up front because they're load-bearing:
 
 ## Goals
 
-- `scripts/domi.js` and `scripts/domi-audit.js` work as before in standalone mode (no flag → localStorage).
+- `scripts/runtime/domi.js` and `scripts/runtime/domi-audit.js` work as before in standalone mode (no flag → localStorage).
 - When the server-attached shim runs first (sets `window.__DOMI_SERVER__ = true` and connects the WebSocket), both runtimes switch to server mode:
   - `domi.js` POSTs v2 events; localStorage becomes read-only.
   - `domi-audit.js` POSTs v2 `rail-add` and `rail-resolve` events; hydrates from `GET /api/events?since=&doc=<doc>` on mount.
@@ -198,8 +198,8 @@ This is a small API break for any caller expecting Phase 1's exact localStorage-
 
 | Path | Action | Notes |
 |---|---|---|
-| `scripts/domi.js` | Modify | Mode-switch in `logEvent`, `debounce` save, `exportFeedback`. +~80 lines. |
-| `scripts/domi-audit.js` | Modify | Mode-switch in `mount`, `addComment`. New `resolveEntry` method. Rehydration via `fetch`. +~100 lines. |
+| `scripts/runtime/domi.js` | Modify | Mode-switch in `logEvent`, `debounce` save, `exportFeedback`. +~80 lines. |
+| `scripts/runtime/domi-audit.js` | Modify | Mode-switch in `mount`, `addComment`. New `resolveEntry` method. Rehydration via `fetch`. +~100 lines. |
 | `tests/domi.test.js` | Modify | Add server-mode tests (~5 new). |
 | `tests/domi-audit.test.js` | Modify | Add server-mode + rehydration tests (~5 new). |
 | `tests/wire-protocol.test.js` | Modify | Add a sample event posted from JS without `id`; existing assertions for `v: 2` still pass. |

@@ -14,7 +14,7 @@
 
 These come from the spec + `AGENTS.md`. Every task's requirements implicitly include this list. Spec copy is quoted verbatim.
 
-- **Library invariant held** (spec §Non-goals): `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/domi*.js`, `examples/` *(root repo examples/ — DOMiNice example working-doc artifacts — NOT the crate's `crates/domi-egui/examples/` Cargo convention)*, `crates/domi-server/**`, `templates/`, `tools/` are **untouched** by 3c.
+- **Library invariant held** (spec §Non-goals): `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `examples/` *(root repo examples/ — DOMiNice example working-doc artifacts — NOT the crate's `crates/domi-egui/examples/` Cargo convention)*, `crates/domi-server/**`, `templates/`, `tools/` are **untouched** by 3c.
 - **`rust-toolchain.toml` floor field becomes `1.83`** (spec §K).
 - **`docs/RUST.md` MSRV line changes from `1.75 (...)` to `1.83 (egui 0.32.x floor)`** (spec §A root-changes; §K); phasing table gains a 3c row.
 - **MSRV bump is workspace-wide** (spec §Open questions 12): both `crates/domi-server` and `crates/domi-egui` build under toolchain 1.83; no source change to `crates/domi-server` is needed (its deps already use 1.83+ features transitively).

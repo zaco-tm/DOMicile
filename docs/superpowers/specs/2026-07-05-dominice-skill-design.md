@@ -120,7 +120,7 @@ No edits to `docs/DESIGN.md`, `docs/USAGE.md`, `docs/STANDARDS.md` — those des
 | `docs/AUDIT.md` | Create | Section D. |
 | `docs/EXTENDING.md` | Create | Section C. |
 | `INIT.md` | Touch up | Verify links/references after the SKILL.md rewrite. |
-| `scripts/domi.js` | Edit, additive only | Add a `DomiAudit` runtime that mounts the feedback rail and reads/writes `.domi/state/<name>.json` via localStorage mirroring. Bump version chip. |
+| `scripts/runtime/domi.js` | Edit, additive only | Add a `DomiAudit` runtime that mounts the feedback rail and reads/writes `.domi/state/<name>.json` via localStorage mirroring. Bump version chip. |
 | `status/STATUS.html` | Touch up | Reflect new skill structure if it claims authority over the library version. |
 | `RELEASE-NOTES-v0.1.0.md` | Append section | Note the SKILL reframe at the bottom of the v0.1.0 notes (since SKILL.md changes are still v0.1.0). |
 
@@ -129,7 +129,7 @@ No edits to `docs/DESIGN.md`, `docs/USAGE.md`, `docs/STANDARDS.md` — those des
 ## Risks and open questions
 
 - **Feedback-rail UX.** Is "sidebar with element-scoped comments" really the right shape? Alternatives: annotation pins directly on the DOM, a separate chat-style panel. Phase 1 keeps it simple (sidebar); revisit if users hate it.
-- **DOMi.js scope creep.** Adding the audit rail to `domi.js` risks ballooning the runtime. A separate `scripts/domi-audit.js` would be cleaner; defer that decision until AUDIT.md is drafted and we see how much code it actually takes.
+- **DOMi.js scope creep.** Adding the audit rail to `domi.js` risks ballooning the runtime. A separate `scripts/runtime/domi-audit.js` would be cleaner; defer that decision until AUDIT.md is drafted and we see how much code it actually takes.
 - **Mode-misclassification.** Heuristics on user phrasing ("let's" vs "ship") are brittle. Phase 2 (live server + Linear-style triage) may want an explicit mode picker.
 - **Library extension vs. output contamination.** An agent generating a "new theme" might dump its CSS in `.domi/output/` and call it done. The skill must remind it to use the contribution flow when extending the library proper.
 
@@ -140,6 +140,6 @@ The rework is done when:
 - `SKILL.md` rewritten per Section F.
 - `docs/AUDIT.md` and `docs/EXTENDING.md` exist and are skim-readable.
 - `INIT.md` references the new SKILL.md.
-- `scripts/domi-audit.js` (or the in-place extension to `domi.js`) exists and demonstrates a working feedback rail on at least one example artifact.
+- `scripts/runtime/domi-audit.js` (or the in-place extension to `domi.js`) exists and demonstrates a working feedback rail on at least one example artifact.
 - A short README/code-comment trail tells future contributors which subsystems the skill owns vs. the library owns.
 - Existing tests still pass (`npm test`).

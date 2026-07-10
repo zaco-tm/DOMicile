@@ -16,7 +16,7 @@ Phase 3b is **complete and merge-ready** with **one significant divergence from 
 - `@domi/astro` 0.1.0 exists with **15 native `.astro` wrappers** + `cn` (no, no `cn` — Astro doesn't need it) plus an exported types module.
 - Source-only distribution (no build step) — consumers' Astro compiler handles the files at their site.
 - **240 JS tests pass** (was 161 before 3b → +79 net new). **Cargo: 60 passed, 13 ignored** (Phase 2d baseline preserved).
-- **Library invariant held**: zero edits to `tokens/`, `components/`, `components/primitives/*/`, `scripts/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/`. Pre-existing dirty `components/domi.css` preserved.
+- **Library invariant held**: zero edits to `tokens/`, `components/`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/`. Pre-existing dirty `components/domi.css` preserved.
 - **Whole-branch review** is the recommended next step (per the plan's "Execution Handoff" section).
 
 ---
@@ -170,7 +170,7 @@ cd packages/astro && npm test      # → 79 passed
 cd packages/astro && npx astro check   # → 15 files, 0 errors, 0 warnings, 0 hints
 
 # Library invariant
-git status --short components/ tokens/ scripts/domi*.js examples/ crates/ templates/ tools/
+git status --short components/ tokens/ scripts/runtime/domi*.js examples/ crates/ templates/ tools/
 # → only ` M components/domi.css` (pre-existing dirty, preserved). All other paths: no output.
 
 # Cargo

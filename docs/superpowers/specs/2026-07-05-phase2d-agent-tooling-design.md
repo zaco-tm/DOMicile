@@ -7,7 +7,7 @@
 - `docs/WIRE-PROTOCOL.md` (v2 wire format — pinned by 2a)
 - `docs/schemas/event.schema.json` (canonical event shape — pinned by 2a)
 - `crates/domi-server/` library + `domi-server` binary (shipped in 2c-γ): `EventWriter`, `serve_file`, `protocol_banner`, all five HTTP routes (`GET /`, `GET /<path>`, `POST /api/events`, `GET /api/events`, `GET /ws/events`, `GET /healthz`)
-- `scripts/domi.js` + `scripts/domi-audit.js` server-attached mode (shipped in 2b)
+- `scripts/runtime/domi.js` + `scripts/runtime/domi-audit.js` server-attached mode (shipped in 2b)
 - `RELEASE-NOTES-v0.1.0.md` (release-notes section added in 2c-γ)
 
 ## Problem
@@ -27,7 +27,7 @@ Without these three, `domi-server` is technically shippable but operationally un
 - Ship `verify.sh` that runs the install flow against a temp prefix, boots the binary on an ephemeral port, asserts the four end-to-end invariants listed below, and shuts it down cleanly. Exit code 0 on full pass, non-zero on first failed assertion.
 - Cargo.lock policy decision documented (see **Open Q2**).
 - Tests: `tools/` CLI gets unit + integration coverage against a real booted binary (reuse the 2c-γ `binary_smoke` pattern — `tempfile` + ephemeral port + `tokio::spawn` of `domi_server::http::run`).
-- Library invariant held: `tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`, `crates/domi-server/` (already shipped) are untouched.
+- Library invariant held: `tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`, `crates/domi-server/` (already shipped) are untouched.
 
 ## Non-goals
 
@@ -67,7 +67,7 @@ Currently gitignored (since 2c-α). 2d's `install.sh` will run `cargo install --
 Options:
 
 - **(a) Repo root** (`./install.sh`, `./verify.sh`). Matches Rust/Go convention; `curl ... | sh` style install docs become trivial.
-- **(b) `scripts/`** (`scripts/install.sh`, `scripts/verify.sh`). Matches the existing `scripts/domi.js` / `scripts/domi-audit.js` convention.
+- **(b) `scripts/`** (`scripts/shell/install.sh`, `scripts/shell/verify.sh`). Matches the existing `scripts/runtime/domi.js` / `scripts/runtime/domi-audit.js` convention.
 - **(c) `tools/install/`** (`tools/install/install.sh`, `tools/install/verify.sh`). Matches the new `tools/` CLI location if Q1 is (a)/(b).
 
 **Default recommendation: (b)** — keeps repo root tidy, matches existing JS scripts convention. `tools/` directory will house the CLI binary.

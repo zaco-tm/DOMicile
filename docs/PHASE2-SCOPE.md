@@ -5,11 +5,11 @@ Phase 2 of DOMiNice was originally scoped as "live server." The 2026-07-05 rewor
 | Sub | Name | Status | Deliverable |
 |---|---|---|---|
 | **2a** | Wire protocol & event schema | **Done** (`64225a0`) | `docs/WIRE-PROTOCOL.md`, `docs/schemas/event.schema.json` |
-| 2b | Server-attached JS mode | Not started | `domi.js` + `domi-audit.js` mode-switch on `__DOMI_SERVER__`; pairs with 2c-β's `scripts/domi-server.js` |
+| 2b | Server-attached JS mode | Not started | `domi.js` + `domi-audit.js` mode-switch on `__DOMI_SERVER__`; pairs with 2c-β's `scripts/runtime/domi-server.js` |
 | 2c-α | `domi-server` events writer crate | **Done** (`638b29d` + earlier) | `crates/domi-server/src/events/` |
-| **2c-β** | HTML serving + folder watcher | **Spec this round** | `crates/domi-server/src/serve/` + `scripts/domi-server.js` |
+| **2c-β** | HTML serving + folder watcher | **Spec this round** | `crates/domi-server/src/serve/` + `scripts/runtime/domi-server.js` |
 | **2c-γ** | `domi-server` binary + axum + tokio + WS | **Done** | The actual `domi-server` binary; uses 2c-α + 2c-β |
-| **2d** | Agent reader + install/verify | **Done** | Tail/replay/push CLI in `crates/domi-server/src/tools/`, `scripts/install.sh` + `scripts/verify.sh` + `scripts/ws-probe.mjs` exercising 2c-γ |
+| **2d** | Agent reader + install/verify | **Done** | Tail/replay/push CLI in `crates/domi-server/src/tools/`, `scripts/shell/install.sh` + `scripts/shell/verify.sh` + `scripts/ws-probe.mjs` exercising 2c-γ |
 
 ## Dependency order
 
@@ -31,7 +31,7 @@ Smallest sequential schedule:
 
 **2c-α:** Sync Rust library exposing `EventWriter` + `Event` typed Rust struct. No HTTP, no watcher, no JS half changes. Tests against real temp files.
 
-**2c-β (this round):** Sync Rust library exposing `Watcher` trait + `NotifyWatcher` + `MockWatcher`, `serve_file` + `ContentType` + shim injection. New `scripts/domi-server.js` shim (≤ 1 KB). No HTTP, no WS, no async. Tests: vitest for the JS shim; cargo for the Rust primitives.
+**2c-β (this round):** Sync Rust library exposing `Watcher` trait + `NotifyWatcher` + `MockWatcher`, `serve_file` + `ContentType` + shim injection. New `scripts/runtime/domi-server.js` shim (≤ 1 KB). No HTTP, no WS, no async. Tests: vitest for the JS shim; cargo for the Rust primitives.
 
 **2b:** JS half changes — `domi.js` and `domi-audit.js` see `window.__DOMI_SERVER__ === true` and switch from `localStorage` to `POST /api/events` + WebSocket subscription.
 

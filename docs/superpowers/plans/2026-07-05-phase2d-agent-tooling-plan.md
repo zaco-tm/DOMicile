@@ -8,13 +8,13 @@
 
 - **Q1 CLI language** — Rust second-binary inside `crates/domi-server` (`[[bin]] name = "domi"`). Reuses clap from 2c-γ; one `cargo build --release` produces `domi-server` + `domi`.
 - **Q2 `Cargo.lock`** — **keep gitignored**. `install.sh` does a fresh `cargo build --release` (no `--locked`). Pragmatic for 2d; revisit when distribution story lands.
-- **Q3 install/verify location** — **`scripts/`** (matches existing `scripts/domi.js` convention). New files: `scripts/install.sh`, `scripts/verify.sh`, `scripts/ws-probe.mjs`.
+- **Q3 install/verify location** — **`scripts/`** (matches existing `scripts/runtime/domi.js` convention). New files: `scripts/shell/install.sh`, `scripts/shell/verify.sh`, `scripts/ws-probe.mjs`.
 
 If Q1/Q2/Q3 are wrong, stop after Task 1 and re-plan.
 
 ## Global Constraints
 
-- **Library invariant held.** `tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/` are untouched. `crates/domi-server/src/{events,serve,http}/` from 2c-α/β/γ are also untouched — 2d is purely additive.
+- **Library invariant held.** `tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/` are untouched. `crates/domi-server/src/{events,serve,http}/` from 2c-α/β/γ are also untouched — 2d is purely additive.
 - **TDD.** Tests written before implementation. Tests fail (red), then code passes (green), then refactor.
 - **Cross-language drift.** `tools/` shares the wire-protocol JSON shapes with `domi.js` server mode (2b) and the binary (2c-γ). If a shape changes, `tests/wire-protocol.test.js` is the source of truth — update all three.
 - **`--port 0` semantics.** 2c-γ's `args.rs` validates `--port` with `value_parser = clap::value_parser!(u16).range(1..)` which **rejects 0**. Task 1 must lift the lower bound to `0..=65535` so `verify.sh` can ask the kernel for an ephemeral port. This is the only existing-code change in 2d.
@@ -395,12 +395,12 @@ pub async fn run(args: TailArgs, server: &reqwest::Url) -> i32 {
 - All 3 tests in `tools_tail_smoke.rs` pass with `cargo test -- --ignored`.
 - Manual: `cargo run -p domi-server --bin domi-server -- --port 4173` in one shell, `cargo run -p domi-server --bin domi -- tail` in another, click a served HTML file → tail prints the event JSON live.
 
-## Task 6: `scripts/install.sh`
+## Task 6: `scripts/shell/install.sh`
 
 ```sh
 #!/bin/sh
 # DOMiNice installer — builds domi-server + domi from source.
-# Usage: ./scripts/install.sh [--prefix <dir>] [--dry-run] [--no-verify]
+# Usage: ./scripts/shell/install.sh [--prefix <dir>] [--dry-run] [--no-verify]
 set -eu
 
 PREFIX="${HOME}/.local"
@@ -453,7 +453,7 @@ esac
 
 if [ "$NO_VERIFY" = 0 ] && [ "$DRY_RUN" = 0 ]; then
     echo "==> Verifying install"
-    "$ROOT_DIR/scripts/verify.sh" --prefix "$PREFIX" || { echo "verify failed" >&2; exit 3; }
+    "$ROOT_DIR/scripts/shell/verify.sh" --prefix "$PREFIX" || { echo "verify failed" >&2; exit 3; }
 fi
 
 echo "==> Done."
@@ -461,12 +461,12 @@ echo "==> Done."
 
 ### Acceptance for Task 6
 
-- `sh -n scripts/install.sh` parses cleanly.
-- `./scripts/install.sh --dry-run` prints the build/verify plan without writing files.
-- `./scripts/install.sh --no-verify --prefix /tmp/domi-test` on a fresh checkout builds + installs to `/tmp/domi-test/bin/` and exits 0.
-- `./scripts/install.sh` (no args) installs to `~/.local/bin/` and prints the PATH hint if not already on PATH.
+- `sh -n scripts/shell/install.sh` parses cleanly.
+- `./scripts/shell/install.sh --dry-run` prints the build/verify plan without writing files.
+- `./scripts/shell/install.sh --no-verify --prefix /tmp/domi-test` on a fresh checkout builds + installs to `/tmp/domi-test/bin/` and exits 0.
+- `./scripts/shell/install.sh` (no args) installs to `~/.local/bin/` and prints the PATH hint if not already on PATH.
 
-## Task 7: `scripts/verify.sh` + `scripts/ws-probe.mjs`
+## Task 7: `scripts/shell/verify.sh` + `scripts/ws-probe.mjs`
 
 ### 7.1 `scripts/ws-probe.mjs`
 
@@ -474,7 +474,7 @@ Tiny Node WS client. Takes `--url <ws-url>`, connects, prints first text frame t
 
 ```js
 #!/usr/bin/env node
-// Minimal WebSocket probe for scripts/verify.sh.
+// Minimal WebSocket probe for scripts/shell/verify.sh.
 // Usage: ws-probe.mjs --url ws://127.0.0.1:<port>/ws/events
 import WebSocket from 'ws';
 import { argv } from 'node:process';
@@ -510,13 +510,13 @@ ws.on('error', (e) => {
 
 Add `ws` to `package.json` devDeps (already likely present from 2b's `domi-wire.js` tests — verify during plan-execute).
 
-### 7.2 `scripts/verify.sh`
+### 7.2 `scripts/shell/verify.sh`
 
 ```sh
 #!/bin/sh
 # DOMiNice install verifier — boots domi-server on ephemeral port,
 # asserts /healthz, POST /api/events, GET /api/events, /ws/events upgrade.
-# Usage: ./scripts/verify.sh [--prefix <dir>] [--timeout <seconds>]
+# Usage: ./scripts/shell/verify.sh [--prefix <dir>] [--timeout <seconds>]
 set -eu
 
 PREFIX="${HOME}/.local"
@@ -611,9 +611,9 @@ exit 0
 
 ### Acceptance for Task 7
 
-- `sh -n scripts/verify.sh` parses cleanly.
-- `./scripts/verify.sh --prefix /tmp/domi-test` (after install.sh) → exits 0, all four assertions print `OK`.
-- `./scripts/verify.sh` against a not-running port (no install) → exits 1 (binary missing).
+- `sh -n scripts/shell/verify.sh` parses cleanly.
+- `./scripts/shell/verify.sh --prefix /tmp/domi-test` (after install.sh) → exits 0, all four assertions print `OK`.
+- `./scripts/shell/verify.sh` against a not-running port (no install) → exits 1 (binary missing).
 - `scripts/ws-probe.mjs --url ws://127.0.0.1:9/ws/events` (nothing listening) → exits 1 within 5s.
 
 ## Task 8: `tests/wire-protocol.test.js` — add 2d smoke markers
@@ -647,8 +647,8 @@ Append a new section above the "Phase 2d" heading:
   - `domi replay [--server URL] [--since ULID] [--doc NAME] [--limit N]` — one-shot fetch from `GET /api/events`.
   - `domi push --type TYPE [--doc NAME] [--target SEL] [--json RAW] --server URL` — POST a synthetic v2 event.
 - Wire protocol: same JSON shapes as `domi.js` server mode (2b) and the binary (2c-γ). ULID cursor semantics from 2a.
-- New `scripts/install.sh` — builds and installs `domi-server` + `domi` to `${PREFIX:-~/.local}/bin/`.
-- New `scripts/verify.sh` — boots the installed binary on an ephemeral port, asserts `/healthz`, `POST /api/events`, `GET /api/events`, `/ws/events` upgrade + hello frame.
+- New `scripts/shell/install.sh` — builds and installs `domi-server` + `domi` to `${PREFIX:-~/.local}/bin/`.
+- New `scripts/shell/verify.sh` — boots the installed binary on an ephemeral port, asserts `/healthz`, `POST /api/events`, `GET /api/events`, `/ws/events` upgrade + hello frame.
 - New `scripts/ws-probe.mjs` — Node helper for `verify.sh` WS upgrade probe.
 - New tests in `crates/domi-server/tests/tools_{push,replay,tail}_smoke.rs` (3 subcommands × 3-4 assertions each, gated `#[ignore]`).
 - 2 new JS tests in `tests/wire-protocol.test.js` (gated on `DOMI_TEST_LIVE=1`).
@@ -656,7 +656,7 @@ Append a new section above the "Phase 2d" heading:
 - Plan: `docs/superpowers/plans/2026-07-05-phase2d-agent-tooling-plan.md` (this file).
 - Companion doc updates: `docs/PHASE2-SCOPE.md` (mark 2d Done), `docs/WIRE-PROTOCOL.md` (link the CLI usage section), `docs/RUST.md` (note `domi` second-binary).
 - `--port 0` accepted by `domi-server` (was `1..`, now `0..=65535`) so `verify.sh` can request ephemeral ports.
-- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
+- Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
 ```
 
 ### 9.2 `docs/PHASE2-SCOPE.md`
@@ -664,7 +664,7 @@ Append a new section above the "Phase 2d" heading:
 Update the table row for **2d**:
 
 ```
-| **2d** | Agent reader + install/verify | **Done** | Tail/replay/push CLI in `crates/domi-server/src/tools/`, `scripts/install.sh` + `scripts/verify.sh` + `scripts/ws-probe.mjs` exercising 2c-γ |
+| **2d** | Agent reader + install/verify | **Done** | Tail/replay/push CLI in `crates/domi-server/src/tools/`, `scripts/shell/install.sh` + `scripts/shell/verify.sh` + `scripts/ws-probe.mjs` exercising 2c-γ |
 ```
 
 Update the dependency-order section to remove 2d from "Not started" and add a "Done" note.
@@ -697,11 +697,11 @@ Note the new second-binary target:
 - `cargo build --workspace` produces both `target/release/domi-server` and `target/release/domi` from a clean checkout.
 - `cargo test --workspace` is green by default (no `--ignored`); the 11 new gated tests pass with `cargo test --workspace -- --ignored`.
 - `npm test` is 85/85 green by default; `DOMI_TEST_LIVE=1 npm test` is 87/87 green.
-- `./scripts/install.sh --prefix /tmp/domi-test` on a fresh clone: builds, installs to `/tmp/domi-test/bin/`, runs `verify.sh`, exits 0.
-- `./scripts/install.sh --prefix /tmp/domi-test && /tmp/domi-test/bin/domi-server --port 4173 &` then in another shell: `/tmp/domi-test/bin/domi tail --server http://127.0.0.1:4173` prints line-delimited JSON events as `domi.js` clients click.
+- `./scripts/shell/install.sh --prefix /tmp/domi-test` on a fresh clone: builds, installs to `/tmp/domi-test/bin/`, runs `verify.sh`, exits 0.
+- `./scripts/shell/install.sh --prefix /tmp/domi-test && /tmp/domi-test/bin/domi-server --port 4173 &` then in another shell: `/tmp/domi-test/bin/domi tail --server http://127.0.0.1:4173` prints line-delimited JSON events as `domi.js` clients click.
 - `docs/PHASE2-SCOPE.md` lists 2d as **Done**.
 - `RELEASE-NOTES-v0.1.0.md` has the Phase 2d section.
-- Library invariant held: `tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/` are all untouched in the 2d diff.
+- Library invariant held: `tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/` are all untouched in the 2d diff.
 - AGENTS.md conventions honored: `rtk` used for fs/git/grep; `npm test` + `cargo test --workspace` both stay green at every commit.
 
 ## Phase 2d — Agent tooling (2026-07-05)

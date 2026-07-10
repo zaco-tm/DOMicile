@@ -17,7 +17,7 @@ Phase 3a is **complete and merge-ready**. All 12 plan tasks shipped as 15 atomic
 - ESM + CJS + `.d.ts` bundles build cleanly via tsup.
 - **161 JS tests pass, 2 skipped** (was 121 before 3a → +40 net new).
 - **cargo test --workspace** still green (Phase 2d baseline preserved).
-- **Library invariant held**: no edits to `tokens/`, `components/`, `scripts/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/`.
+- **Library invariant held**: no edits to `tokens/`, `components/`, `scripts/runtime/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/`.
 - **Whole-branch review** is the recommended next step (per the plan's "Execution Handoff" section).
 
 ---
@@ -157,7 +157,7 @@ node -e "import('./packages/react/dist/index.js').then(m => console.log(Object.k
 npx tsc --noEmit -p packages/react/tsconfig.json   # → clean
 
 # Library invariant
-git status --short components/ tokens/ scripts/domi*.js examples/ crates/ templates/ tools/
+git status --short components/ tokens/ scripts/runtime/domi*.js examples/ crates/ templates/ tools/
 # → only ` M components/domi.css` (pre-existing)
 ```
 

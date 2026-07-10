@@ -738,7 +738,7 @@ For each primitive, the CSS classes follow the `.domi-<name>` convention. The vi
 ## Task 19: `domi.js` standalone runtime
 
 **Files:**
-- Create: `scripts/domi.js`
+- Create: `scripts/runtime/domi.js`
 - Create: `tests/domi.test.js`
 
 - [ ] **Step 1: Write failing test `tests/domi.test.js`**
@@ -750,7 +750,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const domiSrc = readFileSync(resolve(here, '../scripts/domi.js'), 'utf8');
+const domiSrc = readFileSync(resolve(here, '../scripts/runtime/domi.js'), 'utf8');
 
 describe('domi.js', () => {
   beforeEach(() => {
@@ -808,9 +808,9 @@ describe('domi.js', () => {
 - [ ] **Step 2: Run test, verify it fails**
 
 Run: `npm test -- tests/domi.test.js`
-Expected: FAIL — `scripts/domi.js` missing.
+Expected: FAIL — `scripts/runtime/domi.js` missing.
 
-- [ ] **Step 3: Write `scripts/domi.js`**
+- [ ] **Step 3: Write `scripts/runtime/domi.js`**
 
 ```js
 /* DOMiNice standalone runtime — Phase 1
@@ -906,7 +906,7 @@ Expected: 4 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/domi.js tests/domi.test.js
+git add scripts/runtime/domi.js tests/domi.test.js
 git commit -m "feat(domi.js): standalone runtime (localStorage feedback + export)"
 ```
 
@@ -1065,7 +1065,7 @@ Do NOT use this skill for: pure text/markdown reports, code generation, server-s
 2. **Compose primitives.** Use only DOMiNice primitives (button, card, input, table, nav, modal, alert, badge, tabs, toast, tooltip, select, checkbox, radio, form). Reference: `components/primitives/<name>/README.md`.
 3. **Apply tokens, not raw colors.** Use CSS classes (`.domi-btn`, `.domi-card`, etc.) instead of inline styles for color/typography/radius. Inline styles are OK for layout-only properties (display, padding, margin, grid).
 4. **Single CSS link.** Include `<link rel="stylesheet" href="../../components/domi.css">` (relative path from `templates/`) or copy the contents inline for fully self-contained files.
-5. **Optional interactivity.** Add `<script src="../../scripts/domi.js"></script>` for click feedback and form capture. Add `data-feedback="<name>"` to elements you want the user to be able to click on.
+5. **Optional interactivity.** Add `<script src="../../scripts/runtime/domi.js"></script>` for click feedback and form capture. Add `data-feedback="<name>"` to elements you want the user to be able to click on.
 6. **Standalone-first.** Every artifact must open via `file://` with zero infra. No CDN, no build step, no fetch.
 
 ## Output location
@@ -1215,7 +1215,7 @@ Open any `templates/<archetype>/index.html` in a browser. No server needed.
 2. Copy its `index.html` to your working location.
 3. Replace placeholder content with real data.
 4. Use only DOMiNice primitives (`components/primitives/<name>/README.md`).
-5. For feedback capture: add `data-feedback="<id>"` to interactive elements, include `<script src="../../scripts/domi.js"></script>`, and add `<button data-export-feedback>Export feedback</button>` so the user can download `events.jsonl`.
+5. For feedback capture: add `data-feedback="<id>"` to interactive elements, include `<script src="../../scripts/runtime/domi.js"></script>`, and add `<button data-export-feedback>Export feedback</button>` so the user can download `events.jsonl`.
 
 ## Adding a new primitive
 
@@ -1426,13 +1426,13 @@ git commit -m "feat(status): initial UX-MEMORY page"
 
 ---
 
-## Task 31: `scripts/install.sh` + `scripts/verify.sh`
+## Task 31: `scripts/shell/install.sh` + `scripts/shell/verify.sh`
 
 **Files:**
-- Create: `scripts/install.sh`
-- Create: `scripts/verify.sh`
+- Create: `scripts/shell/install.sh`
+- Create: `scripts/shell/verify.sh`
 
-- [ ] **Step 1: Write `scripts/install.sh`** — Phase 1 stub (real install ships in Phase 2)
+- [ ] **Step 1: Write `scripts/shell/install.sh`** — Phase 1 stub (real install ships in Phase 2)
 
 ```bash
 #!/usr/bin/env bash
@@ -1455,7 +1455,7 @@ echo ""
 echo "Open templates/dashboard/index.html in your browser to see it work."
 ```
 
-- [ ] **Step 2: Write `scripts/verify.sh`** — runs the test suite
+- [ ] **Step 2: Write `scripts/shell/verify.sh`** — runs the test suite
 
 ```bash
 #!/usr/bin/env bash
@@ -1482,8 +1482,8 @@ echo "✓ DOMiNice v0.1.0 verified"
 
 Run:
 ```bash
-chmod +x scripts/install.sh scripts/verify.sh
-git add scripts/install.sh scripts/verify.sh
+chmod +x scripts/shell/install.sh scripts/shell/verify.sh
+git add scripts/shell/install.sh scripts/shell/verify.sh
 git commit -m "chore(scripts): install + verify scripts"
 ```
 
@@ -1542,7 +1542,7 @@ Expected: 5 ✓ lines, exit 0.
 
 Run:
 ```bash
-bash scripts/verify.sh
+bash scripts/shell/verify.sh
 ```
 Expected: lint passes, all tests pass, smoke passes, "DOMiNice v0.1.0 verified".
 

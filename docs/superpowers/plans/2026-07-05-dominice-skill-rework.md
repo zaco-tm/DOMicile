@@ -4,9 +4,9 @@
 
 **Goal:** Reframe `SKILL.md` so the DOMiNice skill teaches an agent to (a) **create** UI libraries/components/layouts/themes and (b) **audit/iterate** on UI/UX with the user through shared HTML docs, with the neo-glass-vintage aesthetic reserved as the *house style* of the skill's own working documents rather than treated as the system's purpose.
 
-**Architecture:** A single author-layer rework that touches one top-level `SKILL.md`, three small new docs (`AUDIT.md`, `EXTENDING.md`, `LAYOUTS.md`), one new small JS runtime (`domi-audit.js`) loaded alongside the existing `domi.js`, one working-doc template, and minor touch-ups to `INIT.md`, `status/STATUS.html`, and `RELEASE-NOTES-v0.1.0.md`. Library files (`tokens/`, `components/`, `templates/**` other than the new working-doc template, the original `scripts/domi.js`) are untouched.
+**Architecture:** A single author-layer rework that touches one top-level `SKILL.md`, three small new docs (`AUDIT.md`, `EXTENDING.md`, `LAYOUTS.md`), one new small JS runtime (`domi-audit.js`) loaded alongside the existing `domi.js`, one working-doc template, and minor touch-ups to `INIT.md`, `status/STATUS.html`, and `RELEASE-NOTES-v0.1.0.md`. Library files (`tokens/`, `components/`, `templates/**` other than the new working-doc template, the original `scripts/runtime/domi.js`) are untouched.
 
-**Tech Stack:** Static HTML/CSS, vanilla JS in `scripts/domi-audit.js`, vitest for tests, npm scripts already wired in `package.json`.
+**Tech Stack:** Static HTML/CSS, vanilla JS in `scripts/runtime/domi-audit.js`, vitest for tests, npm scripts already wired in `package.json`.
 
 ## Global Constraints
 
@@ -14,8 +14,8 @@
 - The two first questions (create-vs-audit × working-doc-vs-deliverable) MUST be the second section of `SKILL.md`. The three modes MUST be the third section.
 - Working docs (both create and audit modes) MUST render in neo skin and include the feedback rail. Deliverables MUST NOT include the feedback rail.
 - All artifact HTML goes in `.domi/output/`. All thread state goes in `.domi/state/`.
-- Do NOT modify `components/domi.css`, `tokens/tokens.json`, `scripts/domi.js`, or any existing `templates/*/index.html` other than adding a new directory.
-- The audit runtime lives in a NEW file `scripts/domi-audit.js`. Do not extend `domi.js`.
+- Do NOT modify `components/domi.css`, `tokens/tokens.json`, `scripts/runtime/domi.js`, or any existing `templates/*/index.html` other than adding a new directory.
+- The audit runtime lives in a NEW file `scripts/runtime/domi-audit.js`. Do not extend `domi.js`.
 
 ---
 
@@ -72,7 +72,7 @@ If you're not sure which mode, ask one question with the linguistic signal you s
 
 - Working artifacts: `.domi/output/<name>.html`
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
-- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/domi.js`, `scripts/domi-audit.js`, `templates/<archetype>/index.html`
+- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `templates/<archetype>/index.html`
 
 Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
 
@@ -80,7 +80,7 @@ Do NOT edit the library to do a one-off artifact. Edit the library only when the
 
 The agent includes on every working-doc page:
 
-- A right-side feedback rail (loaded from `scripts/domi-audit.js`).
+- A right-side feedback rail (loaded from `scripts/runtime/domi-audit.js`).
 - `data-feedback="<meaningful-id>"` on every element the user is likely to want to comment on (section headers, interactive primitives, layout decisions).
 - A status chip showing `vN` of the working doc, visible top-right.
 - Thread entries are scoped to a target id and rendered next to the element on reload.
@@ -185,9 +185,9 @@ The audit loop is the shape of any working-doc mode. It is how the agent and use
 
 `domi-audit.js` always seeds the file with this skeleton if it does not exist.
 
-## API exposed by `scripts/domi-audit.js`
+## API exposed by `scripts/runtime/domi-audit.js`
 
-When `<script src="scripts/domi-audit.js" defer>` is loaded, the global `DomiAudit` is available. Call order:
+When `<script src="scripts/runtime/domi-audit.js" defer>` is loaded, the global `DomiAudit` is available. Call order:
 
 - `DomiAudit.mount({ statePath, docName })` — wires the rail, hydrates from localStorage and (if available) from `statePath`.
 - `DomiAudit.addComment({ targetId, body })` — programmatic add; `domi-audit.js` invokes this on rail clicks.
@@ -389,11 +389,11 @@ git commit -m "docs(layouts): layout recipes starter (three archetypes)"
 
 ---
 
-### Task 5: TDD `scripts/domi-audit.js`
+### Task 5: TDD `scripts/runtime/domi-audit.js`
 
 **Files:**
 - Test: `tests/domi-audit.test.js` (create)
-- Create: `scripts/domi-audit.js`
+- Create: `scripts/runtime/domi-audit.js`
 
 **Interfaces:**
 - Consumes: `localStorage` (for thread persistence); `DOM` (for `data-feedback` and rail elements)
@@ -407,7 +407,7 @@ Write `tests/domi-audit.test.js`:
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 
-const SRC = readFileSync('scripts/domi-audit.js', 'utf8');
+const SRC = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
 
 describe('domi-audit.js runtime', () => {
   beforeEach(() => {
@@ -464,11 +464,11 @@ describe('domi-audit.js runtime', () => {
 npm test -- tests/domi-audit.test.js
 ```
 
-Expected: `FAIL` — `scripts/domi-audit.js` does not exist yet, and `globalThis.DomiAudit` is undefined.
+Expected: `FAIL` — `scripts/runtime/domi-audit.js` does not exist yet, and `globalThis.DomiAudit` is undefined.
 
 - [ ] **Step 3: Implement the runtime**
 
-Write `scripts/domi-audit.js`:
+Write `scripts/runtime/domi-audit.js`:
 
 ```javascript
 /* DOMiNice audit runtime — see docs/AUDIT.md */
@@ -570,7 +570,7 @@ Expected: full suite green.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/domi-audit.js tests/domi-audit.test.js
+git add scripts/runtime/domi-audit.js tests/domi-audit.test.js
 git commit -m "feat(domi-audit): standalone audit runtime with feedback rail + thread persistence"
 ```
 
@@ -614,7 +614,7 @@ git commit -m "feat(domi-audit): standalone audit runtime with feedback rail + t
   </main>
   <aside data-domini-rail></aside>
   <span data-domini-status-chip>v0.1.0-working</span>
-  <script src="../../scripts/domi-audit.js" defer></script>
+  <script src="../../scripts/runtime/domi-audit.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       DomiAudit.mount({ statePath: '.domi/state/example-audit.json', docName: 'example-audit' });
@@ -636,7 +636,7 @@ Use this archetype when the user says "let's work on X," "review this," or anywh
 ## What it ships with
 
 - `index.html` — the template; clone it.
-- It loads `../../scripts/domi-audit.js` to mount the rail.
+- It loads `../../scripts/runtime/domi-audit.js` to mount the rail.
 - It expects `.domi/state/<docName>.json` to be writable; in Phase 1, `domi-audit.js` mirrors to `localStorage`.
 - It wears the neo skin via `../../components/domi.css`.
 
@@ -773,7 +773,7 @@ Append:
 
 - `SKILL.md` rewritten to lead with the *authoring* + *audit-loop* purpose; neo aesthetic moved to a scoped section.
 - New docs: `docs/AUDIT.md`, `docs/EXTENDING.md`, `docs/LAYOUTS.md`.
-- New runtime: `scripts/domi-audit.js` (additive; `domi.js` unchanged).
+- New runtime: `scripts/runtime/domi-audit.js` (additive; `domi.js` unchanged).
 - New archetype: `templates/working-doc/`.
 - No library changes — tokens, primitives, templates (other than the new archetype), and `domi.js` are untouched.
 ```
@@ -802,7 +802,7 @@ Expected: all green.
 - [ ] **Step 2: Lint any changed scripts**
 
 ```bash
-npx eslint scripts/domi-audit.js || echo "ESLint not configured — skip"
+npx eslint scripts/runtime/domi-audit.js || echo "ESLint not configured — skip"
 ```
 
 If ESLint is configured, fix any reported issues.

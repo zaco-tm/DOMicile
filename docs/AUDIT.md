@@ -34,9 +34,9 @@ The audit loop is the shape of any working-doc mode. It is how the agent and use
 
 `domi-audit.js` always seeds the file with this skeleton if it does not exist.
 
-## API exposed by `scripts/domi-audit.js`
+## API exposed by `scripts/runtime/domi-audit.js`
 
-When `<script src="scripts/domi-audit.js" defer>` is loaded, the global `DomiAudit` is available. Call order:
+When `<script src="scripts/runtime/domi-audit.js" defer>` is loaded, the global `DomiAudit` is available. Call order:
 
 - `DomiAudit.mount({ statePath, docName })` — wires the rail, hydrates from `localStorage` under the key `dominice:<docName>`. The `statePath` argument is accepted and stored so a Phase 2 server-side mirror can hydrate from the JSON file; Phase 1 reads/writes only `localStorage`.
 - `DomiAudit.addComment({ targetId, body })` — programmatic add; `domi-audit.js` invokes this on rail submits.
@@ -46,7 +46,7 @@ The runtime does **not** require any server. The JSON mirror (under Phase 2) is 
 
 ## Server-attached mode (Phase 2b)
 
-When the runtime loads on a doc served by the Phase 2 binary, the server-side shim (`scripts/domi-server.js`, injected by `serve_file` in 2c-β) sets `window.__DOMI_SERVER__ = true` and opens a WebSocket before `domi-audit.js` runs.
+When the runtime loads on a doc served by the Phase 2 binary, the server-side shim (`scripts/runtime/domi-server.js`, injected by `serve_file` in 2c-β) sets `window.__DOMI_SERVER__ = true` and opens a WebSocket before `domi-audit.js` runs.
 
 In this mode, `domi-audit.js` switches behavior:
 

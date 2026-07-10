@@ -17,7 +17,7 @@
 - The crate is sync only. Async lands in 2c-γ.
 - Files trailing newline invariant holds after every successful write.
 - `.gitignore` gains `**/target/`. `Cargo.lock` is *not* committed at this stage (library only); 2c-γ re-evaluates when the binary lands.
-- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**.
+- Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**.
 
 ---
 
@@ -737,7 +737,7 @@ Expected: 58/58 pass (no regression — JS half is untouched).
 - [ ] **Step 3: Re-confirm no JS half files were modified**
 
 ```bash
-git diff --stat v0.1.0..HEAD -- tokens/ components/domi.css scripts/domi.js templates/dashboard templates/webapp-shell templates/mobile-app-shell templates/admin-tool templates/pos-kiosk examples/
+git diff --stat v0.1.0..HEAD -- tokens/ components/domi.css scripts/runtime/domi.js templates/dashboard templates/webapp-shell templates/mobile-app-shell templates/admin-tool templates/pos-kiosk examples/
 ```
 Expected: empty output.
 
@@ -858,4 +858,4 @@ Skip if the project already has a recent release tag; coordinated tags belong in
 - All 7 tasks' checklists are complete.
 - `cargo test --workspace` is green.
 - `npm test` shows 58/58 passing (no JS regression).
-- `git diff --stat v0.1.0..HEAD -- tokens/ components/domi.css scripts/domi.js templates/ examples/` is empty.
+- `git diff --stat v0.1.0..HEAD -- tokens/ components/domi.css scripts/runtime/domi.js templates/ examples/` is empty.

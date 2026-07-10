@@ -211,7 +211,7 @@ No async dependencies. No networking deps. No `tokio`. **The 2c-α crate is sync
 | `README.md` | Add one bullet under "What's in v0.1" noting the events writer crate is shipping (Phase 2c-α) |
 | `RELEASE-NOTES-v0.1.0.md` | Append a section noting 2c-α |
 
-Library files (`tokens/`, `components/`, `scripts/domi.js`, original `templates/*/`, `scripts/domi-audit.js`, `examples/`): **untouched**.
+Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, original `templates/*/`, `scripts/runtime/domi-audit.js`, `examples/`): **untouched**.
 
 ## Acceptance
 

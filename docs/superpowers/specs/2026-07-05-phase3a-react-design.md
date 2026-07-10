@@ -35,7 +35,7 @@ The 15 HTML primitives work as raw HTML — but most production apps in 2026 don
 - **Escape hatches**: `className` (appended last), `...props` spread (all HTML props pass through), `as` prop (render a different element), `ref` forwarding.
 - **TypeScript-first**: every prop typed; every variant is a string-literal union mapped 1:1 to a CSS class suffix.
 - **Zero runtime dependencies** beyond `react` + `react-dom` (peer deps).
-- **Library invariant held**: tokens/, components/domi.css, components/primitives/*.html, scripts/domi.js, scripts/domi-audit.js, examples/ are **untouched** by 3a.
+- **Library invariant held**: tokens/, components/domi.css, components/primitives/*.html, scripts/runtime/domi.js, scripts/runtime/domi-audit.js, examples/ are **untouched** by 3a.
 - **CSS is the source of truth**: wrapper components never construct class names from JS. The variants exposed by TypeScript are derived from CSS class suffixes, not invented.
 
 ## Non-goals
@@ -231,7 +231,7 @@ Rationale: `Dom` prefix avoids collisions with native HTML (`<button>` vs `<DomB
 2. Default variants produce classes that exist in `components/domi.css` (verified by reading CSS).
 3. `npm run build` produces `dist/{index.js,index.cjs,index.d.ts}`.
 4. `npm test` runs the per-component vitest suite; all pass.
-5. **Library invariant held**: tokens/, components/domi.css, components/primitives/, scripts/domi.js, scripts/domi-audit.js, examples/ untouched in the 3a diff.
+5. **Library invariant held**: tokens/, components/domi.css, components/primitives/, scripts/runtime/domi.js, scripts/runtime/domi-audit.js, examples/ untouched in the 3a diff.
 6. `package.json` (root) updated to add a `workspaces` field including `packages/react`.
 7. `Cargo.lock` stays gitignored.
 8. `components/domi.css` pre-existing dirty state preserved (per AGENTS.md).

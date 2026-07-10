@@ -22,7 +22,7 @@ If Q1–Q10 are wrong, stop after Task 2 and re-plan.
 
 ## Global Constraints
 
-- **Library invariant held.** `tokens/`, `components/`, `components/primitives/*`, `scripts/domi.js`, `scripts/domi-audit.js`, `scripts/domi-server.js`, `scripts/domi-wire.js`, `examples/` are **untouched** by 3a. The pre-existing dirty `components/domi.css` is preserved.
+- **Library invariant held.** `tokens/`, `components/`, `components/primitives/*`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `scripts/runtime/domi-server.js`, `scripts/runtime/domi-wire.js`, `examples/` are **untouched** by 3a. The pre-existing dirty `components/domi.css` is preserved.
 - **TDD.** Tests written before implementation. Tests fail (red), code passes (green), then refactor.
 - **CSS is source of truth.** Wrapper components never construct class names from JS. Every variant/size union must match an existing `.domi-*` suffix in `components/domi.css`. Verified by Task 2's audit doc.
 - **`packages/react/` is the only new directory.** No edits to `crates/`, `templates/`, `tools/`, or root `package.json` beyond adding `"workspaces"`.
@@ -1901,13 +1901,13 @@ Runs all repo tests including `packages/react/tests/*.test.tsx` (vitest + jsdom)
 
 ## Library invariant
 
-`@domi/react` does **not** modify the DOMiNice design system library (`tokens/`, `components/`, `scripts/domi*.js`, `examples/`). It is a pure-React consumer layer.
+`@domi/react` does **not** modify the DOMiNice design system library (`tokens/`, `components/`, `scripts/runtime/domi*.js`, `examples/`). It is a pure-React consumer layer.
 ```
 
 ### 12.2 Library invariant verification
 
 ```bash
-git status --short components/ tokens/ scripts/domi*.js examples/
+git status --short components/ tokens/ scripts/runtime/domi*.js examples/
 ```
 
 Expected: only `components/domi.css` shows `M` (pre-existing dirty, preserved). All other paths: no output.

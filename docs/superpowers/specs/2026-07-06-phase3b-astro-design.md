@@ -30,7 +30,7 @@ The 15 HTML primitives work as raw HTML, but Astro projects need typed `.astro` 
 - **Escape hatches**: `class` prop (appended last), `<slot />`, prop pass-through via `{...Astro.props}`, and `as` prop where it makes sense. (`class:list` is intentionally NOT exposed — it would split the class-joining logic between two sources; consumers use `class=` only.)
 - **TypeScript-first**: every prop typed; every variant is a string-literal union mapped 1:1 to a CSS class suffix.
 - **Zero runtime JavaScript**: components compile to plain HTML. No client directive needed for the default case.
-- **Library invariant held**: `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/` are **untouched** by 3b.
+- **Library invariant held**: `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `examples/`, `crates/`, `templates/`, `tools/` are **untouched** by 3b.
 - **CSS is the source of truth**: components never construct class names in template logic that aren't already in `components/domi.css`. The variants exposed by TypeScript are derived from CSS class suffixes, not invented.
 
 ## Non-goals
@@ -250,7 +250,7 @@ That's it. No `tsup`, no `@types/astro` (Astro ships its own types), no React, n
 2. Default variants produce classes that exist in `components/domi.css` (verified by reading CSS).
 3. `npm test` runs the per-component vitest suite; all pass.
 4. CSS audit consistency test green — 3b types match `packages/react/CSS-AUDIT.md`.
-5. **Library invariant held**: tokens/, components/domi.css, components/primitives/, scripts/domi*.js, examples/, crates/, templates/, tools/ untouched in the 3b diff.
+5. **Library invariant held**: tokens/, components/domi.css, components/primitives/, scripts/runtime/domi*.js, examples/, crates/, templates/, tools/ untouched in the 3b diff.
 6. `package.json` (root) unchanged — `"workspaces": ["packages/*"]` already covers `packages/astro/`.
 7. `Cargo.lock` stays gitignored.
 8. `components/domi.css` pre-existing dirty state preserved (per AGENTS.md).

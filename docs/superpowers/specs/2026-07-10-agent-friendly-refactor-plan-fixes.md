@@ -101,7 +101,7 @@ footprint is **84 files**, of which the plan mentioned only 5
 ### Prose refs in agent-config / spec trail (low-priority but real)
 
 - All `docs/superpowers/specs/2026-07-*.md` (11 phase specs) reference
-  `scripts/domi*.js` and `scripts/verify*.sh`
+  `scripts/runtime/domi*.js` and `scripts/verify*.sh`
 - All `docs/superpowers/plans/2026-07-*.md` (10 phase plans)
 - `docs/AUDIT.md`, `docs/WIRE-PROTOCOL.md`, `docs/USAGE.md`,
   `docs/RUST.md`, `docs/PHASE2-SCOPE.md`, `docs/EXTENDING.md`

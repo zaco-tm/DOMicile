@@ -91,7 +91,7 @@ This mirrors 3a's plan shape (Tasks 1-12 with TDD discipline and library invaria
 3. **API shape**: string variants vs enum variants. **Recommendation: enums**, with `FromStr` impls for consumers who want strings.
 4. **Theme**: built-in default vs consumer-supplied. **Recommendation: built-in default** that reads `tokens.json` at compile time (use a `build.rs` or `include_str!`).
 5. **Tests**: use a recording `RenderTarget` to capture commands and assert on them. Snapshot tests with `insta` crate.
-6. **Library invariant for 3c**: same as 2d-3b — no edits to `tokens/`, `components/`, `components/primitives/*/`, `scripts/domi*.js`, `examples/`, `crates/domi-server/**` (the existing Rust server), `templates/`, `tools/`. The dvui crate lives in `crates/domi-dvui/` and is a pure consumer.
+6. **Library invariant for 3c**: same as 2d-3b — no edits to `tokens/`, `components/`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `examples/`, `crates/domi-server/**` (the existing Rust server), `templates/`, `tools/`. The dvui crate lives in `crates/domi-dvui/` and is a pure consumer.
 
 ---
 

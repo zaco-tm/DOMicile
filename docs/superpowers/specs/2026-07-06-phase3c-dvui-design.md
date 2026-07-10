@@ -48,7 +48,7 @@ Phase 3 ships wrapper layers for popular front-end frameworks (3a React, 3b Astr
 - **Caller-supplied theme override** via `Option<&Theme>`.
 - **Caller-owned state** for composites that have memory (Tabs, Modal, Form input values) — passed `&mut`, no magic global state.
 - **Desktop + wasm targets**: `eframe` for native, `wasm32-unknown-unknown` via `trunk` for browser. Same widget source tree.
-- **Library invariant held**: `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/domi*.js`, `examples/`, `crates/domi-server/**`, `templates/`, `tools/` are **untouched** by 3c.
+- **Library invariant held**: `tokens/`, `components/domi.css`, `components/primitives/*/`, `scripts/runtime/domi*.js`, `examples/`, `crates/domi-server/**`, `templates/`, `tools/` are **untouched** by 3c.
 
 ## Non-goals
 
@@ -351,7 +351,7 @@ The 3c diff is constrained as follows. **Out of bounds** (touches require explic
 - `tokens/`
 - `components/`
 - `components/primitives/*/`
-- `scripts/domi.js`, `scripts/domi-audit.js`
+- `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`
 - `examples/` (the **root repo** `examples/` directory — DOMiNice example working-doc artifacts — *not* the crate's `examples/` Cargo convention. The crate has its own `crates/domi-egui/examples/domi-egui-smoke.rs`, which is the standard Cargo `examples/` directory and is auto-discovered by Cargo without an `[[example]]` block. The two meanings don't collide in practice because they live in different trees).
 - `crates/domi-server/` (existing Phase 2 code)
 - `templates/`

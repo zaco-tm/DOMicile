@@ -45,16 +45,16 @@ tools/
   README.md                                    # NEW: scratch convention doc
 
 scripts/runtime/                              # NEW dir (existing files moved in)
-  domi.js                                      # moved from scripts/domi.js
-  domi-audit.js                                # moved from scripts/domi-audit.js
-  domi-wire.js                                 # moved from scripts/domi-wire.js
-  domi-server.js                               # moved from scripts/domi-server.js
+  domi.js                                      # moved from scripts/runtime/domi.js
+  domi-audit.js                                # moved from scripts/runtime/domi-audit.js
+  domi-wire.js                                 # moved from scripts/runtime/domi-wire.js
+  domi-server.js                               # moved from scripts/runtime/domi-server.js
 
 scripts/shell/                                # NEW dir (existing files moved in)
-  install.sh                                   # moved from scripts/install.sh
-  verify.sh                                    # moved from scripts/verify.sh
-  verify-skill-loop.sh                         # moved from scripts/verify-skill-loop.sh
-  verify-skill-loop-server.sh                  # moved from scripts/verify-skill-loop-server.sh
+  install.sh                                   # moved from scripts/shell/install.sh
+  verify.sh                                    # moved from scripts/shell/verify.sh
+  verify-skill-loop.sh                         # moved from scripts/shell/verify-skill-loop.sh
+  verify-skill-loop-server.sh                  # moved from scripts/shell/verify-skill-loop-server.sh
 
 crates/domi-server/src/http/handlers/         # NEW dir (handlers.rs split into)
   mod.rs                                       # NEW: Router::new() wiring
@@ -97,14 +97,14 @@ crates/domi-server/src/serve/mod.rs           # change `mod file;` → `mod file
 crates/domi-server/src/http/handlers.rs       # DELETED (its contents move to handlers/<file>.rs)
 crates/domi-server/src/serve/file.rs          # DELETED (its contents move to file/<file>.rs)
 packages/react/tests/primitives.test.tsx      # DELETED (its contents move to primitives/<category>.test.tsx)
-scripts/domi.js                               # DELETED (moved)
-scripts/domi-audit.js                          # DELETED (moved)
-scripts/domi-wire.js                           # DELETED (moved)
-scripts/domi-server.js                         # DELETED (moved)
-scripts/install.sh                            # DELETED (moved)
-scripts/verify.sh                             # DELETED (moved)
-scripts/verify-skill-loop.sh                   # DELETED (moved)
-scripts/verify-skill-loop-server.sh            # DELETED (moved)
+scripts/runtime/domi.js                               # DELETED (moved)
+scripts/runtime/domi-audit.js                          # DELETED (moved)
+scripts/runtime/domi-wire.js                           # DELETED (moved)
+scripts/runtime/domi-server.js                         # DELETED (moved)
+scripts/shell/install.sh                            # DELETED (moved)
+scripts/shell/verify.sh                             # DELETED (moved)
+scripts/shell/verify-skill-loop.sh                   # DELETED (moved)
+scripts/shell/verify-skill-loop-server.sh            # DELETED (moved)
 .diracrules                                   # DELETED after content moved to tools/agent-rules.md
 ```
 
@@ -169,15 +169,15 @@ rtk git -c commit.gpgsign=false commit -m "chore: gitignore graphify-out and .do
 
 **Files:**
 - Move:
-  - `scripts/domi.js` → `scripts/runtime/domi.js`
-  - `scripts/domi-audit.js` → `scripts/runtime/domi-audit.js`
-  - `scripts/domi-wire.js` → `scripts/runtime/domi-wire.js`
-  - `scripts/domi-server.js` → `scripts/runtime/domi-server.js`
-  - `scripts/install.sh` → `scripts/shell/install.sh`
-  - `scripts/verify.sh` → `scripts/shell/verify.sh`
-  - `scripts/verify-skill-loop.sh` → `scripts/shell/verify-skill-loop.sh`
-  - `scripts/verify-skill-loop-server.sh` → `scripts/shell/verify-skill-loop-server.sh`
-- Modify: every script in the repo that references `scripts/domi*.js` or `scripts/verify*.sh` / `scripts/install.sh` (find via `rtk grep`)
+  - `scripts/runtime/domi.js` → `scripts/runtime/domi.js`
+  - `scripts/runtime/domi-audit.js` → `scripts/runtime/domi-audit.js`
+  - `scripts/runtime/domi-wire.js` → `scripts/runtime/domi-wire.js`
+  - `scripts/runtime/domi-server.js` → `scripts/runtime/domi-server.js`
+  - `scripts/shell/install.sh` → `scripts/shell/install.sh`
+  - `scripts/shell/verify.sh` → `scripts/shell/verify.sh`
+  - `scripts/shell/verify-skill-loop.sh` → `scripts/shell/verify-skill-loop.sh`
+  - `scripts/shell/verify-skill-loop-server.sh` → `scripts/shell/verify-skill-loop-server.sh`
+- Modify: every script in the repo that references `scripts/runtime/domi*.js` or `scripts/verify*.sh` / `scripts/shell/install.sh` (find via `rtk grep`)
 - Modify: `package.json` `scripts` if it references any moved shell path
 
 **Interfaces:**
@@ -187,19 +187,19 @@ rtk git -c commit.gpgsign=false commit -m "chore: gitignore graphify-out and .do
 **Cross-reference search**:
 
 The repo may import or reference these files in:
-- `templates/working-doc/index.html` (refs `scripts/domi-audit.js`)
+- `templates/working-doc/index.html` (refs `scripts/runtime/domi-audit.js`)
 - `templates/<other>/index.html` (if any)
-- `docs/AUDIT.md` (refs `scripts/domi.js`, `scripts/domi-audit.js`, `scripts/domi-wire.js`, `scripts/domi-server.js`)
+- `docs/AUDIT.md` (refs `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `scripts/runtime/domi-wire.js`, `scripts/runtime/domi-server.js`)
 - `docs/USAGE.md` / `docs/EXTENDING.md` (likely)
-- root `AGENTS.md` (refs `scripts/domi.js`, `scripts/domi-audit.js`)
-- `scripts/verify-skill-loop*.sh` (refs `tools/skill-smoke*.mjs` — unchanged by this task)
-- `examples/README.md` or `examples/example-*.html` (refs `scripts/domi-audit.js`)
+- root `AGENTS.md` (refs `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`)
+- `scripts/shell/verify-skill-loop*.sh` (refs `tools/skill-smoke*.mjs` — unchanged by this task)
+- `examples/README.md` or `examples/example-*.html` (refs `scripts/runtime/domi-audit.js`)
 - `package.json` may reference moved shell scripts
 
 - [ ] **Step 1: Find all references**
 
 Run: `rtk grep "scripts/domi" --json` (or `rtk rg 'scripts/(domi|install|verify)')`
-Capture every file that references `scripts/domi*.js`, `scripts/install.sh`, `scripts/verify*.sh`. We'll update them in step 4.
+Capture every file that references `scripts/runtime/domi*.js`, `scripts/shell/install.sh`, `scripts/verify*.sh`. We'll update them in step 4.
 
 - [ ] **Step 2: Create the new directories**
 
@@ -212,14 +212,14 @@ mkdir -p scripts/runtime scripts/shell
 Use `git mv` to preserve history:
 
 ```bash
-git mv scripts/domi.js          scripts/runtime/domi.js
-git mv scripts/domi-audit.js     scripts/runtime/domi-audit.js
-git mv scripts/domi-wire.js      scripts/runtime/domi-wire.js
-git mv scripts/domi-server.js    scripts/runtime/domi-server.js
-git mv scripts/install.sh        scripts/shell/install.sh
-git mv scripts/verify.sh         scripts/shell/verify.sh
-git mv scripts/verify-skill-loop.sh          scripts/shell/verify-skill-loop.sh
-git mv scripts/verify-skill-loop-server.sh   scripts/shell/verify-skill-loop-server.sh
+git mv scripts/runtime/domi.js          scripts/runtime/domi.js
+git mv scripts/runtime/domi-audit.js     scripts/runtime/domi-audit.js
+git mv scripts/runtime/domi-wire.js      scripts/runtime/domi-wire.js
+git mv scripts/runtime/domi-server.js    scripts/runtime/domi-server.js
+git mv scripts/shell/install.sh        scripts/shell/install.sh
+git mv scripts/shell/verify.sh         scripts/shell/verify.sh
+git mv scripts/shell/verify-skill-loop.sh          scripts/shell/verify-skill-loop.sh
+git mv scripts/shell/verify-skill-loop-server.sh   scripts/shell/verify-skill-loop-server.sh
 ```
 
 Verify with `rtk ls scripts/` that `scripts/` is now empty (or contains only `runtime/` and `shell/` subdirs).
@@ -227,14 +227,14 @@ Verify with `rtk ls scripts/` that `scripts/` is now empty (or contains only `ru
 - [ ] **Step 4: Update cross-references**
 
 For each file identified in Step 1, replace references as follows:
-- `scripts/domi.js` → `scripts/runtime/domi.js`
-- `scripts/domi-audit.js` → `scripts/runtime/domi-audit.js`
-- `scripts/domi-wire.js` → `scripts/runtime/domi-wire.js`
-- `scripts/domi-server.js` → `scripts/runtime/domi-server.js`
-- `scripts/install.sh` → `scripts/shell/install.sh`
-- `scripts/verify.sh` → `scripts/shell/verify.sh`
-- `scripts/verify-skill-loop.sh` → `scripts/shell/verify-skill-loop.sh`
-- `scripts/verify-skill-loop-server.sh` → `scripts/shell/verify-skill-loop-server.sh`
+- `scripts/runtime/domi.js` → `scripts/runtime/domi.js`
+- `scripts/runtime/domi-audit.js` → `scripts/runtime/domi-audit.js`
+- `scripts/runtime/domi-wire.js` → `scripts/runtime/domi-wire.js`
+- `scripts/runtime/domi-server.js` → `scripts/runtime/domi-server.js`
+- `scripts/shell/install.sh` → `scripts/shell/install.sh`
+- `scripts/shell/verify.sh` → `scripts/shell/verify.sh`
+- `scripts/shell/verify-skill-loop.sh` → `scripts/shell/verify-skill-loop.sh`
+- `scripts/shell/verify-skill-loop-server.sh` → `scripts/shell/verify-skill-loop-server.sh`
 
 DO NOT touch the contents of `scripts/runtime/domi*.js` (library invariant).
 

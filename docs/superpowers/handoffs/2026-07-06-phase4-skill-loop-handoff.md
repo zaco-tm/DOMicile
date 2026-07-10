@@ -36,7 +36,7 @@ $ cargo check --target wasm32-unknown-unknown -p domi-egui   # 0 errors
 
 | Phase | Surface |
 |---|---|
-| 2d | `crates/domi-server` (`domi-server` HTTP binary + `domi` agent CLI), `scripts/install.sh`, `scripts/verify.sh` |
+| 2d | `crates/domi-server` (`domi-server` HTTP binary + `domi` agent CLI), `scripts/shell/install.sh`, `scripts/shell/verify.sh` |
 | 3a | `packages/react/` — 15 React components + `cn()` + types + tests + CSS-AUDIT |
 | 3b | `packages/astro/` — 15 `.astro` wrappers + tests (parser-first, because Astro's `experimental_AstroContainer` doesn't initialize in the current toolchain) |
 | 3c | `crates/domi-egui/` — 15 leaves + 5 composites + `build.rs` tokens codegen + smoke binary |
@@ -45,8 +45,8 @@ $ cargo check --target wasm32-unknown-unknown -p domi-egui   # 0 errors
 
 | Ready | Need wiring |
 |---|---|
-| `templates/working-doc/index.html` — the reference working doc archetype. Loads `scripts/domi-audit.js`, carries the status chip + `data-feedback` hooks + neo skin out of the box. | `.domi/output/` and `.domi/state/` — the directories `SKILL.md` tells the agent to write to. **They don't exist on disk yet.** |
-| `scripts/domi-audit.js` — localStorage-backed audit rail; mirrors to `.domi/state/<docName>.json` when wired up. | A `tools/skill-smoke.mjs` (or equivalent) that emits a working doc from the archetype, serves it locally, and prints a URL the reviewer can open. **Doesn't exist yet.** |
+| `templates/working-doc/index.html` — the reference working doc archetype. Loads `scripts/runtime/domi-audit.js`, carries the status chip + `data-feedback` hooks + neo skin out of the box. | `.domi/output/` and `.domi/state/` — the directories `SKILL.md` tells the agent to write to. **They don't exist on disk yet.** |
+| `scripts/runtime/domi-audit.js` — localStorage-backed audit rail; mirrors to `.domi/state/<docName>.json` when wired up. | A `tools/skill-smoke.mjs` (or equivalent) that emits a working doc from the archetype, serves it locally, and prints a URL the reviewer can open. **Doesn't exist yet.** |
 | `tools/tokens-to-css.mjs` — emits the CSS variables block from `tokens/tokens.json`. | `components/domi.css` is pre-existing-dirty ("modified on disk but not committed since v0.1.0" per `AGENTS.md`); the test pipeline (`npm test`) shows 240 passed / 2 skipped / 0 failed, but the dirty state remains a known long-standing item. Out of scope for Phase 4 skill wiring. |
 | `crates/domi-server` — HTTP binary that can serve arbitrary files. Optional for the local loop (a Python `http.server` works fine), relevant if you want real event-collection under the loop. | A working `domi serve`-from-`.domi/` command path. Not on the critical path. |
 | 6 archetype templates, including `working-doc/`. | A canonical sample working doc in `.domi/output/` so a new agent has something concrete to read after `SKILL.md`. |
@@ -85,7 +85,7 @@ Send another agent (or a fresh instance) the prompt: **"Build a working doc for 
 - Clones `templates/working-doc/index.html`.
 - Names the doc + creates `.domi/output/<name>.html` (not `.domi/output/tracker-dashboard/index.html`, not `tracker.html`).
 - Adds at least 3 `data-feedback="..."` hooks on user-likely-to-comment elements.
-- Loads `scripts/domi-audit.js` and mounts the rail via `DomiAudit.mount({...})`.
+- Loads `scripts/runtime/domi-audit.js` and mounts the rail via `DomiAudit.mount({...})`.
 - Sets a `vN` status chip.
 
 If the agent does all of that, the skill is **authorable**. If not, the gap is in `SKILL.md` or the reference archetype, not in the wrappers.
@@ -98,7 +98,7 @@ Playwright loads the smoke doc, simulates a click, asserts the comment lands in 
 
 Risk: zero — Playwright only sees the artifact; nothing in the project depends on it.
 
-**Status: done** as of the `playwright` dev-dep + `tools/skill-smoke-test.mjs` commit. Run via `npm run test:e2e` or `./scripts/verify-skill-loop.sh`. The shell wrapper mirrors `scripts/verify.sh`'s role for the Rust HTTP lane. Confirms 5 invariants: page loads without errors, status chip rendered, data-feedback hooks present, comment persists to localStorage, comment survives a reload. Verified that corrupting `scripts/domi-audit.js` to throw on load flips 1 check to FAIL with exit 1.
+**Status: done** as of the `playwright` dev-dep + `tools/skill-smoke-test.mjs` commit. Run via `npm run test:e2e` or `./scripts/shell/verify-skill-loop.sh`. The shell wrapper mirrors `scripts/shell/verify.sh`'s role for the Rust HTTP lane. Confirms 5 invariants: page loads without errors, status chip rendered, data-feedback hooks present, comment persists to localStorage, comment survives a reload. Verified that corrupting `scripts/runtime/domi-audit.js` to throw on load flips 1 check to FAIL with exit 1.
 
 ### 4. (Optional) Wire `domi serve` for events
 
@@ -121,7 +121,7 @@ End-to-end coverage: `tools/skill-smoke-server-test.mjs` spawns `target/release/
   - comment appears in the rail via the server's WS bridge;
   - `GET /api/events?doc=<doc>` returns the entry with `src: domi-audit.js`.
 
-Wired into npm as `npm run test:e2e:server` and as `scripts/verify-skill-loop-server.sh` (parallels `scripts/verify-skill-loop.sh` and `scripts/verify.sh`).
+Wired into npm as `npm run test:e2e:server` and as `scripts/shell/verify-skill-loop-server.sh` (parallels `scripts/shell/verify-skill-loop.sh` and `scripts/shell/verify.sh`).
 
 Updated `SKILL.md` §Output locations with a one-liner pointing at the server-mode path.
 
@@ -169,8 +169,8 @@ These remain valid and re-prioritize after publishing:
 | 5 other archetypes | `templates/{dashboard,webapp-shell,mobile-app-shell,admin-tool,pos-kiosk}/index.html` |
 | Tokens source | `tokens/tokens.json` |
 | Tokens → CSS emitter | `tools/tokens-to-css.mjs` |
-| Standalone runtime | `scripts/domi.js` |
-| Audit rail runtime | `scripts/domi-audit.js` |
+| Standalone runtime | `scripts/runtime/domi.js` |
+| Audit rail runtime | `scripts/runtime/domi-audit.js` |
 | 15 leaf primitives (HTML) | `components/primitives/<name>/<name>.html` (+ `.css`) |
 | Top-level styles | `components/domi.css` |
 | Rust server (Phase 2d) | `crates/domi-server/` |

@@ -62,7 +62,7 @@ Out of scope for this refactor (do not smuggle these in):
   `scripts/runtime/` and `scripts/shell/` subfolders, which is layout only — see
   §"File structure").
 - The skill-loop wiring itself (`tools/skill-smoke*.mjs`,
-  `scripts/verify-skill-loop*.sh`) — it's already shipped and working.
+  `scripts/shell/verify-skill-loop*.sh`) — it's already shipped and working.
 - Adding new dependencies. `rtk` and `graphify` are runtime-tooling only.
 - Touching `docs/superpowers/specs/`, `.../plans/`, or `.../handoffs/` content
   other than appending this spec + its plan + handoff.
@@ -115,7 +115,7 @@ scripts/
 `runtime/` keeps the read-only-by-default library invariant intact (file
 contents unchanged; only paths change). `shell/` is the natural home for new
 shell helpers (e.g. a future `cleanup-scratch.sh`). The wire-protocol rules
-in `AGENTS.md` reference `scripts/domi-wire.js` — update those references to
+in `AGENTS.md` reference `scripts/runtime/domi-wire.js` — update those references to
 `scripts/runtime/domi-wire.js`.
 
 #### Split-now targets (in scope for this refactor)
@@ -338,7 +338,7 @@ Single PR, not flagged for any version bump. Order of changes inside
 the PR (each commit runs `npm test && cargo test --workspace`):
 
 1. **Mechanical** directory moves (no file content changes):
-   - `scripts/domi*.js` → `scripts/runtime/domi*.js`
+   - `scripts/runtime/domi*.js` → `scripts/runtime/domi*.js`
    - shell scripts stay at `scripts/`
 2. **Split** `crates/domi-server/src/http/handlers.rs` into
    `handlers/{mod,state,test_state,events,ws}.rs`.

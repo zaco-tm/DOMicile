@@ -8,7 +8,7 @@
 
 ## Problem
 
-Phase 2 of DOMiNice promises a real-time feedback loop: human clicks → event travels back to the agent → agent writes a new version of the artifact → human re-reviews. The Phase 1 runtime (`scripts/domi.js`, `scripts/domi-audit.js`) captures feedback client-side and persists to `localStorage`, but no transport exists between browser and agent.
+Phase 2 of DOMiNice promises a real-time feedback loop: human clicks → event travels back to the agent → agent writes a new version of the artifact → human re-reviews. The Phase 1 runtime (`scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`) captures feedback client-side and persists to `localStorage`, but no transport exists between browser and agent.
 
 Phase 2a (this spec) pins down the **wire protocol** so that:
 - 2b's server-attached JS mode has a contract to write to.
@@ -109,7 +109,7 @@ The 2c binary's *interface*, not its implementation. 2c chooses axum + tokio + n
 
 ### E. Server-attached JS shim — `domi-server.js`
 
-A new tiny runtime (`scripts/domi-server.js`, ≤ 1 KB) added next to `domi.js` and `domi-audit.js`. Loaded by the server when it serves HTML. It does three things:
+A new tiny runtime (`scripts/runtime/domi-server.js`, ≤ 1 KB) added next to `domi.js` and `domi-audit.js`. Loaded by the server when it serves HTML. It does three things:
 
 1. Sets `window.__DOMI_SERVER__ = true`. Existing runtimes (`domi.js`, `domi-audit.js`) see this and switch modes:
    - `domi.js` writes feedback events to `POST /api/events` instead of `localStorage`.

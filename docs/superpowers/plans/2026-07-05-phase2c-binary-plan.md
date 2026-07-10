@@ -18,7 +18,7 @@
 - Bind 127.0.0.1 only by default (2a privacy invariant).
 - Validation: trust serde. No `jsonschema` dep. Cross-language drift caught by `tests/wire-protocol.test.js`.
 - `Cargo.lock` continues to be gitignored for 2c-γ (unchanged from 2c-α/2c-β).
-- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**. The new code is additive to `crates/domi-server/src/{main.rs, http/}` and to `crates/domi-server/Cargo.toml`.
+- Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**. The new code is additive to `crates/domi-server/src/{main.rs, http/}` and to `crates/domi-server/Cargo.toml`.
 - Crate MSRV: 1.75. Current toolchain: 1.96. No nightly features.
 - All new code uses only permissively-licensed dependencies (MIT/Apache-2.0).
 - Each task ends with a clean `cargo build --workspace` + `cargo test -p domi-server` (or an explicit note for the gated smoke test).
@@ -661,7 +661,7 @@ Append to the `tests` module in `handlers.rs`:
         let state = test_state();
         std::fs::write(
             state.root.join("dashboard.html"),
-            r#"<!doctype html><html><body><script src="../scripts/domi.js"></script></body></html>"#,
+            r#"<!doctype html><html><body><script src="../scripts/runtime/domi.js"></script></body></html>"#,
         ).unwrap();
         let app = super::super::router::build_router(state);
         let response = app
@@ -1766,7 +1766,7 @@ rust-toolchain.toml           # pins stable channel
 crates/
   domi-server/
     Cargo.toml                # crate manifest + [[bin]] name="domi-server"
-    build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
+    build.rs                              # reads scripts/runtime/domi-server.js → SHIM_BYTES
     src/
       lib.rs                  # re-exports events, serve, http
       main.rs                 # tokio::main → http::run
@@ -1829,7 +1829,7 @@ Append to `RELEASE-NOTES-v0.1.0.md`:
 - 17 new handler tests + 1 WebSocket test + 1 gated binary smoke test (`cargo test -p domi-server -- --ignored smoke`).
 - Total: 22 prior + 18 new = 40 passing + 1 ignored.
 - `Cargo.lock` continues to be gitignored (unchanged from 2c-α/2c-β).
-- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
+- Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`): untouched.
 ```
 
 - [ ] **Step 4: Final verification**
@@ -1856,4 +1856,4 @@ git commit -m "docs(rust): Phase 2c-γ release notes + RUST.md layout + scope ma
 
 ## Done when
 
-All 11 task checklists complete; `cargo test --workspace` shows 18 passing + 1 ignored; `cargo test -p domi-server -- --ignored smoke` passes; `npm test` shows 83/83 passing; `cargo run -p domi-server -- --port 4173` boots a working server (manual smoke confirmed in Task 9 step 5); the only JS-half files touched since v0.1.0 remain `scripts/domi-server.js` and `tests/domi-server-js.test.js` (from 2c-β); library files (`tokens/`, `components/`, original `templates/*/`, `scripts/domi.js`, `scripts/domi-audit.js`, `examples/`) have no NEW diffs from this round.
+All 11 task checklists complete; `cargo test --workspace` shows 18 passing + 1 ignored; `cargo test -p domi-server -- --ignored smoke` passes; `npm test` shows 83/83 passing; `cargo run -p domi-server -- --port 4173` boots a working server (manual smoke confirmed in Task 9 step 5); the only JS-half files touched since v0.1.0 remain `scripts/runtime/domi-server.js` and `tests/domi-server-js.test.js` (from 2c-β); library files (`tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `examples/`) have no NEW diffs from this round.

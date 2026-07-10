@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make `scripts/domi.js` and `scripts/domi-audit.js` switch into server-attached mode when `window.__DOMI_SERVER__ === true`, posting v2 wire-protocol events to `POST /api/events`, hydrating from `GET /api/events`, and consuming `domi-event` CustomEvents from the server-side shim. Phase 1 (standalone / localStorage) must remain unchanged.
+**Goal:** Make `scripts/runtime/domi.js` and `scripts/runtime/domi-audit.js` switch into server-attached mode when `window.__DOMI_SERVER__ === true`, posting v2 wire-protocol events to `POST /api/events`, hydrating from `GET /api/events`, and consuming `domi-event` CustomEvents from the server-side shim. Phase 1 (standalone / localStorage) must remain unchanged.
 
 **Architecture:** Two existing IIFE files get a mode branch at the top — a `SERVER` const controls which code path runs. In server mode the runtimes post JSON to the server endpoint; in standalone mode they continue writing to localStorage. The server stamps ULIDs (per Q2=B), so JS doesn't need a ULID library. The shim (already shipped in 2c-β) handles WebSocket → CustomEvent bridge.
 
@@ -15,17 +15,17 @@
 - Server mode is signaled by `window.__DOMI_SERVER__ === true` (boolean, set by the 2c-β shim).
 - Server mode POSTs JSON envelopes per `docs/WIRE-PROTOCOL.md` §A and `docs/schemas/event.schema.json` v2.
 - The JS side does **not** generate ULIDs. The server stamps them. JS sends `id: null` (or omits the field per the schema's behavior).
-- The `domi-event` and `domi-server-open` CustomEvents are emitted by `scripts/domi-server.js` (already shipped in 2c-β as `75372a1`-class work). No changes to that file.
+- The `domi-event` and `domi-server-open` CustomEvents are emitted by `scripts/runtime/domi-server.js` (already shipped in 2c-β as `75372a1`-class work). No changes to that file.
 - `localStorage` becomes a read-only boot mirror in server mode — read once on `init()` / `mount()`, then never write.
-- Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/domi-server.js`) are **untouched**.
-- `scripts/domi.js` and `scripts/domi-audit.js` ARE modified in place (this is the point of 2b).
+- Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/runtime/domi-server.js`) are **untouched**.
+- `scripts/runtime/domi.js` and `scripts/runtime/domi-audit.js` ARE modified in place (this is the point of 2b).
 
 ---
 
 ### Task 1: Helper module for wire conversion + POST (small reusable piece)
 
 **Files:**
-- Create: `scripts/domi-wire.js`
+- Create: `scripts/runtime/domi-wire.js`
 - Create: `tests/domi-wire.test.js`
 
 **Interfaces:**
@@ -44,7 +44,7 @@ Write `tests/domi-wire.test.js`:
 
 ```javascript
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { isServerMode, serverOrigin, postEvent, getEvents, onServerEvent } from '../scripts/domi-wire.js';
+import { isServerMode, serverOrigin, postEvent, getEvents, onServerEvent } from '../scripts/runtime/domi-wire.js';
 
 describe('domi-wire.js helpers', () => {
   beforeEach(() => {
@@ -157,9 +157,9 @@ describe('domi-wire.js helpers', () => {
 ```bash
 npm test -- tests/domi-wire.test.js 2>&1 | tail -5
 ```
-Expected: import fails ("Cannot find module ../scripts/domi-wire.js"). RED.
+Expected: import fails ("Cannot find module ../scripts/runtime/domi-wire.js"). RED.
 
-- [ ] **Step 3: Implement `scripts/domi-wire.js`**
+- [ ] **Step 3: Implement `scripts/runtime/domi-wire.js`**
 
 ```javascript
 /* DOMiNice wire helpers — server-mode JSON envelope IO.
@@ -254,7 +254,7 @@ Expected: 73 (61 prior + 12 new) tests passing.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/domi-wire.js tests/domi-wire.test.js
+git add scripts/runtime/domi-wire.js tests/domi-wire.test.js
 git commit -m "feat(domi-wire): server-mode HTTP helpers (isServerMode, postEvent, getEvents, onServerEvent)"
 ```
 
@@ -263,24 +263,24 @@ git commit -m "feat(domi-wire): server-mode HTTP helpers (isServerMode, postEven
 ### Task 2: `domi.js` server-mode branch
 
 **Files:**
-- Modify: `scripts/domi.js`
+- Modify: `scripts/runtime/domi.js`
 - Modify: `tests/domi.test.js`
 
 **Interfaces:**
 - Consumes: `domi-wire.js` from Task 1.
-- Produces: `scripts/domi.js`'s `window.DOMi` API unchanged; behavior branches on `__DOMI_SERVER__`.
+- Produces: `scripts/runtime/domi.js`'s `window.DOMi` API unchanged; behavior branches on `__DOMI_SERVER__`.
 
 - [ ] **Step 1: Write failing tests**
 
 Append to `tests/domi.test.js` (new `describe` block, after existing tests):
 
 ```javascript
-import { isServerMode as _isServerMode, postEvent, getEvents, onServerOpen } from '../scripts/domi-wire.js';
+import { isServerMode as _isServerMode, postEvent, getEvents, onServerOpen } from '../scripts/runtime/domi-wire.js';
 
 describe('domi.js server mode', () => {
   let domiSrc;
   beforeEach(() => {
-    domiSrc = readFileSync(resolve(here, '../scripts/domi.js'), 'utf8');
+    domiSrc = readFileSync(resolve(here, '../scripts/runtime/domi.js'), 'utf8');
     document.body.innerHTML = '<div id="root"></div>';
     localStorage.clear();
     delete window.__DOMI_SERVER__;
@@ -371,7 +371,7 @@ npm test -- tests/domi.test.js 2>&1 | tail -10
 ```
 Expected: import of `domi-wire` fails (file doesn't exist yet — Task 1 should have shipped). RED.
 
-- [ ] **Step 3: Implement server-mode branch in `scripts/domi.js`**
+- [ ] **Step 3: Implement server-mode branch in `scripts/runtime/domi.js`**
 
 Replace the entire file with:
 
@@ -580,7 +580,7 @@ Expected: 76 (73 + 3) tests passing.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/domi.js tests/domi.test.js
+git add scripts/runtime/domi.js tests/domi.test.js
 git commit -m "feat(domi.js): server-attached mode — POST v2 events on click/input"
 ```
 
@@ -589,7 +589,7 @@ git commit -m "feat(domi.js): server-attached mode — POST v2 events on click/i
 ### Task 3: `domi-audit.js` server-mode branch
 
 **Files:**
-- Modify: `scripts/domi-audit.js`
+- Modify: `scripts/runtime/domi-audit.js`
 - Modify: `tests/domi-audit.test.js`
 
 **Interfaces:**
@@ -604,7 +604,7 @@ Append to `tests/domi-audit.test.js`:
 describe('domi-audit.js server mode', () => {
   let src;
   beforeEach(() => {
-    src = readFileSync('scripts/domi-audit.js', 'utf8');
+    src = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
     document.body.innerHTML = '';
     delete globalThis.DomiAudit;
     delete globalThis.window;
@@ -708,7 +708,7 @@ npm test -- tests/domi-audit.test.js 2>&1 | tail -10
 ```
 Expected: 5 new tests fail (functions not yet server-aware). RED.
 
-- [ ] **Step 3: Implement server-mode branch in `scripts/domi-audit.js`**
+- [ ] **Step 3: Implement server-mode branch in `scripts/runtime/domi-audit.js`**
 
 Replace the entire file with:
 
@@ -960,7 +960,7 @@ Expected: 81 (76 + 5) tests passing.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/domi-audit.js tests/domi-audit.test.js
+git add scripts/runtime/domi-audit.js tests/domi-audit.test.js
 git commit -m "feat(domi-audit.js): server-attached mode — POST rail-add/rail-resolve, hydrate via GET /api/events"
 ```
 
@@ -1017,14 +1017,14 @@ git commit -m "test(wire-protocol): accept id: null — server stamps before app
 - [ ] **Step 1: Confirm no library files were modified**
 
 ```bash
-git diff v0.1.0..HEAD --stat -- tokens/ components/ scripts/domi-server.js crates/domi-server/ examples/
+git diff v0.1.0..HEAD --stat -- tokens/ components/ scripts/runtime/domi-server.js crates/domi-server/ examples/
 ```
 Expected: empty from THIS round (the prior 2c-β's `domi-server.js` was already committed; what matters is no new diffs in this round).
 
 - [ ] **Step 2: Confirm `domi.js` and `domi-audit.js` ARE modified (this is the point)**
 
 ```bash
-git diff v0.1.0..HEAD --stat -- scripts/domi.js scripts/domi-audit.js
+git diff v0.1.0..HEAD --stat -- scripts/runtime/domi.js scripts/runtime/domi-audit.js
 ```
 Expected: both files show non-zero insertions/deletions from this round's commits only (i.e., from Tasks 2 and 3).
 
@@ -1063,7 +1063,7 @@ Likely nothing. Skip if clean.
 
 ## Phase 2b — Server-attached JS mode (2026-07-05)
 
-- `scripts/domi.js` and `scripts/domi-audit.js` now branch on `window.__DOMI_SERVER__ === true`.
+- `scripts/runtime/domi.js` and `scripts/runtime/domi-audit.js` now branch on `window.__DOMI_SERVER__ === true`.
 - **Standalone mode** (Phase 1) is unchanged: localStorage is the source of truth, all existing tests pass.
 - **Server mode:**
   - `domi.js` POSTs v2 click/input events to `/api/events` with `id: null`; server stamps the ULID.
@@ -1071,13 +1071,13 @@ Likely nothing. Skip if clean.
   - WebSocket bridge: `domi-event` CustomEvents render comments / resolve events live as they arrive.
   - `localStorage` becomes a read-only boot mirror — read once on init, never written.
   - `DomiAudit.resolveEntry(entryId)` is new in 2b; phase 1 had no resolve path.
-- New `scripts/domi-wire.js`: stateless `isServerMode`, `postEvent`, `getEvents`, `onServerEvent`, `onServerOpen`, `serverOrigin` helpers used by both runtimes.
+- New `scripts/runtime/domi-wire.js`: stateless `isServerMode`, `postEvent`, `getEvents`, `onServerEvent`, `onServerOpen`, `serverOrigin` helpers used by both runtimes.
 - 13 new tests: 12 for `domi-wire` (helper coverage), 3 server-mode for `domi.js`, 5 server-mode for `domi-audit` (one of which is the regression for Phase 1), 1 server-stamps rule for `wire-protocol`.
 - Spec + companion docs:
   - `docs/superpowers/specs/2026-07-05-phase2b-server-attached-js-design.md`
   - `docs/AUDIT.md` (new "Server-attached mode" section)
   - `docs/WIRE-PROTOCOL.md` (server stamps `id` if absent rule)
-- Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/domi-server.js`): untouched.
+- Library files (`tokens/`, `components/`, original `templates/*/`, `crates/domi-server/`, `examples/`, `scripts/runtime/domi-server.js`): untouched.
 ```
 
 - [ ] **Step 2: Final verification**
@@ -1098,4 +1098,4 @@ git commit -m "docs(release): Phase 2b — server-attached JS mode release notes
 
 ## Done when
 
-All 6 task checklists complete; `npm test` reports 82/82 passing; `cargo test -p domi-server` reports 25 + 1 ignored; `git diff v0.1.0..HEAD --stat -- tokens/ components/ examples/ crates/domi-server/` shows zero new diffs from this round; `git diff v0.1.0..HEAD --stat -- scripts/domi.js scripts/domi-audit.js scripts/domi-wire.js` shows commits from this round only.
+All 6 task checklists complete; `npm test` reports 82/82 passing; `cargo test -p domi-server` reports 25 + 1 ignored; `git diff v0.1.0..HEAD --stat -- tokens/ components/ examples/ crates/domi-server/` shows zero new diffs from this round; `git diff v0.1.0..HEAD --stat -- scripts/runtime/domi.js scripts/runtime/domi-audit.js scripts/runtime/domi-wire.js` shows commits from this round only.

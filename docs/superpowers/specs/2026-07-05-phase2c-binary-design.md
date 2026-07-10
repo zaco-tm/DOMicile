@@ -8,8 +8,8 @@
 - `docs/schemas/event.schema.json` (canonical event shape)
 - `crates/domi-server/src/events/` (2c-α sync writer — `EventWriter`, `Event`, `FileShape`, `Rotation`, `WriteError`)
 - `crates/domi-server/src/serve/` (2c-β sync HTTP primitives — `serve_file`, `ContentType`, `ServeError`, `Watcher` trait + `NotifyWatcher` + `MockWatcher`, `protocol_banner`, embedded `SHIM_BYTES`)
-- `scripts/domi.js` and `scripts/domi-audit.js` (server-attached mode: POST `/api/events`, listen on `/ws/events`, hydrate via `GET /api/events`)
-- `scripts/domi-server.js` (≤ 1 KB shim, embedded into Rust via `build.rs` as `SHIM_BYTES`)
+- `scripts/runtime/domi.js` and `scripts/runtime/domi-audit.js` (server-attached mode: POST `/api/events`, listen on `/ws/events`, hydrate via `GET /api/events`)
+- `scripts/runtime/domi-server.js` (≤ 1 KB shim, embedded into Rust via `build.rs` as `SHIM_BYTES`)
 
 ## Problem
 
@@ -39,7 +39,7 @@ The single biggest risk per `HANDOFF.md` is "no live integration test against an
 - TDD against real temp files (`tempfile` crate); handler tests via `tower::ServiceExt::oneshot`; one binary-boot smoke test gated with `#[ignore]` and runnable via `cargo test -- --ignored`.
 - Graceful shutdown on SIGINT/SIGTERM via `tokio::signal`.
 - CLI surface: `domi-server --port 4173 --host 127.0.0.1 --root .domi/output --state .domi/state --log-level info` (clap derive).
-- Library invariant held: `tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/` are untouched.
+- Library invariant held: `tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/` are untouched.
 
 ## Non-goals
 
@@ -72,7 +72,7 @@ crates/domi-server/
       router.rs         # build_router(state) -> axum::Router
       handlers.rs       # banner, static_serve, post_event, get_events, healthz
       ws.rs             # ws_upgrade handler + broadcast loop
-  build.rs              # 2c-β, unchanged (still embeds scripts/domi-server.js)
+  build.rs              # 2c-β, unchanged (still embeds scripts/runtime/domi-server.js)
 ```
 
 The library API is unchanged from the perspective of 2c-α/2c-β consumers. The binary's public surface is the `domi_server::http::run` function (callable from `main.rs` and from integration tests).
@@ -423,7 +423,7 @@ Unchanged: `Cargo.lock` is **gitignored**. Phase 2c-α and 2c-β are library-onl
 | `RELEASE-NOTES-v0.1.0.md` | Modify: append 2c-γ section | +25 |
 | `docs/superpowers/plans/2026-07-05-phase2c-binary-plan.md` | Create (writing-plans skill output) | ~600 |
 
-Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`) — **untouched**.
+Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`) — **untouched**.
 
 ## Acceptance
 

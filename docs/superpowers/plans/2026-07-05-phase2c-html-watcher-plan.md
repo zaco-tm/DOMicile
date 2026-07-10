@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a sync `serve` module to `crates/domi-server` exposing a `Watcher` trait + `NotifyWatcher` (notify-backed) + `MockWatcher` (test-only), `serve_file` with HTML shim injection, and `protocol_banner`. Add `scripts/domi-server.js` shim file (≤ 1 KB). Wire the shim's content into Rust via a build script as `domi_server::SHIM_BYTES`.
+**Goal:** Add a sync `serve` module to `crates/domi-server` exposing a `Watcher` trait + `NotifyWatcher` (notify-backed) + `MockWatcher` (test-only), `serve_file` with HTML shim injection, and `protocol_banner`. Add `scripts/runtime/domi-server.js` shim file (≤ 1 KB). Wire the shim's content into Rust via a build script as `domi_server::SHIM_BYTES`.
 
 **Architecture:** Sync library extension only — no async, no HTTP, no WebSocket. The binary in 2c-γ consumes these primitives. The shim is a JS file on disk AND a Rust `&'static [u8]` constant built at compile time, so `serve_file` can inject it without reading the filesystem on every request.
 
@@ -12,30 +12,30 @@
 
 - Working directory: `/Users/zaco/Projects/Personal/DOMiNice Skill`.
 - Wire protocol per `docs/WIRE-PROTOCOL.md` (v2). HTML shim injection rule per spec: inject as a blocking script before the first `<script>` tag in HTML responses whose `src` matches `src="...domi.js"` or `src='...domi.js'` (where `...` is path characters `/`, `.`, alphanumerics, `-`, `_`, `~`).
-- The Rust `SHIM_BYTES` constant must match `scripts/domi-server.js` byte-for-byte. Build script enforces this by reading the file at compile time.
+- The Rust `SHIM_BYTES` constant must match `scripts/runtime/domi-server.js` byte-for-byte. Build script enforces this by reading the file at compile time.
 - Watcher is sync. `Watcher::next_event(&mut self, timeout_ms: u32) -> io::Result<Option<WatchEvent>>` — `Ok(None)` is a clean idle-timeout, `Err(_)` is a fatal watcher error.
 - 2c-β stays sync. Async lands in 2c-γ.
 - Files trailing newline invariant holds.
 - `crates/domi-server/Cargo.toml` gains `notify = "6"` (runtime) only. No new dev-deps.
 - `.gitignore`: `**/target/` is already present. `Cargo.lock` continues to be excluded for library-only.
-- Library files (`tokens/`, `components/`, `scripts/domi.js`, `scripts/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**. The new `scripts/domi-server.js` is additive, not a change to an existing file.
+- Library files (`tokens/`, `components/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, original `templates/*/`, `examples/`) are **untouched**. The new `scripts/runtime/domi-server.js` is additive, not a change to an existing file.
 - `docs/RUST.md` is updated to reflect the new `serve/` module.
 
 ---
 
-### Task 1: `scripts/domi-server.js` shim (JS half, ≤ 1 KB)
+### Task 1: `scripts/runtime/domi-server.js` shim (JS half, ≤ 1 KB)
 
 **Files:**
-- Create: `scripts/domi-server.js`
+- Create: `scripts/runtime/domi-server.js`
 - Create: `tests/domi-server-js.test.js`
 
 **Interfaces:**
-- Produces: `scripts/domi-server.js` whose content matches the body of `(() => { ... })()` shown in spec §C, sets `window.__DOMI_SERVER__ = true` first, then opens WS, then sets `window.DomiServer.{subscribe, export}`.
+- Produces: `scripts/runtime/domi-server.js` whose content matches the body of `(() => { ... })()` shown in spec §C, sets `window.__DOMI_SERVER__ = true` first, then opens WS, then sets `window.DomiServer.{subscribe, export}`.
 - Produces: vitest file `tests/domi-server-js.test.js` covering three invariants.
 
 - [ ] **Step 1: Write the shim**
 
-Write `scripts/domi-server.js` exactly:
+Write `scripts/runtime/domi-server.js` exactly:
 
 ```javascript
 (() => {
@@ -78,7 +78,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const SHIM = readFileSync(resolve(here, '../scripts/domi-server.js'), 'utf8');
+const SHIM = readFileSync(resolve(here, '../scripts/runtime/domi-server.js'), 'utf8');
 
 describe('domi-server.js shim', () => {
   it('sets window.__DOMI_SERVER__ to true', () => {
@@ -110,7 +110,7 @@ Expected: 3 new tests pass, 58/58 total (or 61/61 after first run).
 - [ ] **Step 4: Commit**
 
 ```bash
-git add scripts/domi-server.js tests/domi-server-js.test.js
+git add scripts/runtime/domi-server.js tests/domi-server-js.test.js
 git commit -m "feat(shim): domi-server.js — sets __DOMI_SERVER__ and wires WebSocket subscription"
 ```
 
@@ -350,7 +350,7 @@ git commit -m "feat(domi-server): serve::watcher — trait, WatchEvent, MockWatc
 - Modify: `crates/domi-server/Cargo.toml` (add `build = "build.rs"`)
 
 **Interfaces:**
-- Consumes: `scripts/domi-server.js` on disk at compile time.
+- Consumes: `scripts/runtime/domi-server.js` on disk at compile time.
 - Produces: `pub const SHIM_BYTES: &[u8]` and `pub const SHIM_LEN: usize` declared via `include_bytes!` or `env!`-driven generated file.
 
 This task is structural — moves the shim bytes into the Rust binary at compile time so `serve_file` can inject them later without runtime I/O.
@@ -372,7 +372,7 @@ fn main() {
         panic!(
             "domi-server.js shim not found at {}: {e}. \
              The Rust crate embeds the JS shim at compile time; \
-             the file must live at <repo>/scripts/domi-server.js.",
+             the file must live at <repo>/scripts/runtime/domi-server.js.",
             shim_path.display()
         )
     });
@@ -400,7 +400,7 @@ The `shim_token.rs` is a generated file with `include_bytes!("...absolute path..
 Write `crates/domi-server/src/serve/shim.rs`:
 
 ```rust
-//! Embedded server-side shim. Build script reads `scripts/domi-server.js`
+//! Embedded server-side shim. Build script reads `scripts/runtime/domi-server.js`
 //! at compile time and produces `SHIM_BYTES` (the raw bytes) and
 //! `SHIM_BYTES_LEN` (length) so `serve_file` can inject without runtime I/O.
 
@@ -541,8 +541,8 @@ fn references_domi_js(body: &[u8]) -> bool {
         || hay.contains("src='domi.js'")
         || hay.contains("src=\"./domi.js\"")
         || hay.contains("src='./domi.js'")
-        || hay.contains("src=\"../scripts/domi.js\"")
-        || hay.contains("src='../scripts/domi.js'")
+        || hay.contains("src=\"../scripts/runtime/domi.js\"")
+        || hay.contains("src='../scripts/runtime/domi.js'")
 }
 
 /// Insert shim bytes as an inline-blocking `<script>` before the first
@@ -627,7 +627,7 @@ mod tests {
         let file = root.join("dashboard.html");
         write(
             &file,
-            r#"<!doctype html><html><body><script src="../scripts/domi.js"></script></body></html>"#,
+            r#"<!doctype html><html><body><script src="../scripts/runtime/domi.js"></script></body></html>"#,
         );
         let body = std::fs::read(&file).unwrap();
         let requested = Path::new("dashboard.html");
@@ -881,9 +881,9 @@ Expected: 61/61 passing (58 prior + 3 shim tests).
 - [ ] **Step 3: Re-confirm no JS-half files were modified**
 
 ```bash
-git log --since=v0.1.0 --oneline -- tokens/ components/ scripts/domi.js scripts/domi-audit.js templates/dashboard templates/webapp-shell templates/mobile-app-shell templates/admin-tool templates/pos-kiosk examples/
+git log --since=v0.1.0 --oneline -- tokens/ components/ scripts/runtime/domi.js scripts/runtime/domi-audit.js templates/dashboard templates/webapp-shell templates/mobile-app-shell templates/admin-tool templates/pos-kiosk examples/
 ```
-Expected: only the prior commits (2c-α's release notes mention `examples/`, plus 2c-β's new `scripts/domi-server.js` and `tests/domi-server-js.test.js` show in this list — but `examples/` and the originals shouldn't have NEW diffs from this round).
+Expected: only the prior commits (2c-α's release notes mention `examples/`, plus 2c-β's new `scripts/runtime/domi-server.js` and `tests/domi-server-js.test.js` show in this list — but `examples/` and the originals shouldn't have NEW diffs from this round).
 
 Concretely: `git diff v0.1.0..HEAD --stat -- tokens/ components/ examples/` should be empty from THIS session's work (the existing diffs predate 2c-β).
 
@@ -937,7 +937,7 @@ crates/domi-server/
     file.rs                            # serve_file + shim injection (8 tests inline)
     shim.rs                            # SHIM_BYTES (compile-time embedded)
     watcher.rs                         # Watcher trait + NotifyWatcher + MockWatcher
-  build.rs                              # reads scripts/domi-server.js → SHIM_BYTES
+  build.rs                              # reads scripts/runtime/domi-server.js → SHIM_BYTES
 \`\`\`
 ```
 
@@ -956,7 +956,7 @@ Append to `RELEASE-NOTES-v0.1.0.md`:
 - New `crates/domi-server/src/serve/` module: `banner`, `file`, `shim`, `watcher`.
 - `serve_file(root, path)` returns content + content-type with HTML shim injection when the file references `domi.js`.
 - `Watcher` trait + `NotifyWatcher` (notify-backed, gated integration test) + `MockWatcher` (test-only).
-- New `scripts/domi-server.js` shim (≤ 1 KB): sets `window.__DOMI_SERVER__=true`, opens WS, surfaces `DomiServer.{subscribe,export}`. Embedded into Rust as `SHIM_BYTES` via `build.rs` so `serve_file` injects without runtime I/O.
+- New `scripts/runtime/domi-server.js` shim (≤ 1 KB): sets `window.__DOMI_SERVER__=true`, opens WS, surfaces `DomiServer.{subscribe,export}`. Embedded into Rust as `SHIM_BYTES` via `build.rs` so `serve_file` injects without runtime I/O.
 - 22 new Rust tests (7 watcher + 8 file + 3 shim + 4 banner parity + 1 integration gated). 3 new JS shim tests.
 - Companion doc updates: `docs/PHASE2-SCOPE.md`, `docs/WIRE-PROTOCOL.md`.
 - JS half (tokens, primitives, templates, `domi.js`, `domi-audit.js`, examples): untouched.
@@ -980,4 +980,4 @@ git commit -m "docs(rust): Phase 2c-β release notes + RUST.md layout update"
 
 ## Done when
 
-All 8 task checklists complete; `cargo test --workspace` shows 22 passing + 1 ignored; `npm test` shows 61/61 passing; the only JS-half file added since v0.1.0 is `scripts/domi-server.js` (intentional); library files (`tokens/`, `components/`, original `templates/*/`, `scripts/domi.js`, `scripts/domi-audit.js`, `examples/`) have no NEW diffs from this round.
+All 8 task checklists complete; `cargo test --workspace` shows 22 passing + 1 ignored; `npm test` shows 61/61 passing; the only JS-half file added since v0.1.0 is `scripts/runtime/domi-server.js` (intentional); library files (`tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `examples/`) have no NEW diffs from this round.

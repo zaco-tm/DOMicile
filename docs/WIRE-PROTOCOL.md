@@ -56,7 +56,7 @@ Consumers pick one or both. The server's contract is identical for both — neit
 | Method | Path | Purpose |
 |---|---|---|
 | `GET` | `/` | Protocol banner: `{ name: "domi-server", version, protocol: 2 }` |
-| `GET` | `/<path>` | Serve files from the watched output dir. Inlines the `domi-server.js` shim as a **blocking script** before the first `<script>` tag in HTML responses whose `src` resolves to a `domi.js` file. The shim lives at `scripts/domi-server.js` and constructs its WebSocket URL from `window.location.host` (same-origin); no per-request host injection. |
+| `GET` | `/<path>` | Serve files from the watched output dir. Inlines the `domi-server.js` shim as a **blocking script** before the first `<script>` tag in HTML responses whose `src` resolves to a `domi.js` file. The shim lives at `scripts/runtime/domi-server.js` and constructs its WebSocket URL from `window.location.host` (same-origin); no per-request host injection. |
 | `POST` | `/api/events` | Accept a single event JSON. Append + broadcast. Returns `204`. |
 | `GET` | `/api/events?since=<ULID>&doc=<name>&limit=<n>` | Read events strictly after `<ULID>`. `limit` default 100, max 1000. Response: `{ events: [Event], nextSince: ULID \| null }`. |
 | `GET` | `/ws/events` | WebSocket push. Server sends `{ type: "hello", v: 2, serverId }` on connect, then wraps each event as `{ type: "event", event: <Event> }`. |
