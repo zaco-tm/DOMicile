@@ -5,9 +5,9 @@ This file is for AI coding agents (Claude, Cursor, etc.) operating in this repos
 ## TL;DR
 
 - **Use `rtk` for filesystem, git, grep, and test commands** when available — it token-trims noisy output. See "RTK" below.
-- The DOMiNice design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/domi.js`, `scripts/domi-audit.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
+- The DOMiNice design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
 - The wire protocol is pinned at v2 by two specs: `docs/schemas/event.schema.json` (canonical shape) and `docs/WIRE-PROTOCOL.md` (prose). Cross-language drift between Rust, JS, and either doc is a bug — fix both ends.
-- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state (per `docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md`): **240 JS passed / 0 failed, 77 Rust passed / 13 ignored**.
+- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state (per the most recent handoff): **250 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
 - The canonical "where we are" doc is `docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md`. Read it first when you need a status snapshot; older handoffs in that directory are superseded.
 
 ## What's shipped (read this before guessing)
@@ -16,18 +16,18 @@ DOMiNice is built in numbered phases. Each phase has a spec under `docs/superpow
 
 | Phase | Status | Lives in |
 |---|---|---|
-| Phase 1 (skill + tokens + 15 primitives + 5 archetypes + `domi.js`) | shipped | `tokens/`, `components/`, `templates/`, `scripts/domi.js` |
-| 1.x rework (`SKILL.md` reframe + `domi-audit.js` + `templates/working-doc/`) | shipped | `SKILL.md`, `scripts/domi-audit.js`, `templates/working-doc/`, `docs/{AUDIT,EXTENDING,LAYOUTS}.md` |
+| Phase 1 (skill + tokens + 15 primitives + 5 archetypes + `domi.js`) | shipped | `tokens/`, `components/`, `templates/`, `scripts/runtime/domi.js` |
+| 1.x rework (`SKILL.md` reframe + `domi-audit.js` + `templates/working-doc/`) | shipped | `SKILL.md`, `scripts/runtime/domi-audit.js`, `templates/working-doc/`, `docs/{AUDIT,EXTENDING,LAYOUTS}.md` |
 | Phase 2a (wire protocol) | shipped | `docs/WIRE-PROTOCOL.md`, `docs/schemas/event.schema.json` |
-| Phase 2b (server-attached JS) | shipped | `scripts/domi-wire.js`, `scripts/domi-server.js` (shim) |
+| Phase 2b (server-attached JS) | shipped | `scripts/runtime/domi-wire.js`, `scripts/runtime/domi-server.js` (shim) |
 | Phase 2c-α (Rust event writer, lib only) | shipped | `crates/domi-server/src/events/` |
 | Phase 2c-β (Rust file serving + watcher) | shipped | `crates/domi-server/src/serve/` |
 | Phase 2c-γ (Rust binary — axum HTTP + WS) | shipped | `crates/domi-server/src/http/`, `crates/domi-server/src/main.rs` |
-| Phase 2d (agent CLI + install/verify) | shipped | `crates/domi-server/src/tools/`, `scripts/install.sh`, `scripts/verify.sh` |
+| Phase 2d (agent CLI + install/verify) | shipped | `crates/domi-server/src/tools/`, `scripts/shell/install.sh`, `scripts/shell/verify.sh` |
 | Phase 3a (`@domi/react` — 15 React components + tests) | shipped | `packages/react/` |
 | Phase 3b (`@domi/astro` — Astro components + hydration wrappers) | shipped | `packages/astro/` |
 | Phase 3c (`domi-egui` — Rust crate, 15 widgets + 5 composites, WASM-capable) | shipped | `crates/domi-egui/` |
-| Phase 4 — skill loop wiring (the local loop: `domi-server` binary → `tools/skill-smoke*.mjs` → `templates/working-doc/`) | shipped (on `main`) | `tools/skill-smoke.mjs`, `tools/skill-smoke-test.mjs`, `tools/skill-smoke-server-test.mjs`, `scripts/verify-skill-loop*.sh` |
+| Phase 4 — skill loop wiring (the local loop: `domi-server` binary → `tools/skill-smoke*.mjs` → `templates/working-doc/`) | shipped (on `main`) | `tools/skill-smoke.mjs`, `tools/skill-smoke-test.mjs`, `tools/skill-smoke-server-test.mjs`, `scripts/shell/verify-skill-loop*.sh` |
 
 Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until the skill loop is proven playable end-to-end.
 
@@ -37,10 +37,10 @@ Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until th
   - `tokens/` — locked palette + ajv-validated JSON schema
   - `components/` — 15 HTML primitives + `domi.css`
   - `templates/` — 5 archetypes (`dashboard/`, `webapp-shell/`, `mobile-app-shell/`, `admin-tool/`, `pos-kiosk/`) plus `working-doc/` (the Phase 2 audit archetype — clone this for any working-doc-mode artifact)
-  - `scripts/domi.js` — Phase 1 client runtime (click feedback, form capture, status chip)
-  - `scripts/domi-audit.js` — audit-loop runtime (Phase 2; reads JSON Schema, writes to localStorage or POSTs to `domi-server`, exposes `DomiAudit.{mount,addComment,export}`)
-  - `scripts/domi-server.js` — server-detect shim (sets `window.__DOMI_SERVER__`, opens WS)
-  - `scripts/domi-wire.js` — shared wire helpers (used by `domi.js` and `domi-audit.js`)
+  - `scripts/runtime/domi.js` — Phase 1 client runtime (click feedback, form capture, status chip)
+  - `scripts/runtime/domi-audit.js` — audit-loop runtime (Phase 2; reads JSON Schema, writes to localStorage or POSTs to `domi-server`, exposes `DomiAudit.{mount,addComment,export}`)
+  - `scripts/runtime/domi-server.js` — server-detect shim (sets `window.__DOMI_SERVER__`, opens WS)
+  - `scripts/runtime/domi-wire.js` — shared wire helpers (used by `domi.js` and `domi-audit.js`)
   - `examples/` — example working doc demonstrating the audit rail
 - **Authoring layer** (`SKILL.md` + `docs/`):
   - `SKILL.md` — top-level entry; agents load this first. Defines the three output modes (working-doc create, working-doc audit, deliverable) and the iteration mode (piece-by-piece, not page-at-a-time).
@@ -61,9 +61,9 @@ Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until th
   - `packages/react/` — `@domi/react`: 15 components, `cn()` util, types, tests, CSS-AUDIT. Build via `tsup`.
   - `packages/astro/` — `@domi/astro`: Astro components with hydration-control wrappers.
 - **Tooling**:
-  - `tools/` — Node scripts: `skill-smoke.mjs` (clones `templates/working-doc/` and serves it on `http://127.0.0.1:8123/` until SIGINT), `skill-smoke-test.mjs` (Playwright e2e for the standalone loop), `skill-smoke-server-test.mjs` (boots `domi-server` binary and drives Playwright against the event-backed loop), `smoke.mjs`, `tokens-to-css.mjs`.
-  - `scripts/verify-skill-loop.sh`, `scripts/verify-skill-loop-server.sh` — bash wrappers that orchestrate the Node tools.
-  - `scripts/install.sh`, `scripts/verify.sh` — Phase 2d installer and sanity-checker.
+  - `tools/` — Node scripts: `skill-smoke.mjs` (clones `templates/working-doc/` and serves it on `http://127.0.0.1:8123/` until SIGINT), `skill-smoke-test.mjs` (Playwright e2e for the standalone loop), `skill-smoke-server-test.mjs` (boots `domi-server` binary and drives Playwright against the event-backed loop), `smoke.mjs`, `tokens-to-css.mjs`, `check-file-size.mjs`, `tests/check-file-size.test.mjs`.
+  - `scripts/shell/verify-skill-loop.sh`, `scripts/shell/verify-skill-loop-server.sh` — bash wrappers that orchestrate the Node tools.
+  - `scripts/shell/install.sh`, `scripts/shell/verify.sh` — Phase 2d installer and sanity-checker.
 - **Authoring state** (gitignored, runtime only):
   - `.domi/output/<name>.html` — agent-authored working docs.
   - `.domi/state/<name>.json` — server-side audit thread state.
@@ -108,7 +108,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 ## Workflow norms
 
 - **Specs before code.** Anything non-trivial goes through `docs/superpowers/specs/<date>-<topic>-design.md` → `docs/superpowers/plans/<date>-<topic>.md` → implementation, with a `docs/superpowers/handoffs/<date>-<topic>-handoff.md` at the end. The brainstorming skill governs the spec step.
-- **Library invariant.** Changes to `tokens/`, `components/`, original `templates/*/`, `scripts/domi.js`, `scripts/domi-audit.js`, or `examples/` require explicit user sign-off in the session. New author work lives in `.domi/output/`.
+- **Library invariant.** Changes to `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` require explicit user sign-off in the session. New author work lives in `.domi/output/`.
 - **Tests on every change.** JS: `npm test` (vitest, jsdom) and `npm run test:e2e` / `npm run test:e2e:server` for the skill loop. Rust: `cargo test --workspace`. Both must remain green.
 - **Pre-existing dirty state.** `components/domi.css` has been modified on disk but not committed since v0.1.0. Don't touch it unless the user explicitly asks; it's pre-existing.
 - **Cargo.lock policy.** Untracked, in `.gitignore`. Policy rationale: the workspace now contains both a binary (`domi-server`) and a library (`domi-egui`), so reproducible builds would benefit from committing `Cargo.lock`, but the user has chosen to keep it out of git until distribution lands. Don't `git add Cargo.lock` unless the user explicitly asks.
@@ -122,9 +122,86 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 - **Cargo.lock creeping in.** Don't `git add Cargo.lock` unless the user asks. Currently untracked.
 - **`components/domi.css` "dirty" status.** It's pre-existing. Don't fix it; don't sweep it into your diff.
 - **Touching the library by accident.** If your change set includes files under `tokens/` or `components/`, stop and ask the user before committing.
+- **Editing a file past its size threshold.** `node tools/check-file-size.mjs` reports any file ≥500 lines. Adding to one of those files is a hard stop; extract a coherent responsibility first.
 - **Tokens for things already in context.** When the contents of a file are already in your conversation (you read it earlier this session), don't re-read it — reference the prior read instead.
 - **Treating `.superpowers/sdd/` as canonical.** It's gitignored scaffolding from prior SDD sessions. Ignore unless the user points to a specific file in it.
 - **Treating older handoffs as current.** `docs/superpowers/handoffs/` accumulates. The most recent handoff supersedes the prior ones. When in doubt, sort by date and read the newest first.
+
+## File size discipline (added in agent-friendly refactor)
+
+A per-file size policy enforced by `node tools/check-file-size.mjs`
+(added by this refactor; wired into `npm test` via the `pretest`
+hook with `--no-fail`):
+
+- **0–300 lines** — healthy default; normal edits allowed.
+- **300–500 lines** — watchful; new logic only if it fits the file's
+  existing single responsibility.
+- **500–700 lines** — split-now; extract a coherent responsibility
+  BEFORE adding more behavior.
+- **700+ lines** — refactor target; subagent **must not** add to it
+  without a split plan.
+
+Function size: ≤40 lines default; >80 requires extraction or
+inline-comment justification.
+
+Per-file ownership: one primary owner per file = one class / one
+widget / one route family / one installer script / one test bundle.
+If you're tempted to add a function whose only home is a file that
+doesn't currently own its kind, split first.
+
+CI runs `node tools/check-file-size.mjs` with no flags (strict
+gate; exit 1 fails the build). `npm test` uses `--no-fail` so dev
+loops stay green even if a pre-existing big file hasn't been split
+yet.
+
+## Per-module AGENTS.md (closest-scope lookup)
+
+The root AGENTS.md covers global rules (library invariant, RTK,
+tests, subagent discipline). For module-specific safe zones vs
+ask-first zones, read the closest-scope file:
+
+- `scripts/runtime/AGENTS.md` — Phase 1+2 client runtimes (read-only)
+- `scripts/shell/AGENTS.md` — bash installers + skill-loop runners
+- `crates/domi-server/AGENTS.md` — HTTP binary + agent CLI
+- `crates/domi-egui/AGENTS.md` — Phase 3c Rust widgets
+- `packages/react/AGENTS.md` — `@domi/react` wrappers
+- `packages/astro/AGENTS.md` — `@domi/astro` wrappers
+- `tools/AGENTS.md` — Node tooling
+- `templates/working-doc/AGENTS.md` — audit-rail archetype
+- `docs/AGENTS.md` — library docs
+
+The closest-scope file wins when in doubt. Each module file is
+≤80 lines and never rewrites the global rules here.
+
+## Long-task session bridge (`.domi/scratch/`)
+
+Long agent tasks die mid-loop. To prevent losing work, write
+per-session state to `.domi/scratch/<feature>/`:
+
+- `session-N.md` — raw session output, written before any `/clear`,
+  `/compact`, or session-end signal.
+- `handoff.md` — ≤1000-token distilled state: current goal,
+  decisions made + why, decisions deferred, files in play
+  (status: done / in-progress / untouched), next concrete
+  action, don't-forget flags.
+
+Trigger: at ~80–85% context usage OR before any context-boundary
+signal (clear, compact, session-end, topic-switch). The next
+session starts with `cat .domi/scratch/<feature>/handoff.md`.
+
+`.domi/scratch/` is gitignored (already covered by `.domi/` in
+`.gitignore`); see `.domi/scratch/README.md` for the full
+convention.
+
+## Knowledge graph (`tools/where-is.mjs`)
+
+When unsure where a concept lives, run
+`node tools/where-is.mjs "<topic>"`. The script reads
+`graphify-out/graph.json` (regenerated via `npm run graph`) and
+prints matches grouped by community, plus EXTRACTED
+blast-radius edges, plus a suggested next query.
+
+If the script returns "No graph at…", run `npm run graph` once.
 
 ## Pointers
 
