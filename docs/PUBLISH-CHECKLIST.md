@@ -2,7 +2,7 @@
 
 Generated from the publish-readiness audit. Each block is one decision. Run them in order; each one is independent.
 
-> **Note:** `your-org/domicile` is a placeholder — replace with the actual repo slug before running any command that references it.
+> **Note:** All URLs in this doc use `zaco-tm/DOMicile`. Update if you fork.
 
 ---
 
@@ -90,12 +90,12 @@ mkdir -p /Users/zaco/Projects/Personal/DOMicile/.github/workflows
 
 ## 5. GH About box + topics
 
-Once the repo is created at `your-org/domicile`:
+Once the repo is created at `zaco-tm/DOMicile`:
 
 ```bash
-gh repo edit your-org/domicile \
-  --description "Design system and AI-agent skill for building and reviewing UI work in shared HTML documents." \
-  --homepage "https://github.com/your-org/domicile#readme" \
+gh repo edit zaco-tm/DOMicile \
+  --description "Design system + AI-agent skill for building and reviewing UI work in shared HTML documents." \
+  --homepage "https://github.com/zaco-tm/DOMicile#readme" \
   --add-topic design-system \
   --add-topic ui-components \
   --add-topic ai-agent \
@@ -152,4 +152,4 @@ npm install @domi/react
 # (write a one-liner that imports DomButton and renders it)
 ```
 
-If any of those fail or look incomplete, the most likely cause is a placeholder URL (`your-org/domicile`) that wasn't replaced before publish.
+If any of those fail or look incomplete, the most likely cause is the URLs not yet matching the real fork.

@@ -102,5 +102,5 @@ Neo theme (default for working docs and audit surfaces, available for deliverabl
 
 ---
 
-[Unreleased]: https://github.com/your-org/domicile/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/your-org/domicile/releases/tag/v0.1.0
+[Unreleased]: https://github.com/zaco-tm/DOMicile/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/zaco-tm/DOMicile/releases/tag/v0.1.0

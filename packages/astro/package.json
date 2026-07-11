@@ -28,13 +28,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/domicile.git",
+    "url": "https://github.com/zaco-tm/DOMicile.git",
     "directory": "packages/astro"
   },
   "bugs": {
-    "url": "https://github.com/your-org/domicile/issues"
+    "url": "https://github.com/zaco-tm/DOMicile/issues"
   },
-  "homepage": "https://github.com/your-org/domicile#readme",
+  "homepage": "https://github.com/zaco-tm/DOMicile#readme",
   "peerDependencies": {
     "astro": "^5.0.0"
   },

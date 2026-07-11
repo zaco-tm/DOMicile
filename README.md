@@ -28,7 +28,7 @@ When you're done, the agent hands you a clean deliverable: same design system, n
 ## See it in 60 seconds
 
 ```bash
-git clone https://github.com/your-org/domicile.git
+git clone https://github.com/zaco-tm/DOMicile.git
 cd domicile
 npm install
 npm run smoke

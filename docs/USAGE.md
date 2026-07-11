@@ -5,7 +5,7 @@ For humans and AI agents who want to author DOMicile HTML artifacts.
 ## Quickstart
 
 ```bash
-git clone https://github.com/your-org/domicile.git
+git clone https://github.com/zaco-tm/DOMicile.git
 cd domicile
 npm install
 ```

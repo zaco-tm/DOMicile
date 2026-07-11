@@ -5,9 +5,9 @@ edition = "2021"
 license = "MIT"
 description = "DOMicile 15-primitive widget library for egui (Phase 3c)."
 publish = true
-repository = "https://github.com/your-org/domicile"
-homepage = "https://github.com/your-org/domicile"
-documentation = "https://github.com/your-org/domicile/blob/main/crates/domi-egui/README.md"
+repository = "https://github.com/zaco-tm/DOMicile"
+homepage = "https://github.com/zaco-tm/DOMicile"
+documentation = "https://github.com/zaco-tm/DOMicile/blob/main/crates/domi-egui/README.md"
 keywords = ["domicile", "ui", "design-system", "egui", "widgets", "wasm"]
 categories = ["gui", "wasm"]
 
