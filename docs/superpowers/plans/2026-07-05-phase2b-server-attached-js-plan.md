@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Working directory: `/Users/zaco/Projects/Personal/DOMiNice Skill`.
+- Working directory: `/Users/zaco/Projects/Personal/DOMicile`.
 - Phase 1 behavior on standalone (no `__DOMI_SERVER__`) is unchanged. Tests in `tests/domi.test.js` and `tests/domi-audit.test.js` from Phase 1 must continue to pass.
 - Server mode is signaled by `window.__DOMI_SERVER__ === true` (boolean, set by the 2c-β shim).
 - Server mode POSTs JSON envelopes per `docs/WIRE-PROTOCOL.md` §A and `docs/schemas/event.schema.json` v2.

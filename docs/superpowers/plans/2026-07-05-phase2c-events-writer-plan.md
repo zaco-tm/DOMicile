@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Working directory: `/Users/zaco/Projects/Personal/DOMiNice Skill` (the DOMiNice repo).
+- Working directory: `/Users/zaco/Projects/Personal/DOMicile` (the DOMiNice repo).
 - `events.jsonl` semantics per `docs/WIRE-PROTOCOL.md` §"JSONL file conventions".
 - Event schema per `docs/schemas/event.schema.json` — `v == 2` exactly, six kinds, `id` is a ULID, `ts` is ISO-8601 UTC, fields not in the schema must be rejected at the write boundary.
 - The Rust `Event` struct is canonical; the JSON Schema is documentation + cross-language regression.

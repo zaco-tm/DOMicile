@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Working directory: `/Users/zaco/Projects/Personal/DOMiNice Skill`.
+- Working directory: `/Users/zaco/Projects/Personal/DOMicile`.
 - Wire protocol per `docs/WIRE-PROTOCOL.md` (v2). `v != 2` → 400. Doc non-empty → 400. Stamp `id` and `ts` on POST if missing/null.
 - Cross-language drift tolerance: JS sends `target: null` for `rail-resolve` (2b design §C); 2c-γ's POST handler accepts this and substitutes a default `Target` before deserializing through `Event`. Same tolerance for any other 2a-vs-2b surface drift (verified: only `target: null` for rail-resolve).
 - Routes (locked): `GET /`, `GET /<path>` (fallback), `POST /api/events`, `GET /api/events?since=&doc=&limit=`, `GET /ws/events`. Plus additive `GET /healthz`.

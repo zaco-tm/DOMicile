@@ -19,7 +19,7 @@
 These apply to every task. Copied verbatim from the spec.
 
 - **License:** MIT (decided for Phase 1 — matches permissive opensource goal)
-- **Repo root:** `/Users/zaco/Projects/Personal/DOMiNice Skill/`
+- **Repo root:** `/Users/zaco/Projects/Personal/DOMicile/`
 - **Palette (locked tokens):** primary gradient `#a89cc8 → #f4978e → #ffd6b3` at 135° · sage `#9caf88` · plum `#a89cc8` · dark plum `#3d2342` · glass `rgba(255,255,255,0.4–0.8)` with `backdrop-filter: blur(12px)`
 - **Type system:** display = `'Helvetica Neue', 'Arial Black', sans-serif` weight 900 uppercase · body/label = `'SF Mono', 'JetBrains Mono', monospace`
 - **Radius scale:** `4px` (badge), `8px` (button/input), `16px` (card), `9999px` (pill, opt-in)

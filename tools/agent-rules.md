@@ -5,7 +5,7 @@
 > move places it under `tools/` where agent-related config belongs.
 > Content preserved verbatim.
 
-# DOMiNice Skill — Dirac Rules
+# DOMicile — Dirac Rules
 
 # File reading limits
 # Most files in this project (especially Rust source under crates/ and

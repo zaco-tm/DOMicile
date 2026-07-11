@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Working directory: `/Users/zaco/Projects/Personal/DOMiNice Skill`.
+- Working directory: `/Users/zaco/Projects/Personal/DOMicile`.
 - Wire protocol per `docs/WIRE-PROTOCOL.md` (v2). HTML shim injection rule per spec: inject as a blocking script before the first `<script>` tag in HTML responses whose `src` matches `src="...domi.js"` or `src='...domi.js'` (where `...` is path characters `/`, `.`, alphanumerics, `-`, `_`, `~`).
 - The Rust `SHIM_BYTES` constant must match `scripts/runtime/domi-server.js` byte-for-byte. Build script enforces this by reading the file at compile time.
 - Watcher is sync. `Watcher::next_event(&mut self, timeout_ms: u32) -> io::Result<Option<WatchEvent>>` — `Ok(None)` is a clean idle-timeout, `Err(_)` is a fatal watcher error.
