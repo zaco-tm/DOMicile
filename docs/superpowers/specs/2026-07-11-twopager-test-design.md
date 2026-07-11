@@ -55,7 +55,9 @@ The artifact is a single page, single viewport on desktop, stacked on mobile. Th
 
 1. Clone `templates/working-doc/index.html` to `.domi/output/dominice-twopager.html`. The cloned file must load `scripts/runtime/domi-audit.js` (already loaded by the template).
 2. Override the template's `data-feedback` hooks per §1 above (not the template's defaults).
-3. Seed `.domi/state/dominice-twopager.json` with three comments (see §3 below) so the audit rail opens populated. The existing `domi-audit.js` supports pre-seeded JSON by reading it on mount; this is a documented behavior, not a new feature.
+3. Seed the rail with three comments via a small inline `<script>` in the cloned HTML that pre-populates `localStorage['domicile:dominice-twopager']` before `domi-audit.js` mounts. The script runs once, gates on `localStorage.getItem(...)` being absent (so a real user comment doesn't get clobbered), and writes the canonical state shape `{ version: 1, name: docName, entries: [...] }` matching `domi-audit.js`'s `STORAGE_PREFIX` and entry fields (`id`, `targetId`, `author`, `timestamp`, `body`, `resolved`).
+
+   **Why localStorage and not JSON file:** `domi-audit.js` has no disk-read seed path. It either fetches `/api/events` from the `domi-server` binary or mirrors to `localStorage`. Seeding localStorage is the cheapest way to pre-populate the rail without adding server wiring.
 4. Serve via `node tools/skill-smoke.mjs --name=dominice-twopager`. The tool already clones `templates/working-doc/` and serves it on `http://127.0.0.1:8123/` until SIGINT.
 5. After mount, the skill's first action is to *read the three seeded comments* and revise accordingly — this is the loop under test. The skill is not allowed to ship the page in one shot and ignore the audit.
 
@@ -69,7 +71,7 @@ Three comments, seeded in `.domi/state/dominice-twopager.json` in chronological 
 | 2 | `worked-example` | "Does every command and path actually exist in this repo? Run them if you're not sure." | `now - 25m` |
 | 3 | `body` | "What did you cut to make this fit two halves? Was anything important lost?" | `now - 20m` |
 
-Each comment also gets a unique id (UUID or 8-char short) and `status: "open"`. The exact JSON shape mirrors what `domi-audit.js` writes on user submit — see `scripts/runtime/domi-audit.js` for the canonical field names. The skill can verify the shape by reading one real comment already in the repo (or by reading the runtime).
+Each comment gets a unique 8-char id (e.g. `seed-lede1`, `seed-worked1`, `seed-body1`), `author: "user"`, `targetId` matching the `data-feedback` value, ISO-8601 timestamp, and `resolved: false`. The shape mirrors exactly what `domi-audit.js` writes on user submit — see `scripts/runtime/domi-audit.js` (`STORAGE_PREFIX = 'domicile:'`, entry fields above). The seed script verifies the shape by reading the runtime source if needed.
 
 These comments are written as if from a senior engineer reviewing the page, not from the test author. Tone is calibrated to provoke honest revision, not defensive rewriting.
 
@@ -108,7 +110,7 @@ A pass on all three axes means the skill produced sharper work. A pass on one or
 
 ### New files (conditional)
 
-- `.domi/state/dominice-twopager.json` — seeded with three comments per §3. May or may not be committed depending on the user's localStorage mirror preference; if committed, it's a frozen snapshot of the seed.
+- `.domi/state/dominice-twopager.json` — NOT seeded via this path. `domi-audit.js` has no disk-read seed; seeding happens via localStorage at page load. The `.domi/state/` directory may still receive a runtime mirror if the user is running `domi-server` in parallel, but it is not part of the test artifact.
 
 ### Existing files (0)
 
