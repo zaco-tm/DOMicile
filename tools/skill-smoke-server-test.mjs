@@ -22,7 +22,10 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
+import { firefox } from 'playwright';
+
+// Playwright's bundled Firefox (Gecko). Install once with:
+//   npx playwright install firefox
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
@@ -137,7 +140,7 @@ async function run() {
   const url = `http://127.0.0.1:${port}/${docName}.html`;
   let browser;
   try {
-    browser = await chromium.launch();
+    browser = await firefox.launch();
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     let pageErr = null;

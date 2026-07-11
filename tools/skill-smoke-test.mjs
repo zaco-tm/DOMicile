@@ -21,7 +21,10 @@ import { spawn } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
+import { firefox } from 'playwright';
+
+// Playwright's bundled Firefox (Gecko). Install once with:
+//   npx playwright install firefox
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
@@ -86,7 +89,7 @@ async function run() {
   await startServer();
   let browser;
   try {
-    browser = await chromium.launch();
+    browser = await firefox.launch();
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
 
