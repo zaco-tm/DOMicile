@@ -1,6 +1,6 @@
 # Layout Recipes
 
-A *layout recipe* is a named composition of DOMiNice primitives inside an archetype. Use these as starting points for both deliverables and working docs.
+A *layout recipe* is a named composition of DOMicile primitives inside an archetype. Use these as starting points for both deliverables and working docs.
 
 ## Two-pane workspace (sidebar + main)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// skill-smoke-test — drive the local DOMiNice skill loop end-to-end in a real
+// skill-smoke-test — drive the local DOMicile skill loop end-to-end in a real
 // browser. Asserts that:
 //   1. The skill-smoke cloning + serving pipeline produces a working doc
 //      that renders in a real browser (audit rail mounted, status chip
@@ -121,14 +121,14 @@ async function run() {
     // Give localStorage write + re-render a beat.
     await page.waitForFunction(
       () => {
-        const raw = localStorage.getItem('dominice:smoke');
+        const raw = localStorage.getItem('domicile:smoke');
         if (!raw) return false;
         try { return JSON.parse(raw).entries.length >= 1; } catch { return false; }
       },
       { timeout: 2000 }
     );
 
-    const stored = await page.evaluate(() => localStorage.getItem('dominice:smoke'));
+    const stored = await page.evaluate(() => localStorage.getItem('domicile:smoke'));
     let parsed;
     try { parsed = JSON.parse(stored); } catch { parsed = null; }
     check(
@@ -163,7 +163,7 @@ async function run() {
       await page.click('form[data-domini-rail-form] button[type="submit"]');
       await page.waitForFunction(
         (body) => {
-          const raw = localStorage.getItem('dominice:smoke');
+          const raw = localStorage.getItem('domicile:smoke');
           if (!raw) return false;
           try {
             const parsed = JSON.parse(raw);
@@ -173,7 +173,7 @@ async function run() {
         targetedBody,
         { timeout: 2000 }
       );
-      const stored2 = await page.evaluate(() => localStorage.getItem('dominice:smoke'));
+      const stored2 = await page.evaluate(() => localStorage.getItem('domicile:smoke'));
       const parsed2 = stored2 ? JSON.parse(stored2) : null;
       const targetEntry = parsed2 && parsed2.entries.find((e) => e.body === targetedBody);
       check(

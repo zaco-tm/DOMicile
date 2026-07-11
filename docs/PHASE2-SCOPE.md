@@ -1,6 +1,6 @@
 # Phase 2 Scope Map
 
-Phase 2 of DOMiNice was originally scoped as "live server." The 2026-07-05 rework decomposed it into multiple sub-projects, each with its own brainstorm→plan→execute cycle.
+Phase 2 of DOMicile was originally scoped as "live server." The 2026-07-05 rework decomposed it into multiple sub-projects, each with its own brainstorm→plan→execute cycle.
 
 | Sub | Name | Status | Deliverable |
 |---|---|---|---|
@@ -50,6 +50,6 @@ Smallest sequential schedule:
 - 2a machine-readable schema: `docs/schemas/event.schema.json`
 - 2c-α spec: `docs/superpowers/specs/2026-07-05-phase2c-events-writer-design.md`
 - 2c-β spec: `docs/superpowers/specs/2026-07-05-phase2c-html-watcher-design.md`
-- Phase 1 design spec (source of Phase 2's existence): `docs/superpowers/specs/2026-07-05-dominice-design.md`
+- Phase 1 design spec (source of Phase 2's existence): `docs/superpowers/specs/2026-07-05-domicile-design.md`
 - SKILL reframe that establishes working-doc mode (the consumer of these events): `SKILL.md` + `docs/AUDIT.md`
 - Repo conventions: `AGENTS.md`

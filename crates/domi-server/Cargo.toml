@@ -3,7 +3,7 @@ name = "domi-server"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "DOMiNice live-server library (Phase 2c)."
+description = "DOMicile live-server library (Phase 2c)."
 build = "build.rs"
 
 [dependencies]

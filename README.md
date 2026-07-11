@@ -1,4 +1,4 @@
-# DOMiNice
+# DOMicile
 
 A cross-platform UI design system with an AI-agent authoring layer. **The driving documents in any agent↔human loop are interactive HTML, not markdown.**
 
@@ -27,8 +27,8 @@ The skill loop is wired (`tools/skill-smoke*.mjs` + `scripts/verify-skill-loop*.
 ## Quickstart
 
 ```bash
-git clone https://github.com/your-org/dominice.git
-cd dominice
+git clone https://github.com/your-org/domicile.git
+cd domicile
 npm install
 npm test                 # 240 passed / 0 failed
 cargo test --workspace   # 77 passed / 13 ignored

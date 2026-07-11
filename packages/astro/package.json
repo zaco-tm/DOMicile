@@ -1,7 +1,7 @@
 {
   "name": "@domi/astro",
   "version": "0.1.0",
-  "description": "Astro wrappers for DOMiNice primitives",
+  "description": "Astro wrappers for DOMicile primitives",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",

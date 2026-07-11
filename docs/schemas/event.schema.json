@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dominice.dev/schemas/event.schema.json",
-  "title": "DOMiNice Feedback Event",
+  "$id": "https://domicile.dev/schemas/event.schema.json",
+  "title": "DOMicile Feedback Event",
   "description": "Protocol v2 event payload. See docs/WIRE-PROTOCOL.md.",
   "type": "object",
   "required": ["v", "id", "ts", "src", "doc", "kind", "target", "data"],

@@ -1,4 +1,4 @@
-//! `domi` binary — agent-facing CLI for the DOMiNice live feedback server.
+//! `domi` binary — agent-facing CLI for the DOMicile live feedback server.
 //!
 //! Subcommands (Phase 2d, Tasks 1-5):
 //! - `tail`   — subscribe to the WebSocket event stream and print new events.

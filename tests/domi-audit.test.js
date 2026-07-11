@@ -42,7 +42,7 @@ describe('domi-audit.js runtime', () => {
       version: 1, name: 'x',
       entries: [{ id: 'a', targetId: 't', author: 'user', timestamp: '2026-07-05T00:00:00Z', body: 'pre', resolved: false }]
     };
-    localStorage.setItem('dominice:x', JSON.stringify(seed));
+    localStorage.setItem('domicile:x', JSON.stringify(seed));
     document.body.innerHTML = `<div data-domini-rail></div>`;
     globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
     const exported = JSON.parse(globalThis.DomiAudit.export());

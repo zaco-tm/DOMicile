@@ -1,4 +1,4 @@
-//! DOMiNice primitive widgets for egui.
+//! DOMicile primitive widgets for egui.
 
 pub mod alert;
 pub mod badge;

@@ -1,6 +1,6 @@
-/* DOMiNice audit runtime — see docs/AUDIT.md (Phase 2b: server-attached mode). */
+/* DOMicile audit runtime — see docs/AUDIT.md (Phase 2b: server-attached mode). */
 (function () {
-  const STORAGE_PREFIX = 'dominice:';
+  const STORAGE_PREFIX = 'domicile:';
   const SERVER = !!(typeof window !== 'undefined' && window.__DOMI_SERVER__ === true);
 
   function loadEntries(docName) {

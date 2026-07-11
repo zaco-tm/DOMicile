@@ -3,7 +3,7 @@ name = "domi-egui"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "DOMiNice 15-primitive widget library for egui (Phase 3c)."
+description = "DOMicile 15-primitive widget library for egui (Phase 3c)."
 publish = false
 
 [lib]

@@ -1,4 +1,4 @@
-# Design — DOMiNice
+# Design — DOMicile
 
 ## Aesthetic: Neo-Glass-Vintage "Sunset Pastel"
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# DOMiNice install verifier — boots domi-server on ephemeral port,
+# DOMicile install verifier — boots domi-server on ephemeral port,
 # asserts /healthz, POST /api/events, GET /api/events, /ws/events upgrade.
 # Usage: ./scripts/verify.sh [--prefix <dir>] [--timeout <seconds>]
 set -eu

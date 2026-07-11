@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Loads templates/dashboard/index.html into jsdom, asserts the DOM parses
-// and includes the expected DOMiNice classes. Does NOT visually verify —
+// and includes the expected DOMicile classes. Does NOT visually verify —
 // that's a manual step.
 
 import { JSDOM } from 'jsdom';

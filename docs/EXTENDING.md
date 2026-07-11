@@ -1,4 +1,4 @@
-# Extending the DOMiNice Library
+# Extending the DOMicile Library
 
 The library (`tokens/`, `components/`, `templates/`) is shared infrastructure. To extend it, follow the patterns here.
 

@@ -1,6 +1,6 @@
 # @domi/react
 
-React wrappers for the 15 [DOMiNice](../components/primitives) HTML primitives.
+React wrappers for the 15 [DOMicile](../components/primitives) HTML primitives.
 Provides TypeScript-first, class-composition wrappers with escape hatches (`className`, `...props`, `as`, `ref`).
 
 ## Install
@@ -73,4 +73,4 @@ Runs all repo tests including `packages/react/tests/*.test.tsx` (vitest + jsdom)
 
 ## Library invariant
 
-`@domi/react` does **not** modify the DOMiNice design system library (`tokens/`, `components/`, `scripts/domi*.js`, `examples/`). It is a pure-React consumer layer.
+`@domi/react` does **not** modify the DOMicile design system library (`tokens/`, `components/`, `scripts/domi*.js`, `examples/`). It is a pure-React consumer layer.

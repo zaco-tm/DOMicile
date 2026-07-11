@@ -1,4 +1,4 @@
-/* DOMiNice standalone + server-attached runtime — Phase 1 + Phase 2b.
+/* DOMicile standalone + server-attached runtime — Phase 1 + Phase 2b.
    In standalone mode (no window.__DOMI_SERVER__): localStorage.
    In server mode: POST v2 wire events via domi-wire. */
 (function () {

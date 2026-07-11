@@ -1,6 +1,6 @@
-# Standards — DOMiNice
+# Standards — DOMicile
 
-Code conventions for HTML, CSS, JS in DOMiNice artifacts.
+Code conventions for HTML, CSS, JS in DOMicile artifacts.
 
 ## HTML
 

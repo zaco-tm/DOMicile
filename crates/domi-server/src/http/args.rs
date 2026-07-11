@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::Parser;
 
 #[derive(Parser, Debug, Clone)]
-#[command(name = "domi-server", version, about = "DOMiNice live feedback server")]
+#[command(name = "domi-server", version, about = "DOMicile live feedback server")]
 pub struct Args {
     #[arg(long, default_value = "4173", value_parser = clap::value_parser!(u16).range(0..=65535))]
     pub port: u16,

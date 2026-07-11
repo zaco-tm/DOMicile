@@ -1,5 +1,5 @@
 #!/bin/sh
-# DOMiNice installer — builds domi-server + domi from source.
+# DOMicile installer — builds domi-server + domi from source.
 # Usage: ./scripts/install.sh [--prefix <dir>] [--dry-run] [--no-verify]
 set -eu
 

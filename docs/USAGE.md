@@ -1,12 +1,12 @@
-# Usage — DOMiNice
+# Usage — DOMicile
 
-For humans and AI agents who want to author DOMiNice HTML artifacts.
+For humans and AI agents who want to author DOMicile HTML artifacts.
 
 ## Quickstart
 
 ```bash
-git clone https://github.com/your-org/dominice.git
-cd dominice
+git clone https://github.com/your-org/domicile.git
+cd domicile
 npm install
 ```
 
@@ -17,7 +17,7 @@ Open any `templates/<archetype>/index.html` in a browser. No server needed.
 1. Pick the closest archetype (`templates/<name>/`).
 2. Copy its `index.html` to your working location.
 3. Replace placeholder content with real data.
-4. Use only DOMiNice primitives (`components/primitives/<name>/README.md`).
+4. Use only DOMicile primitives (`components/primitives/<name>/README.md`).
 5. For feedback capture: add `data-feedback="<id>"` to interactive elements, include `<script src="../../scripts/runtime/domi.js"></script>`, and add `<button data-export-feedback>Export feedback</button>` so the user can download `events.jsonl`.
 
 ## Adding a new primitive

@@ -38,7 +38,7 @@ The audit loop is the shape of any working-doc mode. It is how the agent and use
 
 When `<script src="scripts/runtime/domi-audit.js" defer>` is loaded, the global `DomiAudit` is available. Call order:
 
-- `DomiAudit.mount({ statePath, docName })` — wires the rail, hydrates from `localStorage` under the key `dominice:<docName>`. The `statePath` argument is accepted and stored so a Phase 2 server-side mirror can hydrate from the JSON file; Phase 1 reads/writes only `localStorage`.
+- `DomiAudit.mount({ statePath, docName })` — wires the rail, hydrates from `localStorage` under the key `domicile:<docName>`. The `statePath` argument is accepted and stored so a Phase 2 server-side mirror can hydrate from the JSON file; Phase 1 reads/writes only `localStorage`.
 - `DomiAudit.addComment({ targetId, body })` — programmatic add; `domi-audit.js` invokes this on rail submits.
 - `DomiAudit.export()` — returns the current entries as JSON for the agent to read.
 

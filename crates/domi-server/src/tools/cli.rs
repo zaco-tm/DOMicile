@@ -22,12 +22,12 @@ use crate::tools::replay::ReplayArgs;
 use crate::tools::tail::TailArgs;
 use crate::tools::types;
 
-/// `domi` — agent CLI for the DOMiNice live feedback server.
+/// `domi` — agent CLI for the DOMicile live feedback server.
 #[derive(Debug, Parser)]
 #[command(
     name = "domi",
     version,
-    about = "DOMiNice agent CLI — tail, replay, and push audit events",
+    about = "DOMicile agent CLI — tail, replay, and push audit events",
     long_about = None,
 )]
 pub struct Cli {

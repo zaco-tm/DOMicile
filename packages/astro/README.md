@@ -1,6 +1,6 @@
 # @domi/astro
 
-Astro wrappers for the 15 [DOMiNice](../components/primitives) HTML primitives.
+Astro wrappers for the 15 [DOMicile](../components/primitives) HTML primitives.
 Provides TypeScript-first, class-composition wrappers with **zero JavaScript by default** — components compile to plain HTML; consumers' Astro compiler handles them.
 
 ## Install
@@ -59,7 +59,7 @@ Every variant/size union in TypeScript maps 1:1 to a `.domi-*--*` class suffix i
 
 ## CSS stylesheet
 
-Import the canonical DOMiNice stylesheet in your Astro layout:
+Import the canonical DOMicile stylesheet in your Astro layout:
 
 ```astro
 ---
@@ -71,7 +71,7 @@ import 'domi/css/domi.css';
 
 ## Library invariant
 
-`@domi/astro` does **not** modify the DOMiNice design system library. It is a pure-Astro consumer layer that references existing CSS class suffixes.
+`@domi/astro` does **not** modify the DOMicile design system library. It is a pure-Astro consumer layer that references existing CSS class suffixes.
 
 ## Test
 

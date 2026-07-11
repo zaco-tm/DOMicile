@@ -1,4 +1,4 @@
-/* DOMiNice wire helpers — server-mode JSON envelope IO.
+/* DOMicile wire helpers — server-mode JSON envelope IO.
    Pure stateless functions used by domi.js and domi-audit.js in server mode.
    Phase 2b. */
 

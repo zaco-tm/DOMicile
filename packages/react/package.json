@@ -1,7 +1,7 @@
 {
   "name": "@domi/react",
   "version": "0.1.0",
-  "description": "React wrappers for DOMiNice primitives",
+  "description": "React wrappers for DOMicile primitives",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

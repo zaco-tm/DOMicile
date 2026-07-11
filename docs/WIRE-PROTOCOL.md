@@ -1,4 +1,4 @@
-# DOMiNice Wire Protocol — Phase 2 Reference
+# DOMicile Wire Protocol — Phase 2 Reference
 
 This is the 2a contract. Consumers: Phase 2b (server-attached JS mode), 2c (Rust server), 2d (agent reader).
 

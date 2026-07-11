@@ -1,6 +1,6 @@
 # domi-egui
 
-Native Rust widget library for the 15 DOMiNice HTML primitives — leaves plus 5 composites — backed by [egui 0.32](https://github.com/emilk/egui).
+Native Rust widget library for the 15 DOMicile HTML primitives — leaves plus 5 composites — backed by [egui 0.32](https://github.com/emilk/egui).
 
 ## Install
 
@@ -75,6 +75,6 @@ The WASM lane (`trunk build` + the `examples/index.html`) is browser-demo only a
 
 ## Library invariant
 
-`domi-egui` does not modify the DOMiNice design system library
+`domi-egui` does not modify the DOMicile design system library
 (`tokens/`, `components/`, `scripts/`, `examples/`, `crates/domi-server/`).
 It is a pure-Rust consumer of `tokens/tokens.json` (build-time codegen).

@@ -1,11 +1,11 @@
 ---
-name: dominice
+name: domicile
 description: Skill for authoring and iterating on UI work — components, primitives, layouts, themes — and for working through UI/UX changes with the user via shared HTML docs. Triggers on "build a UI library", "design a X", "let's work on Y", "review this UI", or any task where the user will open an HTML file in a browser to read or annotate it.
 ---
 
-# DOMiNice
+# DOMicile
 
-Use this skill when the user wants to *create* UI work (a component, primitive, layout, theme, or archetype) using the DOMiNice design system, OR when the user wants to *audit / iterate on* existing UI through a shared HTML document they can open in a tab and annotate.
+Use this skill when the user wants to *create* UI work (a component, primitive, layout, theme, or archetype) using the DOMicile design system, OR when the user wants to *audit / iterate on* existing UI through a shared HTML document they can open in a tab and annotate.
 
 Do NOT use this skill for: pure markdown reports, server-side code, anything the user won't open in a browser as HTML.
 
@@ -22,7 +22,7 @@ The combination yields three output modes:
 |---|---|---|
 | **Working doc — create** | "let's build," "draft," "I want to start on" | `.domi/output/<name>.html` with feedback rail + `data-feedback` hooks. `.domi/state/<name>.json` seeded empty. Neo skin. |
 | **Working doc — audit** | "review," "iterate," "what should change" | Same chrome as create; load existing thread. |
-| **Deliverable** | "ship," "give me the final," "hand off" | Clean HTML using agreed DOMiNice primitives, no rail, no status chip. Theme is whatever the user picked (default neo). |
+| **Deliverable** | "ship," "give me the final," "hand off" | Clean HTML using agreed DOMicile primitives, no rail, no status chip. Theme is whatever the user picked (default neo). |
 
 If you're not sure which mode, ask one question with the linguistic signal you saw, then proceed.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// skill-smoke — wire the local DOMiNice skill loop end-to-end.
+// skill-smoke — wire the local DOMicile skill loop end-to-end.
 //
 //   1. Clone templates/working-doc/index.html into .domi/output/<name>.html
 //      (rewriting ../../components and ../../scripts paths to root-relative

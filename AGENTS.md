@@ -1,18 +1,18 @@
-# AGENTS.md — Conventions for AI Agents Working on DOMiNice
+# AGENTS.md — Conventions for AI Agents Working on DOMicile
 
 This file is for AI coding agents (Claude, Cursor, etc.) operating in this repository. Humans may also find it useful as a quick orientation.
 
 ## TL;DR
 
 - **Use `rtk` for filesystem, git, grep, and test commands** when available — it token-trims noisy output. See "RTK" below.
-- The DOMiNice design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
+- The DOMicile design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
 - The wire protocol is pinned at v2 by two specs: `docs/schemas/event.schema.json` (canonical shape) and `docs/WIRE-PROTOCOL.md` (prose). Cross-language drift between Rust, JS, and either doc is a bug — fix both ends.
 - Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state (per the most recent handoff): **250 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
 - The canonical "where we are" doc is `docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md`. Read it first when you need a status snapshot; older handoffs in that directory are superseded.
 
 ## What's shipped (read this before guessing)
 
-DOMiNice is built in numbered phases. Each phase has a spec under `docs/superpowers/specs/`, a plan under `docs/superpowers/plans/`, and a handoff under `docs/superpowers/handoffs/`. Status as of the most recent handoff:
+DOMicile is built in numbered phases. Each phase has a spec under `docs/superpowers/specs/`, a plan under `docs/superpowers/plans/`, and a handoff under `docs/superpowers/handoffs/`. Status as of the most recent handoff:
 
 | Phase | Status | Lives in |
 |---|---|---|
