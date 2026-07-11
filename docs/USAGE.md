@@ -6,7 +6,7 @@ For humans and AI agents who want to author DOMicile HTML artifacts.
 
 ```bash
 git clone https://github.com/zaco-tm/DOMicile.git
-cd domicile
+cd DOMicile
 npm install
 ```
 

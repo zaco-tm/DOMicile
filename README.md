@@ -87,7 +87,7 @@ The agent handles primitives, tokens, and the working-doc chrome. You focus on w
 
 ## Repo layout
 
-```
+```text
 SKILL.md                    ← load this in agents
 AGENTS.md                   ← repo conventions for agents
 README.md                   ← you are here
