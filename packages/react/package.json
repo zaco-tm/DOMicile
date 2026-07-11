@@ -18,6 +18,26 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit"
   },
+  "keywords": [
+    "react",
+    "components",
+    "design-system",
+    "ui",
+    "domicile",
+    "primitives"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/domicile.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/domicile/issues"
+  },
+  "homepage": "https://github.com/your-org/domicile#readme",
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

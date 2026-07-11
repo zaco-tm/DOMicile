@@ -28,8 +28,8 @@ packages/astro/.astro/
 # agent regenerates locally instead of sharing a stale map).
 graphify-out/
 
-# Rust — Cargo.lock is gitignored for both library-only and binary builds (Phase 2c-α/β/γ policy).
-Cargo.lock
+# Cargo.lock is now tracked (pre-publish policy flip, 2026-07-11).
+# See docs/PUBLISH-CHECKLIST.md §1 for rationale.
 
 docs/superpowers/plans/2026-07-10-domicile-rename.md
 docs/superpowers/specs/2026-07-10-domicile-rename-design.md

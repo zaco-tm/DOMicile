@@ -5,6 +5,11 @@ edition = "2021"
 license = "MIT"
 description = "DOMicile live-server library (Phase 2c)."
 build = "build.rs"
+repository = "https://github.com/your-org/domicile"
+homepage = "https://github.com/your-org/domicile"
+documentation = "https://github.com/your-org/domicile/blob/main/docs/RUST.md"
+keywords = ["domicile", "ui", "design-system", "websocket", "audit", "axum"]
+categories = ["development-tools", "web-programming::http-server", "api-bindings"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

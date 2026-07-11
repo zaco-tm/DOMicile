@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  NODE_OPTIONS: --max-old-space-size=4096
+
+jobs:
+  js:
+    name: JS tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build:react
+
+  rust:
+    name: Rust tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: cargo test --workspace
+      - run: cargo check --target wasm32-unknown-unknown -p domi-egui
+        continue-on-error: true
+
+  publish-check:
+    name: Publish dry-runs
+    runs-on: ubuntu-latest
+    needs: [js, rust]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo publish dry-run (domi-server)
+        run: cargo publish --dry-run --allow-dirty --no-verify -p domi-server
+      - name: cargo publish dry-run (domi-egui)
+        run: cargo publish --dry-run --allow-dirty --no-verify -p domi-egui
+        continue-on-error: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: npm publish dry-run (@domi/react)
+        run: npm publish --dry-run --workspaces=false
+        working-directory: packages/react
+      - name: npm publish dry-run (@domi/astro)
+        run: npm publish --dry-run --workspaces=false
+        working-directory: packages/astro

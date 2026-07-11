@@ -14,12 +14,30 @@
   "scripts": {
     "typecheck": "astro check"
   },
+  "keywords": [
+    "astro",
+    "components",
+    "design-system",
+    "ui",
+    "domicile",
+    "primitives",
+    "zero-js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/domicile.git",
+    "directory": "packages/astro"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/domicile/issues"
+  },
+  "homepage": "https://github.com/your-org/domicile#readme",
   "peerDependencies": {
     "astro": "^5.0.0"
   },
-  "license": "MIT",
-  "devDependencies": {
-    "@astrojs/check": "^0.9.9",
-    "typescript": "^5.9.3"
-  }
+  "license": "MIT"
+}
 }

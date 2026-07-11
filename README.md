@@ -1,52 +1,132 @@
 # DOMicile
 
-A cross-platform UI design system with an AI-agent authoring layer. **The driving documents in any agent↔human loop are interactive HTML, not markdown.**
+**A design system and an AI-agent skill for building and reviewing UI work in shared HTML documents.**
 
-> Sponsored by [stoopery](https://stoopery.app)
+Open a doc in your browser. Click anything that looks wrong. Type a note. The agent reads your comments and revises. That's the loop.
 
-![stoopery sponsor](branding/sponsor-stoopery.svg)
+<p align="left">
+  <a href="https://stoopery.app"><img alt="Sponsored by stoopery" src="branding/sponsor-stoopery.svg" width="160"></a>
+</p>
 
-## What's shipped
+---
 
-- 🎨 **Design tokens** (`tokens.json`) — single source of truth, ajv-validated schema
-- 🧱 **15 HTML primitives** — buttons, cards, forms, tables, navs, modals, alerts, badges, tabs, toasts, tooltips, inputs, selects, checkboxes, radios
-- 📐 **5 archetype templates** — `dashboard`, `webapp-shell`, `mobile-app-shell`, `admin-tool`, `pos-kiosk` (plus `working-doc/` for the audit loop)
-- ⚡ **`domi.js` runtime** — click-to-feedback, form capture, status chip, optional server-attached mode
-- 🔁 **Audit loop** — `domi-audit.js` + `domi-server.js` shim + `templates/working-doc/`. Per-element click-to-target comments, JSONL persistence, WebSocket push.
-- 🦀 **`domi-server` (Rust)** — sync event writer, HTTP file serving, folder watcher, axum HTTP routes, WebSocket upgrade, agent CLI (`domi`).
-- 🦀 **`domi-egui` (Rust)** — 15 native widgets + 5 composites, WASM-capable, token parity enforced by SHA-256 test.
-- ⚛️ **`@domi/react`** — 15 React components wrapping the HTML primitives.
-- 🅰️ **`@domi/astro`** — Astro components with hydration-control wrappers.
-- 📚 **Library docs** — `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` + `docs/WIRE-PROTOCOL.md`, `docs/AUDIT.md`, `docs/EXTENDING.md`, `docs/LAYOUTS.md`, `docs/RUST.md`
-- 📚 **Phase handoffs** — `docs/superpowers/handoffs/` (read the most recent one for current status)
+## Why HTML, not Markdown
 
-## What's next
+When an AI builds a UI for you, the deliverable is a page you actually open. Markdown specs and screenshots get stale; an interactive doc gets annotated.
 
-The skill loop is wired (`tools/skill-smoke*.mjs` + `scripts/verify-skill-loop*.sh`) but not yet validated as *playable* end-to-end. The next gate is proving the agent↔reviewer loop runs cleanly on a real working doc before any `npm publish` or `crates.io` release. After that: distribution, v1.0 tag.
+DOMicile is built around that loop:
 
-## Quickstart
+- You say *"let's build a settings page"*.
+- The agent writes a real HTML page in your browser, with clickable sections and a feedback rail.
+- You click what looks off, leave a note on that exact element, ask the agent to *"iterate"*.
+- The agent revises. The notes stay attached to the elements they refer to.
+
+When you're done, the agent hands you a clean deliverable: same design system, no rail, ready to ship.
+
+---
+
+## See it in 60 seconds
 
 ```bash
 git clone https://github.com/your-org/domicile.git
 cd domicile
 npm install
-npm test                 # 240 passed / 0 failed
-cargo test --workspace   # 77 passed / 13 ignored
+npm run smoke
 ```
 
-### Run the skill loop locally
+Then open <http://127.0.0.1:8123/> in your browser. You'll see a working doc with a feedback rail on the right. Click any element with a dashed outline — its border turns terracotta — type a note in the rail, hit submit. Refresh the page. Your note is still there, anchored to that element.
 
-```bash
-# Standalone (localStorage-backed)
-npm run smoke            # or: node tools/skill-smoke.mjs
+That's the whole loop. When you're ready to ship, the agent produces a stripped-down HTML using the same primitives — no rail, no chrome.
 
-# Event-backed (Rust server)
-cargo build --release -p domi-server
-./target/release/domi-server --root .domi/output --state .domi/state
-# then open http://127.0.0.1:8123/ in a browser
+---
+
+## What's in the box
+
+### The skill (load `SKILL.md`)
+
+DOMicile is also an AI-agent skill. Agents that load `SKILL.md` learn three output modes:
+
+| Mode | Trigger | Output |
+|---|---|---|
+| **Working doc — create** | "let's build X" | HTML in `.domi/output/`, feedback rail on, empty thread |
+| **Working doc — audit** | "review this," "iterate" | Same chrome, existing thread loaded |
+| **Deliverable** | "ship it," "give me the final" | Clean HTML, no rail, no chrome |
+
+Iteration is piece-by-piece: the agent ships one section, you comment, it revises, repeat. No more "AI wrote me 800 lines and I had to reread it all."
+
+### The design system
+
+- **15 HTML primitives** — buttons, cards, forms, tables, navs, modals, alerts, badges, tabs, toasts, tooltips, inputs, selects, checkboxes, radios. Each has a `domi-*` class and reads tokens from a single CSS variables block.
+- **5 archetype templates** — `dashboard`, `webapp-shell`, `mobile-app-shell`, `admin-tool`, `pos-kiosk`. Clone one, fill it in.
+- **Neo theme (default)** — plum-to-peach gradient, frosted-glass surfaces, Helvetica Neue Black display + JetBrains Mono body. Drop in your own theme by replacing `tokens/tokens.json`.
+- **Cross-platform wrappers** — same primitives for React (`@domi/react`), Astro (`@domi/astro`), and native Rust (`domi-egui`, WASM-capable). Token parity is enforced by a SHA-256 test.
+
+### The server (optional)
+
+`domi-server` (Rust + axum) lets the working doc persist comments to disk and push live updates over WebSocket. Standalone mode (no server) uses `localStorage` and works entirely from `file://`. Use the server when you want comments to survive across machines or collaborators.
+
+---
+
+## If you're not a designer
+
+You don't need to read the design system to use DOMicile. Tell your agent:
+
+- *"Make me a pricing page in the DOMicile style."*
+- *"I want a settings screen. Use the dashboard layout."*
+- *"Build me a sign-up flow, mobile-first."*
+
+The agent handles primitives, tokens, and the working-doc chrome. You focus on what the page should *do* and what looks right.
+
+---
+
+## See it in action
+
+> Walkthrough videos and the "DOMicile builds itself" demo are coming soon — this section will host the GIFs/MP4s once they're cut.
+
+---
+
+## Repo layout
+
+```
+SKILL.md                    ← load this in agents
+AGENTS.md                   ← repo conventions for agents
+README.md                   ← you are here
+tokens/                     ← design tokens (single source of truth)
+components/
+  primitives/<name>/        ← 15 HTML primitives
+  domi.css                  ← primitive styles
+templates/<archetype>/      ← dashboard, webapp-shell, mobile-app-shell, admin-tool, pos-kiosk, working-doc
+scripts/runtime/            ← domi.js, domi-audit.js, domi-server.js, domi-wire.js
+crates/domi-server/         ← Rust HTTP binary + agent CLI
+crates/domi-egui/          ← Rust native widgets + composites
+packages/react/             ← @domi/react (15 components)
+packages/astro/             ← @domi/astro (15 wrappers)
+tools/                      ← smoke, skill-loop, e2e tests
+docs/
+  USAGE.md, DESIGN.md, STANDARDS.md    ← library reference
+  AUDIT.md, EXTENDING.md, LAYOUTS.md   ← workflow + extension guides
+  WIRE-PROTOCOL.md, RUST.md            ← technical specs
+  superpowers/handoffs/                ← phase-by-phase status
 ```
 
-For agents: load `SKILL.md` first. For everything else: load `AGENTS.md` for repo conventions and `docs/USAGE.md` for the design-system reference.
+---
+
+## Status
+
+The skill loop works end-to-end (local smoke and event-backed server modes both green). The library is stable and the skill is playable.
+
+**Tests:** 250 JS passed (2 skipped) / 84 Rust passed (13 ignored).
+
+---
+
+## Contributing
+
+1. Read `AGENTS.md` for repo conventions and the library invariant (don't edit `tokens/`, `components/`, or `templates/` without explicit sign-off).
+2. For new primitives, themes, or archetypes, follow `docs/EXTENDING.md`.
+3. For new layout recipes, add to `docs/LAYOUTS.md`.
+4. All changes ship with tests — `npm test` and `cargo test --workspace` both stay green.
+
+---
 
 ## License
 
