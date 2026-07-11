@@ -103,7 +103,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 
 **When rtk isn't available** (CI, fresh container): fall back to native commands with explicit output truncation (`... 2>&1 | tail -50`). Document the absence in the session if it persists.
 
-**Per-file read budgets** are configured in `.diracrules` (`max_lines: 3000`, `max_file_bytes: 512000`, `truncate_long_files: false`). Most Rust files and phase plans exceed 100 lines; the limits are intentionally generous so files are read in full rather than truncated. Do not silently re-read a file already in your session context — reference the prior read instead.
+**Per-file read budgets** are configured in `tools/agent-rules.md` (`max_lines: 3000`, `max_file_bytes: 512000`, `truncate_long_files: false`). Most Rust files and phase plans exceed 100 lines; the limits are intentionally generous so files are read in full rather than truncated. Do not silently re-read a file already in your session context — reference the prior read instead.
 
 ## Workflow norms
 

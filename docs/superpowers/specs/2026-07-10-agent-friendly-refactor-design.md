@@ -169,7 +169,7 @@ Hierarchical context files merge with the closest-scope file taking precedence
 (Claude Code, Cursor, GitHub Copilot all support this).
 
 The root file is the **lib rules** (read-only invariants, RTK usage, tests,
-`.diracrules`, subagent discipline). Each per-module file is a small list
+`tools/agent-rules.md`, subagent discipline). Each per-module file is a small list
 of safe-zone / ask-first-zone operations specific to that module — never
 rewrites the lib rules.
 
@@ -191,10 +191,10 @@ Each per-module file is **≤80 lines** and **focused** — the goal is for an
 agent asked to touch `x` to land in `x/AGENTS.md` and immediately know the
 operational boundaries without reading the global rules again.
 
-`.diracrules` (the project-level agent config noted in the Phase 4 handoff
+`tools/agent-rules.md` (the project-level agent config noted in the Phase 4 handoff
 as confusingly named) gets **renamed to `tools/agent-rules.md`** — it lives
 under `tools/` because it's tooling, not because of any file its name
-implies. The current `.diracrules` content moves verbatim; old path stays as
+implies. The current `tools/agent-rules.md` content moves verbatim; old path stays as
 a 1-line symlink for one release if any external tool reads it (none known).
 
 ### Part 3 — `graphify` as a subagent lookup
@@ -352,7 +352,7 @@ the PR (each commit runs `npm test && cargo test --workspace`):
 7. **Add** `tools/where-is.mjs` (Part 3 wrapper).
 8. **Add** `.domi/scratch/README.md` + a session-bridge paragraph in
    root `AGENTS.md` (Part 4).
-9. **Rename** `.diracrules` → `tools/agent-rules.md` (Phase 4 handoff
+9. **Rename** `tools/agent-rules.md` → `tools/agent-rules.md` (Phase 4 handoff
    cleanup; do it here while the area is open).
 10. **Drive-through**: in a fresh subagent session, replay the
     task that recently failed and confirm no drift. Capture in the

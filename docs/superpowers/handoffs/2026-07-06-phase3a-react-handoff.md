@@ -216,7 +216,7 @@ The previous handoff decided to defer Phase 2d's merge until Phase 3 wraps, to a
 | Phase 2 scope (predecessor) | `docs/PHASE2-SCOPE.md` |
 | Wire protocol (predecessor) | `docs/WIRE-PROTOCOL.md` |
 | Rust crate layout (Phase 2c-α) | `docs/RUST.md` |
-| Agent rules (project-local) | `AGENTS.md`, `.diracrules` |
+| Agent rules (project-local) | `AGENTS.md`, `tools/agent-rules.md` |
 | Phase 2d handoff (predecessor) | (not yet found — search `docs/superpowers/handoffs/` if 2d had one) |
 
 If a Phase 2d handoff exists, archive it alongside this one for traceability.

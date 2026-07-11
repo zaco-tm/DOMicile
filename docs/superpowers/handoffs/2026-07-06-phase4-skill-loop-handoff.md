@@ -187,7 +187,7 @@ These remain valid and re-prioritize after publishing:
 (Not blocking the skill-loop work; trivial; do them when convenient.)
 
 - **README.md** is stale. The "Phase 3" line says `@domi/react, @domi/astro, domi-dvui`. The crate shipped as `domi-egui` (3c decided the rename). Fix the line to `domi-egui`. Also, "Phase 4: v1.0 — distribution, examples, CI" can drop the "distribution" framing per the (b)-flavored priority above; "Phase 4: skill loop wiring + v1.0 cut when loop is green" is more accurate.
-- **`.diracrules`** is a project-level agent config (file-read limits, parallel-read guidance). The file pre-existed on disk untracked; it landed in the `4971bdf` commit as a first-time-add. Worth either renaming to `AGENT-SESSION-RULES.md` or moving to `tools/agent-rules.md` so its purpose is discoverable by a human reader. Not a blocker — but if a future contributor sees `.diracrules` in the project root and doesn't know what it is, that's friction.
+- **`tools/agent-rules.md`** is a project-level agent config (file-read limits, parallel-read guidance). The file pre-existed on disk untracked; it landed in the `4971bdf` commit as a first-time-add. Worth either renaming to `AGENT-SESSION-RULES.md` or moving to `tools/agent-rules.md` so its purpose is discoverable by a human reader. Not a blocker — but if a future contributor sees `tools/agent-rules.md` in the project root and doesn't know what it is, that's friction.
 
 ---
 

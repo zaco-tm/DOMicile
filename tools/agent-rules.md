@@ -1,3 +1,10 @@
+# tools/agent-rules.md
+
+> Renamed from `.diracrules` in the 2026-07-10 agent-friendly refactor.
+> Phase 4 handoff flagged `.diracrules` as confusingly named; this
+> move places it under `tools/` where agent-related config belongs.
+> Content preserved verbatim.
+
 # DOMiNice Skill — Dirac Rules
 
 # File reading limits

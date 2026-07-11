@@ -39,7 +39,7 @@ These come from the project's existing rules (root `AGENTS.md`) and the design s
 tools/
   check-file-size.mjs                          # NEW: enforce per-file size rules
   where-is.mjs                                 # NEW: graphify query wrapper for subagents
-  agent-rules.md                               # NEW: content moved from `.diracrules` (renamed)
+  agent-rules.md                               # NEW: content moved from `tools/agent-rules.md` (renamed)
 
 .domi/scratch/
   README.md                                    # NEW: scratch convention doc
@@ -128,7 +128,7 @@ scripts/shell/verify-skill-loop-server.sh            # DELETED (moved)
 8. Update root `AGENTS.md` (size rules + session-bridge paragraph + scratch hint + cross-refs)
 9. Add `tools/where-is.mjs` (graphify wrapper, with tests)
 10. Add `.domi/scratch/README.md` + session-bridge paragraph (folded into task 8's root AGENTS.md update)
-11. Rename `.diracrules` → `tools/agent-rules.md`
+11. Rename `tools/agent-rules.md` → `tools/agent-rules.md`
 12. Acceptance drive-through (replay the recent failed task; capture handoff)
 
 ---
@@ -1531,17 +1531,17 @@ git -c commit.gpgsign=false commit -m "docs(scratch): add .domi/scratch/README.m
 
 ---
 
-### Task 11: Rename `.diracrules` → `tools/agent-rules.md`
+### Task 11: Rename `tools/agent-rules.md` → `tools/agent-rules.md`
 
 **Files:**
-- Create: `tools/agent-rules.md` (verbatim from `.diracrules`)
-- Delete: `.diracrules`
+- Create: `tools/agent-rules.md` (verbatim from `tools/agent-rules.md`)
+- Delete: `tools/agent-rules.md`
 
 **Interfaces:**
-- Consumes: existing `.diracrules` content.
+- Consumes: existing `tools/agent-rules.md` content.
 - Produces: same content at a discoverable name under `tools/`.
 
-- [ ] **Step 1: Read `.diracrules`**
+- [ ] **Step 1: Read `tools/agent-rules.md`**
 
 ```bash
 rtk read .diracrules
@@ -1557,14 +1557,14 @@ the rename, then contain the original content unchanged:
 ```markdown
 # tools/agent-rules.md
 
-> Renamed from `.diracrules` in the 2026-07-10 agent-friendly refactor.
-> Phased-4 handoff flagged `.diracrules` as confusingly named; this
+> Renamed from `tools/agent-rules.md` in the 2026-07-10 agent-friendly refactor.
+> Phased-4 handoff flagged `tools/agent-rules.md` as confusingly named; this
 > move places it under `tools/` where agent-related config belongs.
 
 <verbatim copy of .diracrules content here>
 ```
 
-- [ ] **Step 3: Delete the old `.diracrules`**
+- [ ] **Step 3: Delete the old `tools/agent-rules.md`**
 
 ```bash
 git rm .diracrules
