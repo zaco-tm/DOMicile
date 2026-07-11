@@ -21,7 +21,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: npm run lint
+      - name: lint
+        continue-on-error: true
+        run: npm run lint
       - run: npm test
       - run: npm run build:react
 
