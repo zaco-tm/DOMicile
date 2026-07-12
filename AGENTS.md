@@ -7,12 +7,11 @@ This file is for AI coding agents (Claude, Cursor, etc.) operating in this repos
 - **Use `rtk` for filesystem, git, grep, and test commands** when available — it token-trims noisy output. See "RTK" below.
 - The DOMicile design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
 - The wire protocol is pinned at v2 by two specs: `docs/schemas/event.schema.json` (canonical shape) and `docs/WIRE-PROTOCOL.md` (prose). Cross-language drift between Rust, JS, and either doc is a bug — fix both ends.
-- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state (per the most recent handoff): **250 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
-- The canonical "where we are" doc is `docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md`. Read it first when you need a status snapshot; older handoffs in that directory are superseded.
+- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state: **250 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
 
 ## What's shipped (read this before guessing)
 
-DOMicile is built in numbered phases. Each phase has a spec under `docs/superpowers/specs/`, a plan under `docs/superpowers/plans/`, and a handoff under `docs/superpowers/handoffs/`. Status as of the most recent handoff:
+DOMicile is built in numbered phases. Status:
 
 | Phase | Status | Lives in |
 |---|---|---|
@@ -51,9 +50,6 @@ Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until th
   - `docs/WIRE-PROTOCOL.md` — v2 protocol reference (events.jsonl, HTTP routes, WS frames).
   - `docs/RUST.md` — Rust crate layout + phasing for `domi-server` and `domi-egui`.
   - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `domicile/SKILL.md` as "Full library docs"; the user confirmed these stay).
-  - `docs/superpowers/specs/` — design specs (one per phase or sub-project).
-  - `docs/superpowers/plans/` — implementation plans.
-  - `docs/superpowers/handoffs/` — phase completion handoffs (read these to know what shipped).
 - **Rust workspace** (`Cargo.toml`, resolver "2"):
   - `crates/domi-server/` — HTTP binary (`domi-server`) + agent CLI (`domi`). Sources split into `events/` (writer), `serve/` (file/watcher), `http/` (axum routes), `tools/` (CLI subcommands).
   - `crates/domi-egui/` — Phase 3c Rust crate. 15 per-widget leaves + 5 composites. WASM-capable. Token parity is enforced by a SHA-256 test against the baked-in `tokens.json`.
@@ -107,7 +103,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 
 ## Workflow norms
 
-- **Specs before code.** Anything non-trivial goes through `docs/superpowers/specs/<date>-<topic>-design.md` → `docs/superpowers/plans/<date>-<topic>.md` → implementation, with a `docs/superpowers/handoffs/<date>-<topic>-handoff.md` at the end. The brainstorming skill governs the spec step.
+- **Specs before code.** Anything non-trivial goes through a design spec → implementation plan → implementation, ending with a handoff. The brainstorming skill governs the spec step. Phase specs and handoffs are kept operator-local and aren't part of the public release.
 - **Library invariant.** Changes to `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` require explicit user sign-off in the session. New author work lives in `.domi/output/`.
 - **Tests on every change.** JS: `npm test` (vitest, jsdom) and `npm run test:e2e` / `npm run test:e2e:server` for the skill loop. Rust: `cargo test --workspace`. Both must remain green.
 - **Pre-existing dirty state.** `components/domi.css` has been modified on disk but not committed since v0.1.0. Don't touch it unless the user explicitly asks; it's pre-existing.
@@ -125,7 +121,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 - **Editing a file past its size threshold.** `node tools/check-file-size.mjs` reports any file ≥500 lines. Adding to one of those files is a hard stop; extract a coherent responsibility first.
 - **Tokens for things already in context.** When the contents of a file are already in your conversation (you read it earlier this session), don't re-read it — reference the prior read instead.
 - **Treating `.superpowers/sdd/` as canonical.** It's gitignored scaffolding from prior SDD sessions. Ignore unless the user points to a specific file in it.
-- **Treating older handoffs as current.** `docs/superpowers/handoffs/` accumulates. The most recent handoff supersedes the prior ones. When in doubt, sort by date and read the newest first.
+- **Treating older handoffs as current.** For project state questions, read `CHANGELOG.md` for released history and `git log --oneline` for what's actually on `main`. Older in-flight phase handoffs are operator-local and not part of the public release.
 
 ## File size discipline (added in agent-friendly refactor)
 
@@ -206,9 +202,6 @@ If the script returns "No graph at…", run `npm run graph` once.
 ## Pointers
 
 - Top-level entry: `domicile/SKILL.md`
-- Specs: `docs/superpowers/specs/`
-- Plans: `docs/superpowers/plans/`
-- Handoffs (read these for current status): `docs/superpowers/handoffs/` — all phase handoffs live here. Do not write a `HANDOFF.md` at the repo root.
 - Wire protocol reference: `docs/WIRE-PROTOCOL.md`
 - Wire protocol canonical shape: `docs/schemas/event.schema.json`
 - Phase 2 decomposition map: `docs/PHASE2-SCOPE.md`

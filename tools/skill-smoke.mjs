@@ -10,9 +10,9 @@
 //   3. Print the URL a human reviewer can open. Ctrl-C to stop.
 //
 // This is the "playability first" step from the Phase 4 skill-loop
-// handoff (docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md).
-// A working doc that a human can open, click comments on, and see persist
-// in localStorage is what tells us the skill works — distribution is a
+// handoff. A working doc that a human can open, click comments on, and see
+// persist in localStorage is what tells us the skill works — distribution
+// is a
 // later step.
 
 import {

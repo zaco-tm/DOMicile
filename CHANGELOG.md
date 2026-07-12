@@ -87,7 +87,8 @@ Initial public release. Bundles everything shipped through Phase 4 on `main`.
 - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs.
 - `docs/AUDIT.md`, `docs/EXTENDING.md`, `docs/LAYOUTS.md` — workflow + extension guides.
 - `docs/WIRE-PROTOCOL.md`, `docs/RUST.md` — technical specs.
-- `docs/superpowers/specs/`, `docs/superpowers/plans/`, `docs/superpowers/handoffs/` — phase-by-phase design, plans, and handoffs.
+- `docs/PUBLISH-CHECKLIST.md` — copy-paste commands for the remaining external actions
+- `.github/workflows/ci.yml` — node test + lint + build, rust test + wasm check, publish dry-runs for all 4 packages
 
 ### Aesthetic
 

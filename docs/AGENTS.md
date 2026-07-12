@@ -12,8 +12,6 @@ Owner: Library docs under `docs/`.
 
 ## Ask-first zones
 
-- Editing anything under `docs/superpowers/specs/`,
-  `.../plans/`, `.../handoffs/` — those are append-only trails.
 - Renaming a doc (every external link to it breaks).
 
 ## Notes

@@ -8,9 +8,9 @@
 # DOMicile — Dirac Rules
 
 # File reading limits
-# Most files in this project (especially Rust source under crates/ and
-# docs/superpowers/plans/) exceed 100 lines and 50 KB. The defaults below
-# are intentionally generous so files are read in full rather than truncated.
+# Most files in this project (especially Rust source under crates/) exceed
+# 100 lines and 50 KB. The defaults below are intentionally generous so
+# files are read in full rather than truncated.
 
 max_lines: 3000          # per single read_file / get_file_skeleton call
 max_file_bytes: 512000   # ~500 KB per single read

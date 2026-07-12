@@ -8,9 +8,9 @@
 //   3. The comment survives a page reload.
 //
 // This is the "playability" gate called out by the Phase 4 skill-loop
-// handoff (docs/superpowers/handoffs/2026-07-06-phase4-skill-loop-handoff.md,
-// item 3): a static HTML self-check proves the artifact is well-formed,
-// but only a real browser proves the audit rail actually binds and
+// handoff (item 3): a static HTML self-check proves the artifact is
+// well-formed, but only a real browser proves the audit rail actually
+// binds and
 // persists. CI-grade regressions are caught here, not at review time.
 //
 // Usage:

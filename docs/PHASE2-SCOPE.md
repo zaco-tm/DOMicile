@@ -45,11 +45,7 @@ Smallest sequential schedule:
 
 ## Cross-references
 
-- 2a spec: `docs/superpowers/specs/2026-07-05-phase2-wire-protocol-design.md`
 - 2a reference for clients: `docs/WIRE-PROTOCOL.md`
 - 2a machine-readable schema: `docs/schemas/event.schema.json`
-- 2c-α spec: `docs/superpowers/specs/2026-07-05-phase2c-events-writer-design.md`
-- 2c-β spec: `docs/superpowers/specs/2026-07-05-phase2c-html-watcher-design.md`
-- Phase 1 design spec (source of Phase 2's existence): `docs/superpowers/specs/2026-07-05-domicile-design.md`
 - SKILL reframe that establishes working-doc mode (the consumer of these events): `domicile/SKILL.md` + `docs/AUDIT.md`
 - Repo conventions: `AGENTS.md`

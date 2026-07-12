@@ -1,9 +1,9 @@
 //! Integration tests for the `domi` binary's clap help surface.
 //!
-//! These tests pin the public CLI contract documented in
-//! `docs/superpowers/plans/2026-07-05-phase2d-agent-tooling-plan.md` Task 2.
-//! They spawn the real `domi` binary (`CARGO_BIN_EXE_domi`) and assert that
-//! the rendered help screens list the expected subcommands and flags.
+//! These tests pin the public CLI contract for the `domi` agent tool
+//! (subcommands + flags). They spawn the real `domi` binary
+//! (`CARGO_BIN_EXE_domi`) and assert that the rendered help screens list
+//! the expected subcommands and flags.
 //!
 //! Why integration, not unit: clap derive generates the help text from the
 //! real `Cli`/`TailArgs`/`ReplayArgs`/`PushArgs` structs, and the rendered

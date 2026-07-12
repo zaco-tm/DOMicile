@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 // tools/check-file-size.mjs
 //
-// Enforce the per-file size thresholds defined in
-// docs/superpowers/specs/2026-07-10-agent-friendly-refactor-design.md
-// (Part 1).
+// Enforce the per-file size thresholds defined by the agent-friendly
+// refactor (Part 1).
 //
 // Usage: node tools/check-file-size.mjs [--root <dir>] [--no-fail]
 //   --no-fail    warn instead of exit 1
