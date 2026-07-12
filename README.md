@@ -29,7 +29,7 @@ When you're done, the agent hands you a clean deliverable: same design system, n
 
 ```bash
 git clone https://github.com/zaco-tm/DOMicile.git
-cd domicile
+cd DOMicile
 npm install
 npm run smoke
 ```
@@ -37,6 +37,42 @@ npm run smoke
 Then open <http://127.0.0.1:8123/> in your browser. You'll see a working doc with a feedback rail on the right. Click any element with a dashed outline — its border turns terracotta — type a note in the rail, hit submit. Refresh the page. Your note is still there, anchored to that element.
 
 That's the whole loop. When you're ready to ship, the agent produces a stripped-down HTML using the same primitives — no rail, no chrome.
+
+---
+
+## Install
+
+Three options depending on what you're after. Full details in [`INSTALL.md`](INSTALL.md).
+
+### For AI agents
+
+DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md`. Install with one command per agent:
+
+| Agent | Install |
+|---|---|
+| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
+| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp SKILL.md ~/.claude/skills/domicile/SKILL.md` |
+| Kilo Code | `mkdir -p .roo/skills/domicile && cp SKILL.md .roo/skills/domicile/SKILL.md` |
+| PI | `mkdir -p ~/.pi/skills/domicile && cp SKILL.md ~/.pi/skills/domicile/SKILL.md` |
+| Crush / Dirac / other | Point your system prompt at `SKILL.md` |
+
+### For developers using the wrappers
+
+```bash
+npm install @domi/react react react-dom     # React
+npm install @domi/astro astro                # Astro
+```
+
+Copy `components/domi.css` into your project. For Rust:
+
+```toml
+[dependencies]
+domi-egui = "0.1"
+```
+
+### For humans just looking
+
+Open `templates/dashboard/index.html` in a browser. No install needed — that's a single static file with the design system rendered.
 
 ---
 

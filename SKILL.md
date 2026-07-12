@@ -1,6 +1,14 @@
 ---
 name: domicile
 description: Skill for authoring and iterating on UI work — components, primitives, layouts, themes — and for working through UI/UX changes with the user via shared HTML docs. Triggers on "build a UI library", "design a X", "let's work on Y", "review this UI", or any task where the user will open an HTML file in a browser to read or annotate it.
+license: MIT
+compatibility: Designed for Agent Skills-compatible clients (OpenCode, Claude Code, Kilo Code, PI, Roo Code, Cursor with system-prompt injection, etc.). Working-doc mode requires a browser; standalone mode uses localStorage and works from file://.
+metadata:
+  author: zaco-tm
+  version: 0.1.0
+  category: design-system
+  subcategory: ui-authoring
+  related: tokens, primitives, archetypes, working-doc, audit-loop
 ---
 
 # DOMicile
@@ -71,7 +79,7 @@ To *consume* the library, point at the path. To *add to it*, follow the contribu
 
 Neo is the **default skin for working docs and audit surfaces**. Deliverables can be in any theme; default to neo only if the user does not specify one.
 
-```
+```text
 Background:  plum → coral → peach  (#a89cc8 → #f4978e → #ffd6b3) at 135°
 Surfaces:    rgba(255,255,255, 0.4–0.8) + backdrop-filter blur(12px)
 Display:     Helvetica Neue Black, uppercase, tight tracking
