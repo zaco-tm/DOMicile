@@ -85,6 +85,7 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
+| Universal installer ([openskills](https://www.npmjs.com/package/openskills)) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) |
 | Universal (`~/.agents/skills/`) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` |
 | OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
 | Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |

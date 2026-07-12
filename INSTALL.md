@@ -20,6 +20,7 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 | Agent | Install command |
 |---|---|
+| Universal installer ([openskills](https://www.npmjs.com/package/openskills) — `npx`-driven; works for any Agent Skills client) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) |
 | Universal (`~/.agents/skills/` — picked up by Agent Skills clients as a fallback) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` |
 | [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
 | [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
