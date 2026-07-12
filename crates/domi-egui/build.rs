@@ -6,10 +6,22 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 fn main() {
-    println!("cargo:rerun-if-changed=../../tokens/tokens.json");
+    // Locate the workspace root by walking up from CARGO_MANIFEST_DIR so
+    // the tokens path works regardless of how deeply the crate is nested.
+    let manifest_dir = PathBuf::from(
+        env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is set by cargo for build scripts"),
+    );
+    let workspace_root = find_workspace_root(&manifest_dir).unwrap_or_else(|| {
+        panic!(
+            "could not locate the DOMicile workspace root by walking up from {}",
+            manifest_dir.display()
+        )
+    });
+    println!("cargo:rerun-if-changed={}", workspace_root.join("Cargo.toml").display());
 
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR set");
-    let tokens_json_path = Path::new(&manifest_dir).join("../../tokens/tokens.json");
+    let tokens_json_path = workspace_root.join("tokens").join("tokens.json");
+    println!("cargo:rerun-if-changed={}", tokens_json_path.display());
+
     let tokens_bytes = fs::read(&tokens_json_path)
         .unwrap_or_else(|e| panic!("read tokens/tokens.json ({:?}): {}", tokens_json_path, e));
     let tokens: Value = serde_json::from_slice(&tokens_bytes)
@@ -135,4 +147,24 @@ fn to_const_ident(input: &str) -> String {
         }
     }
     out
+}
+
+/// Walk up from `start`'s parent until we find a directory whose
+/// `Cargo.toml` declares a `[workspace]` table.
+fn find_workspace_root(start: &Path) -> Option<PathBuf> {
+    let mut current = start.parent().map(PathBuf::from);
+    while let Some(dir) = current {
+        let manifest = dir.join("Cargo.toml");
+        if manifest.is_file() && has_workspace_table(&manifest) {
+            return Some(dir);
+        }
+        current = dir.parent().map(PathBuf::from);
+    }
+    None
+}
+
+fn has_workspace_table(manifest: &Path) -> bool {
+    fs::read_to_string(manifest)
+        .map(|s| s.contains("[workspace]"))
+        .unwrap_or(false)
 }

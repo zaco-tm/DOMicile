@@ -1,11 +1,21 @@
+use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn rust_enums_match_css_audit_per_prefix() {
-    let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    let audit_path = Path::new(manifest_dir)
-        .join("../../packages/react/CSS-AUDIT.md");
+    // CARGO_MANIFEST_DIR is read at runtime (not via `env!()`) so that
+    // the resolved path always reflects the current workspace location.
+    let manifest_dir = PathBuf::from(
+        env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is set by cargo"),
+    );
+    let workspace_root = find_workspace_root(&manifest_dir).unwrap_or_else(|| {
+        panic!(
+            "could not locate the DOMicile workspace root by walking up from {}",
+            manifest_dir.display()
+        )
+    });
+    let audit_path = workspace_root.join("packages").join("react").join("CSS-AUDIT.md");
     let audit = fs::read_to_string(&audit_path)
         .unwrap_or_else(|e| panic!("read CSS-AUDIT.md ({:?}): {}", audit_path, e));
 
@@ -81,5 +91,27 @@ fn rust_enums_match_css_audit_per_prefix() {
         assert!(matches!(s.as_str(), "sm" | "lg"),
             "domi_select exposes SelectSize::{s:?} but the test only knows {{sm,lg}}");
     }
+}
+
+/// Walk up from `start`'s parent until we find a directory whose
+/// `Cargo.toml` declares a `[workspace]` table. `start` itself is the
+/// crate directory (always contains a Cargo.toml without `[workspace]`),
+/// so the search must skip it.
+fn find_workspace_root(start: &Path) -> Option<PathBuf> {
+    let mut current = start.parent().map(PathBuf::from);
+    while let Some(dir) = current {
+        let manifest = dir.join("Cargo.toml");
+        if manifest.is_file() && has_workspace_table(&manifest) {
+            return Some(dir);
+        }
+        current = dir.parent().map(PathBuf::from);
+    }
+    None
+}
+
+fn has_workspace_table(manifest: &Path) -> bool {
+    fs::read_to_string(manifest)
+        .map(|s| s.contains("[workspace]"))
+        .unwrap_or(false)
 }
 

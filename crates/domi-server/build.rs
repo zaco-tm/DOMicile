@@ -1,21 +1,42 @@
+use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let repo_root = manifest_dir.parent().and_then(|p| p.parent()).expect("workspace root");
-    let shim_path = repo_root.join("scripts").join("runtime").join("domi-server.js");
+    // CARGO_MANIFEST_DIR is read at runtime (not via `env!()`) so that the
+    // resolved path always reflects the current workspace location. Reading
+    // it at compile time would bake the path into the build-script binary,
+    // which cargo then reuses after a workspace rename or move.
+    println!("cargo:rerun-if-env-changed=CARGO_MANIFEST_DIR");
+
+    let manifest_dir = PathBuf::from(
+        env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is set by cargo for build scripts"),
+    );
+
+    let workspace_root = find_workspace_root(&manifest_dir).unwrap_or_else(|| {
+        panic!(
+            "could not locate the DOMicile workspace root by walking up from {}. \
+             Expected a Cargo.toml with a [workspace] table somewhere above this crate.",
+            manifest_dir.display()
+        )
+    });
+    println!("cargo:rerun-if-changed={}", workspace_root.join("Cargo.toml").display());
+
+    let shim_path = workspace_root
+        .join("scripts")
+        .join("runtime")
+        .join("domi-server.js");
     println!("cargo:rerun-if-changed={}", shim_path.display());
 
     let bytes = std::fs::read(&shim_path).unwrap_or_else(|e| {
         panic!(
             "domi-server.js shim not found at {}: {e}. \
              The Rust crate embeds the JS shim at compile time; \
-             the file must live at <repo>/scripts/runtime/domi-server.js.",
+             the file must live at <workspace-root>/scripts/runtime/domi-server.js.",
             shim_path.display()
         )
     });
 
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR is set by cargo"));
     let declared_len = bytes.len();
     std::fs::write(
         out_dir.join("shim_length.rs"),
@@ -25,7 +46,32 @@ fn main() {
 
     std::fs::write(
         out_dir.join("shim_token.rs"),
-        format!("pub const SHIM_BYTES: &[u8] = include_bytes!(\"{}\");\n", shim_path.display()),
+        format!(
+            "pub const SHIM_BYTES: &[u8] = include_bytes!(\"{}\");\n",
+            shim_path.display()
+        ),
     )
     .expect("write shim_token.rs");
+}
+
+/// Walk up from `start`'s parent until we find a directory that contains a
+/// `Cargo.toml` declaring a `[workspace]` table. `start` itself is the crate
+/// directory (always contains a Cargo.toml, but without `[workspace]`),
+/// so the search must skip it.
+fn find_workspace_root(start: &std::path::Path) -> Option<PathBuf> {
+    let mut current = start.parent().map(PathBuf::from);
+    while let Some(dir) = current {
+        let manifest = dir.join("Cargo.toml");
+        if manifest.is_file() && has_workspace_table(&manifest) {
+            return Some(dir);
+        }
+        current = dir.parent().map(PathBuf::from);
+    }
+    None
+}
+
+fn has_workspace_table(manifest: &std::path::Path) -> bool {
+    std::fs::read_to_string(manifest)
+        .map(|s| s.contains("[workspace]"))
+        .unwrap_or(false)
 }
