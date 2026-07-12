@@ -8,7 +8,7 @@ build = "build.rs"
 repository = "https://github.com/zaco-tm/DOMicile"
 homepage = "https://github.com/zaco-tm/DOMicile"
 documentation = "https://github.com/zaco-tm/DOMicile/blob/main/docs/RUST.md"
-keywords = ["domicile", "ui", "design-system", "websocket", "audit", "axum"]
+keywords = ["domicile", "ui", "design-system", "websocket", "audit"]
 categories = ["development-tools", "web-programming::http-server", "api-bindings"]
 
 [dependencies]

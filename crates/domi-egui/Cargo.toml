@@ -8,7 +8,7 @@ publish = true
 repository = "https://github.com/zaco-tm/DOMicile"
 homepage = "https://github.com/zaco-tm/DOMicile"
 documentation = "https://github.com/zaco-tm/DOMicile/blob/main/crates/domi-egui/README.md"
-keywords = ["domicile", "ui", "design-system", "egui", "widgets", "wasm"]
+keywords = ["domicile", "ui", "design-system", "egui", "wasm"]
 categories = ["gui", "wasm"]
 
 [lib]
