@@ -85,6 +85,7 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
+| Universal (`~/.agents/skills/`) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` |
 | OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
 | Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
 | Kilo Code | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` |

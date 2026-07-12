@@ -20,6 +20,7 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 | Agent | Install command |
 |---|---|
+| Universal (`~/.agents/skills/` — picked up by Agent Skills clients as a fallback) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` |
 | [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
 | [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
 | [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` |
