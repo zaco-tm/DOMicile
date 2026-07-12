@@ -16,14 +16,17 @@ DOMicile's `SKILL.md` follows the [Agent Skills open standard](https://agentskil
 
 ### Quick reference
 
+All of these agents consume the [Agent Skills open standard](https://agentskills.io/specification); install is `mkdir + cp` regardless of which one.
+
 | Agent | Install command |
 |---|---|
 | [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
 | [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp SKILL.md ~/.claude/skills/domicile/SKILL.md` |
 | [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `mkdir -p .roo/skills/domicile && cp SKILL.md .roo/skills/domicile/SKILL.md` |
 | [PI](https://github.com/badlogic/pi-mono) | `mkdir -p ~/.pi/skills/domicile && cp SKILL.md ~/.pi/skills/domicile/SKILL.md` |
-| Crush | (no first-class skills support) — point your system prompt at `SKILL.md` |
-| Dirac | (no first-class skills support) — point your system prompt at `SKILL.md` |
+| [Crush](https://github.com/charmbracelet/crush) | `mkdir -p ~/.config/crush/skills/domicile && cp SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
+| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
+| Any other Agent Skills–compatible client | Replace `<config-dir>` with the agent's skill discovery root: `mkdir -p <config-dir>/skills/domicile && cp SKILL.md <config-dir>/skills/domicile/SKILL.md` |
 
 > **Project-local vs. global.** Every command above uses the global path (`~/...`). For a project-scoped install (only available inside this repo), replace the path with the project-local equivalent — e.g. `.opencode/skills/`, `.claude/skills/`, or `.agents/skills/`.
 
@@ -37,15 +40,13 @@ If you'd rather **symlink** (so edits to the repo immediately reflect in your ag
 ln -s "$(pwd)/SKILL.md" ~/.claude/skills/domicile/SKILL.md
 ```
 
-### Agents without first-class skills support
+### Agents with prompt-based config (no skills discovery)
 
-Some agents (Crush, Dirac, and others) don't have a skills discovery directory. For those:
+Some agents don't follow the Agent Skills directory convention at all. For those, point the system prompt at `SKILL.md` manually. Options:
 
-1. Open the agent's config or system-prompt file.
-2. Add a line that tells the agent about `SKILL.md`, e.g.:
-   - Claude / generic: `Before any UI task, read the file at <repo>/SKILL.md.`
-   - Cursor: same idea, but in `.cursorrules`.
-   - Or: paste the entire contents of `SKILL.md` into the system prompt.
+1. **Reference the file** — add a line like `Before any UI task, read the file at <repo>/SKILL.md.` to the agent's config (`.cursorrules`, system prompt, project rules, etc.).
+2. **Inline the contents** — copy `SKILL.md`'s body into the system prompt. Useful when the agent can't read external files.
+3. **Per-project rule file** — drop a project-local `AGENTS.md` or `.cursorrules` that summarizes the trigger phrases and key rules.
 
 ### Verifying the install
 

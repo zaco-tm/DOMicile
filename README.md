@@ -54,7 +54,11 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 | Claude Code | `mkdir -p ~/.claude/skills/domicile && cp SKILL.md ~/.claude/skills/domicile/SKILL.md` |
 | Kilo Code | `mkdir -p .roo/skills/domicile && cp SKILL.md .roo/skills/domicile/SKILL.md` |
 | PI | `mkdir -p ~/.pi/skills/domicile && cp SKILL.md ~/.pi/skills/domicile/SKILL.md` |
-| Crush / Dirac / other | Point your system prompt at `SKILL.md` |
+| Crush | `mkdir -p ~/.config/crush/skills/domicile && cp SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
+| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
+| Any other Agent Skills client | `mkdir -p <config-dir>/skills/domicile && cp SKILL.md <config-dir>/skills/domicile/SKILL.md` |
+
+See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery.
 
 ### For developers using the wrappers
 
