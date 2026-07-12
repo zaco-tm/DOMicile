@@ -2,7 +2,7 @@
 
 A working doc is a working-doc-mode artifact: feedback rail, status chip, and `data-feedback` hooks on the elements the user is likely to comment on.
 
-Use this archetype when the user says "let's work on X," "review this," or anywhere a working doc is appropriate (see `../../SKILL.md` for the mode-choosing rules).
+Use this archetype when the user says "let's work on X," "review this," or anywhere a working doc is appropriate (see `../../domicile/SKILL.md` for the mode-choosing rules).
 
 ## What it ships with
 

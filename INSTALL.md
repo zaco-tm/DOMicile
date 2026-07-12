@@ -20,32 +20,32 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 | Agent | Install command |
 |---|---|
-| [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
-| [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp SKILL.md ~/.claude/skills/domicile/SKILL.md` |
-| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `mkdir -p .roo/skills/domicile && cp SKILL.md .roo/skills/domicile/SKILL.md` |
-| [PI](https://github.com/badlogic/pi-mono) | `mkdir -p ~/.pi/skills/domicile && cp SKILL.md ~/.pi/skills/domicile/SKILL.md` |
-| [Crush](https://github.com/charmbracelet/crush) | `mkdir -p ~/.config/crush/skills/domicile && cp SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
-| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
-| Any other Agent Skills–compatible client | Replace `<config-dir>` with the agent's skill discovery root: `mkdir -p <config-dir>/skills/domicile && cp SKILL.md <config-dir>/skills/domicile/SKILL.md` |
+| [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
+| [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
+| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` |
+| [PI](https://github.com/badlogic/pi-mono) | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` |
+| [Crush](https://github.com/charmbracelet/crush) | `mkdir -p ~/.config/crush/skills/domicile && cp domicile/SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
+| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp domicile/SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
+| Any other Agent Skills–compatible client | Replace `<config-dir>` with the agent's skill discovery root: `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` |
 
 > **Project-local vs. global.** Every command above uses the global path (`~/...`). For a project-scoped install (only available inside this repo), replace the path with the project-local equivalent — e.g. `.opencode/skills/`, `.claude/skills/`, or `.agents/skills/`.
 
 ### Why the install is just `mkdir + cp`
 
-DOMicile's skill is **a single file** — `SKILL.md` at the repo root, with valid Agent Skills frontmatter (`name: domicile`, `description: ...`). There are no scripts, no dependencies, no env vars. The agents above discover it via directory layout; copy the file in and they pick it up.
+DOMicile's skill is **a single file** — `domicile/SKILL.md` at the repo root, with valid Agent Skills frontmatter (`name: domicile`, `description: ...`). The file's parent directory matches its `name` field, which is what the [Agent Skills spec](https://agentskills.io/specification) requires. There are no scripts, no dependencies, no env vars. The agents above discover it via directory layout; copy the file in and they pick it up.
 
 If you'd rather **symlink** (so edits to the repo immediately reflect in your agent config):
 
 ```bash
-ln -s "$(pwd)/SKILL.md" ~/.claude/skills/domicile/SKILL.md
+ln -s "$(pwd)/domicile/SKILL.md" ~/.claude/skills/domicile/SKILL.md
 ```
 
 ### Agents with prompt-based config (no skills discovery)
 
-Some agents don't follow the Agent Skills directory convention at all. For those, point the system prompt at `SKILL.md` manually. Options:
+Some agents don't follow the Agent Skills directory convention at all. For those, point the system prompt at the skill manually. Options:
 
-1. **Reference the file** — add a line like `Before any UI task, read the file at <repo>/SKILL.md.` to the agent's config (`.cursorrules`, system prompt, project rules, etc.).
-2. **Inline the contents** — copy `SKILL.md`'s body into the system prompt. Useful when the agent can't read external files.
+1. **Reference the file** — add a line like `Before any UI task, read the file at <repo>/domicile/SKILL.md.` to the agent's config (`.cursorrules`, system prompt, project rules, etc.).
+2. **Inline the contents** — copy `domicile/SKILL.md`'s body into the system prompt. Useful when the agent can't read external files.
 3. **Per-project rule file** — drop a project-local `AGENTS.md` or `.cursorrules` that summarizes the trigger phrases and key rules.
 
 ### Verifying the install

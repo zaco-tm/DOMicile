@@ -4,6 +4,10 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+
+- Moved `SKILL.md` from the repo root to `domicile/SKILL.md` so its parent directory matches the Agent Skills `name` field. Strict spec readers (`agentskills.io`) rejected the on-disk layout where `SKILL.md` named `domicile` lived under `DOMicile/`. The install path documented in `INSTALL.md` (e.g. `~/.claude/skills/domicile/SKILL.md`) is unchanged — only the source location moved. All cross-references in `README.md`, `INSTALL.md`, `AGENTS.md`, `INIT.md`, `templates/working-doc/README.md`, and `docs/PHASE2-SCOPE.md` were updated. No agent-facing behavior change.
+
 ### Pending decisions (see `README.md` and handoffs for current status)
 
 - npm publish of `@domi/react` and `@domi/astro` to the public registry.

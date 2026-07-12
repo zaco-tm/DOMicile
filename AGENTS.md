@@ -17,7 +17,7 @@ DOMicile is built in numbered phases. Each phase has a spec under `docs/superpow
 | Phase | Status | Lives in |
 |---|---|---|
 | Phase 1 (skill + tokens + 15 primitives + 5 archetypes + `domi.js`) | shipped | `tokens/`, `components/`, `templates/`, `scripts/runtime/domi.js` |
-| 1.x rework (`SKILL.md` reframe + `domi-audit.js` + `templates/working-doc/`) | shipped | `SKILL.md`, `scripts/runtime/domi-audit.js`, `templates/working-doc/`, `docs/{AUDIT,EXTENDING,LAYOUTS}.md` |
+| 1.x rework (`domicile/SKILL.md` reframe + `domi-audit.js` + `templates/working-doc/`) | shipped | `domicile/SKILL.md`, `scripts/runtime/domi-audit.js`, `templates/working-doc/`, `docs/{AUDIT,EXTENDING,LAYOUTS}.md` |
 | Phase 2a (wire protocol) | shipped | `docs/WIRE-PROTOCOL.md`, `docs/schemas/event.schema.json` |
 | Phase 2b (server-attached JS) | shipped | `scripts/runtime/domi-wire.js`, `scripts/runtime/domi-server.js` (shim) |
 | Phase 2c-α (Rust event writer, lib only) | shipped | `crates/domi-server/src/events/` |
@@ -42,15 +42,15 @@ Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until th
   - `scripts/runtime/domi-server.js` — server-detect shim (sets `window.__DOMI_SERVER__`, opens WS)
   - `scripts/runtime/domi-wire.js` — shared wire helpers (used by `domi.js` and `domi-audit.js`)
   - `examples/` — example working doc demonstrating the audit rail
-- **Authoring layer** (`SKILL.md` + `docs/`):
-  - `SKILL.md` — top-level entry; agents load this first. Defines the three output modes (working-doc create, working-doc audit, deliverable) and the iteration mode (piece-by-piece, not page-at-a-time).
+- **Authoring layer** (`domicile/SKILL.md` + `docs/`):
+  - `domicile/SKILL.md` — top-level entry; agents load this first. Defines the three output modes (working-doc create, working-doc audit, deliverable) and the iteration mode (piece-by-piece, not page-at-a-time). Lives under `domicile/` to match the Agent Skills spec's `name`-must-match-parent-dir rule.
   - `docs/AUDIT.md` — audit-loop how-to for working-doc mode.
   - `docs/EXTENDING.md` — library extension rules (new themes, primitives, archetypes).
   - `docs/LAYOUTS.md` — layout recipes (named compositions of primitives).
   - `docs/PHASE2-SCOPE.md` — Phase 2 sub-project decomposition map.
   - `docs/WIRE-PROTOCOL.md` — v2 protocol reference (events.jsonl, HTTP routes, WS frames).
   - `docs/RUST.md` — Rust crate layout + phasing for `domi-server` and `domi-egui`.
-  - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `SKILL.md` as "Full library docs"; the user confirmed these stay).
+  - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `domicile/SKILL.md` as "Full library docs"; the user confirmed these stay).
   - `docs/superpowers/specs/` — design specs (one per phase or sub-project).
   - `docs/superpowers/plans/` — implementation plans.
   - `docs/superpowers/handoffs/` — phase completion handoffs (read these to know what shipped).
@@ -73,7 +73,7 @@ Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until th
   - `Skill/` — empty-looking dir at root containing only `crates/`. Likely a leftover from an earlier packaging experiment. Don't add anything new here.
   - `branding/sponsor-stoopery.svg` — sponsor badge, kept.
   - `status/STATUS.html`, `status/UX-MEMORY.html` — Phase 1 docs (referenced from old README). Keep.
-- **Init**: `INIT.md` is the original brief from the user. Don't overwrite it; `SKILL.md` supersedes the operational layer but `INIT.md` documents intent.
+- **Init**: `INIT.md` is the original brief from the user. Don't overwrite it; `domicile/SKILL.md` supersedes the operational layer but `INIT.md` documents intent.
 
 ## RTK — use it when available
 
@@ -205,7 +205,7 @@ If the script returns "No graph at…", run `npm run graph` once.
 
 ## Pointers
 
-- Top-level entry: `SKILL.md`
+- Top-level entry: `domicile/SKILL.md`
 - Specs: `docs/superpowers/specs/`
 - Plans: `docs/superpowers/plans/`
 - Handoffs (read these for current status): `docs/superpowers/handoffs/` — all phase handoffs live here. Do not write a `HANDOFF.md` at the repo root.

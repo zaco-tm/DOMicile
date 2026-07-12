@@ -51,5 +51,5 @@ Smallest sequential schedule:
 - 2c-α spec: `docs/superpowers/specs/2026-07-05-phase2c-events-writer-design.md`
 - 2c-β spec: `docs/superpowers/specs/2026-07-05-phase2c-html-watcher-design.md`
 - Phase 1 design spec (source of Phase 2's existence): `docs/superpowers/specs/2026-07-05-domicile-design.md`
-- SKILL reframe that establishes working-doc mode (the consumer of these events): `SKILL.md` + `docs/AUDIT.md`
+- SKILL reframe that establishes working-doc mode (the consumer of these events): `domicile/SKILL.md` + `docs/AUDIT.md`
 - Repo conventions: `AGENTS.md`

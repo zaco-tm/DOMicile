@@ -50,13 +50,13 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
-| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
-| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp SKILL.md ~/.claude/skills/domicile/SKILL.md` |
-| Kilo Code | `mkdir -p .roo/skills/domicile && cp SKILL.md .roo/skills/domicile/SKILL.md` |
-| PI | `mkdir -p ~/.pi/skills/domicile && cp SKILL.md ~/.pi/skills/domicile/SKILL.md` |
-| Crush | `mkdir -p ~/.config/crush/skills/domicile && cp SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
-| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
-| Any other Agent Skills client | `mkdir -p <config-dir>/skills/domicile && cp SKILL.md <config-dir>/skills/domicile/SKILL.md` |
+| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
+| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
+| Kilo Code | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` |
+| PI | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` |
+| Crush | `mkdir -p ~/.config/crush/skills/domicile && cp domicile/SKILL.md ~/.config/crush/skills/domicile/SKILL.md` |
+| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp domicile/SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
+| Any other Agent Skills client | `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` |
 
 See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery.
 
@@ -82,9 +82,9 @@ Open `templates/dashboard/index.html` in a browser. No install needed — that's
 
 ## What's in the box
 
-### The skill (load `SKILL.md`)
+### The skill (load `domicile/SKILL.md`)
 
-DOMicile is also an AI-agent skill. Agents that load `SKILL.md` learn three output modes:
+DOMicile is also an AI-agent skill. Agents that load `domicile/SKILL.md` learn three output modes:
 
 | Mode | Trigger | Output |
 |---|---|---|
@@ -109,7 +109,7 @@ Iteration is piece-by-piece: the agent ships one section, you comment, it revise
 
 ## If you're not a designer
 
-You don't need to read the design system to use DOMicile. Tell your agent:
+You don't need to read the design system to use DOMicile. First make sure your agent has the skill installed (see [Install](#for-ai-agents) above) — that loads `domicile/SKILL.md` with the trigger phrases, output modes, and primitives the agent needs. Then tell your agent:
 
 - *"Make me a pricing page in the DOMicile style."*
 - *"I want a settings screen. Use the dashboard layout."*
@@ -128,7 +128,7 @@ The agent handles primitives, tokens, and the working-doc chrome. You focus on w
 ## Repo layout
 
 ```text
-SKILL.md                    ← load this in agents
+domicile/SKILL.md           ← load this in agents
 AGENTS.md                   ← repo conventions for agents
 README.md                   ← you are here
 tokens/                     ← design tokens (single source of truth)
