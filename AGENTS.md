@@ -7,69 +7,46 @@ This file is for AI coding agents (Claude, Cursor, etc.) operating in this repos
 - **Use `rtk` for filesystem, git, grep, and test commands** when available — it token-trims noisy output. See "RTK" below.
 - The DOMicile design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
 - The wire protocol is pinned at v2 by two specs: `docs/schemas/event.schema.json` (canonical shape) and `docs/WIRE-PROTOCOL.md` (prose). Cross-language drift between Rust, JS, and either doc is a bug — fix both ends.
-- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state: **250 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
+- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state: **256 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
 
-## What's shipped (read this before guessing)
+## Repo layout
 
-DOMicile is built in numbered phases. Status:
-
-| Phase | Status | Lives in |
-|---|---|---|
-| Phase 1 (skill + tokens + 15 primitives + 5 archetypes + `domi.js`) | shipped | `tokens/`, `components/`, `templates/`, `scripts/runtime/domi.js` |
-| 1.x rework (`domicile/SKILL.md` reframe + `domi-audit.js` + `templates/working-doc/`) | shipped | `domicile/SKILL.md`, `scripts/runtime/domi-audit.js`, `templates/working-doc/`, `docs/{AUDIT,EXTENDING,LAYOUTS}.md` |
-| Phase 2a (wire protocol) | shipped | `docs/WIRE-PROTOCOL.md`, `docs/schemas/event.schema.json` |
-| Phase 2b (server-attached JS) | shipped | `scripts/runtime/domi-wire.js`, `scripts/runtime/domi-server.js` (shim) |
-| Phase 2c-α (Rust event writer, lib only) | shipped | `crates/domi-server/src/events/` |
-| Phase 2c-β (Rust file serving + watcher) | shipped | `crates/domi-server/src/serve/` |
-| Phase 2c-γ (Rust binary — axum HTTP + WS) | shipped | `crates/domi-server/src/http/`, `crates/domi-server/src/main.rs` |
-| Phase 2d (agent CLI + install/verify) | shipped | `crates/domi-server/src/tools/`, `scripts/shell/install.sh`, `scripts/shell/verify.sh` |
-| Phase 3a (`@domi/react` — 15 React components + tests) | shipped | `packages/react/` |
-| Phase 3b (`@domi/astro` — Astro components + hydration wrappers) | shipped | `packages/astro/` |
-| Phase 3c (`domi-egui` — Rust crate, 15 widgets + 5 composites, WASM-capable) | shipped | `crates/domi-egui/` |
-| Phase 4 — skill loop wiring (the local loop: `domi-server` binary → `tools/skill-smoke*.mjs` → `templates/working-doc/`) | shipped (on `main`) | `tools/skill-smoke.mjs`, `tools/skill-smoke-test.mjs`, `tools/skill-smoke-server-test.mjs`, `scripts/shell/verify-skill-loop*.sh` |
-
-Distribution (`npm publish`, `crates.io` release, v1.0 tag) is deferred until the skill loop is proven playable end-to-end.
-
-## Repo shape
+Where things live today. Anything not listed here is either build-output (under `target/`, `node_modules/`, `dist/`, `.astro/`, `build/`) or the closest-scope module file (`*/AGENTS.md`) — read those when working in a specific area.
 
 - **Design system library** (read-only by default):
   - `tokens/` — locked palette + ajv-validated JSON schema
   - `components/` — 15 HTML primitives + `domi.css`
-  - `templates/` — 5 archetypes (`dashboard/`, `webapp-shell/`, `mobile-app-shell/`, `admin-tool/`, `pos-kiosk/`) plus `working-doc/` (the Phase 2 audit archetype — clone this for any working-doc-mode artifact)
-  - `scripts/runtime/domi.js` — Phase 1 client runtime (click feedback, form capture, status chip)
-  - `scripts/runtime/domi-audit.js` — audit-loop runtime (Phase 2; reads JSON Schema, writes to localStorage or POSTs to `domi-server`, exposes `DomiAudit.{mount,addComment,export}`)
+  - `templates/` — 5 archetypes (`dashboard/`, `webapp-shell/`, `mobile-app-shell/`, `admin-tool/`, `pos-kiosk/`) plus `working-doc/` (clone this for any working-doc-mode artifact)
+  - `scripts/runtime/domi.js` — client runtime (click feedback, form capture, status chip)
+  - `scripts/runtime/domi-audit.js` — audit-loop runtime (reads JSON Schema, writes to localStorage or POSTs to `domi-server`, exposes `DomiAudit.{mount,addComment,export}`)
   - `scripts/runtime/domi-server.js` — server-detect shim (sets `window.__DOMI_SERVER__`, opens WS)
   - `scripts/runtime/domi-wire.js` — shared wire helpers (used by `domi.js` and `domi-audit.js`)
   - `examples/` — example working doc demonstrating the audit rail
-- **Authoring layer** (`domicile/SKILL.md` + `docs/`):
+- **Authoring entry** (`domicile/SKILL.md` + `docs/`):
   - `domicile/SKILL.md` — top-level entry; agents load this first. Defines the three output modes (working-doc create, working-doc audit, deliverable) and the iteration mode (piece-by-piece, not page-at-a-time). Lives under `domicile/` to match the Agent Skills spec's `name`-must-match-parent-dir rule.
   - `docs/AUDIT.md` — audit-loop how-to for working-doc mode.
   - `docs/EXTENDING.md` — library extension rules (new themes, primitives, archetypes).
   - `docs/LAYOUTS.md` — layout recipes (named compositions of primitives).
-  - `docs/PHASE2-SCOPE.md` — Phase 2 sub-project decomposition map.
+  - `docs/PHASE2-SCOPE.md` — sub-project decomposition map for the wire-protocol + server stack.
   - `docs/WIRE-PROTOCOL.md` — v2 protocol reference (events.jsonl, HTTP routes, WS frames).
-  - `docs/RUST.md` — Rust crate layout + phasing for `domi-server` and `domi-egui`.
-  - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `domicile/SKILL.md` as "Full library docs"; the user confirmed these stay).
+  - `docs/RUST.md` — Rust crate layout for `domi-server` and `domi-egui`.
+  - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `domicile/SKILL.md` as "Full library docs").
 - **Rust workspace** (`Cargo.toml`, resolver "2"):
   - `crates/domi-server/` — HTTP binary (`domi-server`) + agent CLI (`domi`). Sources split into `events/` (writer), `serve/` (file/watcher), `http/` (axum routes), `tools/` (CLI subcommands).
-  - `crates/domi-egui/` — Phase 3c Rust crate. 15 per-widget leaves + 5 composites. WASM-capable. Token parity is enforced by a SHA-256 test against the baked-in `tokens.json`.
+  - `crates/domi-egui/` — Rust crate: 15 per-widget leaves + 5 composites. WASM-capable. Token parity is enforced by a SHA-256 test against the baked-in `tokens.json`.
 - **npm workspaces** (`package.json` `workspaces: ["packages/*"]`):
   - `packages/react/` — `@domi/react`: 15 components, `cn()` util, types, tests, CSS-AUDIT. Build via `tsup`.
   - `packages/astro/` — `@domi/astro`: Astro components with hydration-control wrappers.
 - **Tooling**:
   - `tools/` — Node scripts: `skill-smoke.mjs` (clones `templates/working-doc/` and serves it on `http://127.0.0.1:8123/` until SIGINT), `skill-smoke-test.mjs` (Playwright e2e for the standalone loop), `skill-smoke-server-test.mjs` (boots `domi-server` binary and drives Playwright against the event-backed loop), `smoke.mjs`, `tokens-to-css.mjs`, `check-file-size.mjs`, `tests/check-file-size.test.mjs`.
   - `scripts/shell/verify-skill-loop.sh`, `scripts/shell/verify-skill-loop-server.sh` — bash wrappers that orchestrate the Node tools.
-  - `scripts/shell/install.sh`, `scripts/shell/verify.sh` — Phase 2d installer and sanity-checker.
+  - `scripts/shell/install.sh`, `scripts/shell/verify.sh` — installer + sanity-checker scripts.
 - **Authoring state** (gitignored, runtime only):
   - `.domi/output/<name>.html` — agent-authored working docs.
   - `.domi/state/<name>.json` — server-side audit thread state.
   - `.superpowers/` — gitignored scaffolding from prior SDD sessions (do not treat as canonical; ignore unless explicitly told otherwise).
-  - `target/`, `node_modules/`, `dist/`, `.astro/`, `Cargo.lock`, `build/` — all gitignored build artifacts.
-- **Suspect / leftover**:
-  - `Skill/` — empty-looking dir at root containing only `crates/`. Likely a leftover from an earlier packaging experiment. Don't add anything new here.
-  - `branding/sponsor-stoopery.svg` — sponsor badge, kept.
-  - `status/STATUS.html`, `status/UX-MEMORY.html` — Phase 1 docs (referenced from old README). Keep.
-- **Init**: `INIT.md` is the original brief from the user. Don't overwrite it; `domicile/SKILL.md` supersedes the operational layer but `INIT.md` documents intent.
+  - `target/`, `node_modules/`, `dist/`, `.astro/`, `Cargo.lock`, `build/` — gitignored build artifacts.
+- **Legacy / one-offs**: `branding/sponsor-stoopery.svg` (sponsor badge, kept); `status/STATUS.html`, `status/UX-MEMORY.html` (historical docs referenced from the old README). Don't add new content under `branding/` or `status/`.
 
 ## RTK — use it when available
 
@@ -156,10 +133,10 @@ The root AGENTS.md covers global rules (library invariant, RTK,
 tests, subagent discipline). For module-specific safe zones vs
 ask-first zones, read the closest-scope file:
 
-- `scripts/runtime/AGENTS.md` — Phase 1+2 client runtimes (read-only)
+- `scripts/runtime/AGENTS.md` — client runtimes (read-only)
 - `scripts/shell/AGENTS.md` — bash installers + skill-loop runners
 - `crates/domi-server/AGENTS.md` — HTTP binary + agent CLI
-- `crates/domi-egui/AGENTS.md` — Phase 3c Rust widgets
+- `crates/domi-egui/AGENTS.md` — Rust widgets
 - `packages/react/AGENTS.md` — `@domi/react` wrappers
 - `packages/astro/AGENTS.md` — `@domi/astro` wrappers
 - `tools/AGENTS.md` — Node tooling
@@ -204,7 +181,7 @@ If the script returns "No graph at…", run `npm run graph` once.
 - Top-level entry: `domicile/SKILL.md`
 - Wire protocol reference: `docs/WIRE-PROTOCOL.md`
 - Wire protocol canonical shape: `docs/schemas/event.schema.json`
-- Phase 2 decomposition map: `docs/PHASE2-SCOPE.md`
+- Wire-protocol + server decomposition map: `docs/PHASE2-SCOPE.md`
 - Rust layout (server + egui): `docs/RUST.md`
 - Library docs: `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md`
 - Audit loop how-to: `docs/AUDIT.md`
