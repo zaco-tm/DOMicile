@@ -10,7 +10,7 @@
 [![crates.io](https://img.shields.io/crates/v/domi-egui?label=crates.io&color=CC6B49)](https://crates.io/crates/domi-egui)
 [![License](https://img.shields.io/badge/license-MIT-3d2342)](./LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-9caf88)](https://agentskills.io)
-[![Tests](https://img.shields.io/badge/tests-250%20JS%20%2F%2084%20Rust-c2410c)](./docs/superpowers/handoffs)
+![Tests](https://img.shields.io/badge/tests-250%20JS%20%2F%2084%20Rust-c2410c)
 
 ---
 
@@ -167,7 +167,7 @@ graph TD
     F -- Ship it --> G[Clean deliverable — no chrome]
 ```
 
-GIF/MP4 walkthroughs of the loop in action are coming soon — this section will host them once they're cut. (See the design spec at [`docs/superpowers/specs/2026-07-11-readme-polish-design.md`](./docs/superpowers/specs/2026-07-11-readme-polish-design.md) for what "coming soon" looks like.)
+GIF/MP4 walkthroughs of the loop in action are coming soon — this section will host them once they're cut.
 
 ---
 
@@ -192,7 +192,6 @@ docs/
   USAGE.md, DESIGN.md, STANDARDS.md    ← library reference
   AUDIT.md, EXTENDING.md, LAYOUTS.md   ← workflow + extension guides
   WIRE-PROTOCOL.md, RUST.md            ← technical specs
-  superpowers/handoffs/                ← phase-by-phase status
 ```
 
 ---
