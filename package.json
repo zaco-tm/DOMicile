@@ -22,6 +22,7 @@
     "ajv": "^8.17.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^9.0.0",
+    "globals": "^14.0.0",
     "jsdom": "^25.0.0",
     "markdownlint-cli": "^0.42.0",
     "playwright": "^1.61.1",
