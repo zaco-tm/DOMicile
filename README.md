@@ -109,10 +109,6 @@ Copy `components/domi.css` into your project. For Rust:
 domi-egui = "0.1"
 ```
 
-### For humans just looking
-
-Open `templates/dashboard/index.html` in a browser. No install needed — that's a single static file with the design system rendered.
-
 ---
 
 ## What's in the box
@@ -156,18 +152,9 @@ The agent handles primitives, tokens, and the working-doc chrome. You focus on w
 
 ## See it in action
 
-```mermaid
-graph TD
-    A[Agent writes HTML] --> B[You open the page]
-    B --> C[Click what's wrong]
-    C --> D[Type a note]
-    D --> E[Agent revises just that part]
-    E --> F{Happy?}
-    F -- Not yet --> C
-    F -- Ship it --> G[Clean deliverable — no chrome]
-```
-
 GIF/MP4 walkthroughs of the loop in action are coming soon — this section will host them once they're cut.
+
+**Troubleshooting?** See [`INSTALL.md`](INSTALL.md) for per-client install paths, prompt-injection fallback, and common-error fixes.
 
 ---
 

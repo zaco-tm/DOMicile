@@ -212,12 +212,3 @@ Make sure `rust-toolchain.toml` resolves — DOMicile pins a specific toolchain.
 **Working doc rail doesn't appear.**
 
 Open the browser console. If you see `DomiAudit is not defined`, the script tag path is wrong relative to where you opened the HTML. The smoke server (`npm run smoke`) sets up the correct relative paths automatically.
-
----
-
-## Repository conventions (for contributors)
-
-- `AGENTS.md` — repo conventions for agents
-- `docs/EXTENDING.md` — adding primitives, themes, archetypes
-- `docs/LAYOUTS.md` — adding layout recipes
-- Don't edit `tokens/`, `components/`, or `templates/` without explicit sign-off (library invariant)
