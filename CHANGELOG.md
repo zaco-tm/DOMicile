@@ -10,7 +10,7 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ### Pending decisions (see `README.md` and handoffs for current status)
 
-- npm publish of `@domi/react` and `@domi/astro` to the public registry.
+- npm publish of `domicile-react` and `domicile-astro` to the public registry.
 - crates.io release of `domi-server` and `domi-egui` (currently `publish = false`).
 - GitHub Actions CI matrix (node + rust).
 - `Cargo.lock` tracked vs. gitignored policy flip.
@@ -55,13 +55,13 @@ Initial public release. Bundles everything shipped through Phase 4 on `main`.
 - `scripts/shell/install.sh` — installer.
 - `scripts/shell/verify.sh` — sanity checker.
 
-#### React wrappers (Phase 3a, `@domi/react`)
+#### React wrappers (Phase 3a, `domicile-react`)
 
 - 15 React components under `packages/react/src/primitives/` mirroring the HTML primitives.
 - `cn()` utility + TypeScript types + tests + `CSS-AUDIT.md` ground-truth mapping.
 - Build via `tsup`; outputs ESM + CJS + `.d.ts` + `.d.cts`.
 
-#### Astro wrappers (Phase 3b, `@domi/astro`)
+#### Astro wrappers (Phase 3b, `domicile-astro`)
 
 - 15 `.astro` components under `packages/astro/src/components/`.
 - Parser-first static-analysis tests (Astro's `experimental_AstroContainer` is unstable in the current toolchain).

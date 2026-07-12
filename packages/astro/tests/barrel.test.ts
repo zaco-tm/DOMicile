@@ -13,7 +13,7 @@ import type {
 const here = dirname(fileURLToPath(import.meta.url));
 const barrelPath = resolve(here, '../src/index.ts');
 
-describe('@domi/astro barrel (static + compile-time)', () => {
+describe('domicile-astro barrel (static + compile-time)', () => {
   it('barrel text exports all 15 components', () => {
     const src = readFileSync(barrelPath, 'utf-8');
     const expected = [

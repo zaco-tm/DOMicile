@@ -1,5 +1,5 @@
 {
-  "name": "@domi/astro",
+  "name": "domicile-astro",
   "version": "0.1.0",
   "description": "Astro wrappers for DOMicile primitives",
   "type": "module",

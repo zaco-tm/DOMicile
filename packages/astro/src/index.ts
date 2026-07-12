@@ -1,4 +1,4 @@
-// Barrel for @domi/astro — re-exports all 15 components plus their Props types.
+// Barrel for domicile-astro — re-exports all 15 components plus their Props types.
 // Astro components are imported by filename, then re-exported with a friendly name.
 
 export { default as Button } from './components/Button.astro';

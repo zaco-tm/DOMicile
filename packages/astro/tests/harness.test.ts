@@ -6,7 +6,7 @@ import { parseAstro, evaluateClassExpr } from './parser';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-describe('@domi/astro test harness (static analysis)', () => {
+describe('domicile-astro test harness (static analysis)', () => {
   it('parser splits frontmatter and body', () => {
     const sample = `---\nconst x = 1;\n---\n<p>{x}</p>\n`;
     const fixture = resolve(__dirname, '_harness.astro');

@@ -1,6 +1,6 @@
 # packages/react/AGENTS.md
 
-Owner: `@domi/react` wrappers (Phase 3a). 15 components mirror
+Owner: `domicile-react` wrappers (Phase 3a). 15 components mirror
 `components/primitives/<name>/`.
 
 ## Safe zones

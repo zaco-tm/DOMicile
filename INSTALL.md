@@ -66,14 +66,14 @@ If nothing happens, check [§ Troubleshooting](#troubleshooting).
 
 The wrappers are separately installable npm packages and a Rust crate. You don't need the skill — you can use the components directly.
 
-### React (`@domi/react`)
+### React (`domicile-react`)
 
 ```bash
-npm install @domi/react react react-dom
+npm install domicile-react react react-dom
 ```
 
 ```tsx
-import { DomButton, DomCard, DomAlert } from '@domi/react';
+import { DomButton, DomCard, DomAlert } from 'domicile-react';
 
 export function Pricing() {
   return (
@@ -88,15 +88,15 @@ export function Pricing() {
 
 You also need the CSS. Copy `components/domi.css` from this repo into your project (a standalone `@domi/css` package is on the roadmap).
 
-### Astro (`@domi/astro`)
+### Astro (`domicile-astro`)
 
 ```bash
-npm install @domi/astro astro
+npm install domicile-astro astro
 ```
 
 ```astro
 ---
-import { Button, Card, Alert } from '@domi/astro';
+import { Button, Card, Alert } from 'domicile-astro';
 ---
 <Button variant="primary" size="lg">Save</Button>
 <Card size="lg">
@@ -203,7 +203,7 @@ For the audit rail (the feedback loop), you need a local server because `domi-au
 
 **`npm install` complains about peer dependencies.**
 
-`@domi/react` requires React 18+ (`peerDependencies: react: "^18.0.0"`). `npm install --legacy-peer-deps` works around mismatches but you should upgrade your React version instead.
+`domicile-react` requires React 18+ (`peerDependencies: react: "^18.0.0"`). `npm install --legacy-peer-deps` works around mismatches but you should upgrade your React version instead.
 
 **`cargo build -p domi-server` fails on Apple Silicon.**
 

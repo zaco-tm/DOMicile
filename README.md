@@ -6,7 +6,7 @@
   <a href="https://stoopery.app"><img alt="Sponsored by stoopery" src="branding/sponsor-stoopery.svg" width="160"></a>
 </p>
 
-[![npm version](https://img.shields.io/npm/v/%40domi%2Freact?label=npm&color=8B4567)](https://www.npmjs.com/package/@domi/react)
+[![npm version](https://img.shields.io/npm/v/domicile-react?label=npm&color=8B4567)](https://www.npmjs.com/package/domicile-react)
 [![crates.io](https://img.shields.io/crates/v/domi-egui?label=crates.io&color=CC6B49)](https://crates.io/crates/domi-egui)
 [![License](https://img.shields.io/badge/license-MIT-3d2342)](./LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-9caf88)](https://agentskills.io)
@@ -28,7 +28,7 @@ The document *is* the conversation. Open the page. Click the thing that's wrong.
 
 **You're an AI agent.** Load `domicile/SKILL.md`. You now know the three output modes and the 15 primitives. Go build.
 
-**You're a developer.** `npm install @domi/react`, copy the CSS, start composing. Same primitives, React / Astro / Rust — pick your stack.
+**You're a developer.** `npm install domicile-react`, copy the CSS, start composing. Same primitives, React / Astro / Rust — pick your stack.
 
 **You're a curious human.** Open `templates/dashboard/index.html` in a browser. No install, no build step. Just a page you can click around.
 
@@ -98,8 +98,8 @@ See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has n
 ### For developers using the wrappers
 
 ```bash
-npm install @domi/react react react-dom     # React
-npm install @domi/astro astro                # Astro
+npm install domicile-react react react-dom     # React
+npm install domicile-astro astro                # Astro
 ```
 
 Copy `components/domi.css` into your project. For Rust:
@@ -130,7 +130,7 @@ One section at a time. No more "AI wrote me 800 lines and I had to reread it all
 - **15 HTML primitives** — buttons, cards, forms, tables, navs, modals, alerts, badges, tabs, toasts, tooltips, inputs, selects, checkboxes, radios. Each has a `domi-*` class and reads tokens from a single CSS variables block.
 - **5 archetype templates** — `dashboard`, `webapp-shell`, `mobile-app-shell`, `admin-tool`, `pos-kiosk`. Clone one, fill it in.
 - **Neo theme (default)** — plum-to-peach gradient, frosted-glass surfaces, Helvetica Neue Black display + JetBrains Mono body. Drop in your own theme by replacing `tokens/tokens.json`.
-- **Same primitives, three languages** — React (`@domi/react`), Astro (`@domi/astro`), and native Rust (`domi-egui`, WASM-capable). Because why not. Token parity is enforced by a SHA-256 test.
+- **Same primitives, three languages** — React (`domicile-react`), Astro (`domicile-astro`), and native Rust (`domi-egui`, WASM-capable). Because why not. Token parity is enforced by a SHA-256 test.
 
 ### The server (optional)
 
@@ -172,8 +172,8 @@ templates/<archetype>/      ← dashboard, webapp-shell, mobile-app-shell, admin
 scripts/runtime/            ← domi.js, domi-audit.js, domi-server.js, domi-wire.js
 crates/domi-server/         ← Rust HTTP binary + agent CLI
 crates/domi-egui/          ← Rust native widgets + composites
-packages/react/             ← @domi/react (15 components)
-packages/astro/             ← @domi/astro (15 wrappers)
+packages/react/             ← domicile-react (15 components)
+packages/astro/             ← domicile-astro (15 wrappers)
 tools/                      ← smoke, skill-loop, e2e tests
 docs/
   USAGE.md, DESIGN.md, STANDARDS.md    ← library reference

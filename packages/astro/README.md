@@ -1,4 +1,4 @@
-# @domi/astro
+# domicile-astro
 
 Astro wrappers for the 15 [DOMicile](../components/primitives) HTML primitives.
 Provides TypeScript-first, class-composition wrappers with **zero JavaScript by default** — components compile to plain HTML; consumers' Astro compiler handles them.
@@ -6,14 +6,14 @@ Provides TypeScript-first, class-composition wrappers with **zero JavaScript by 
 ## Install
 
 ```bash
-npm install @domi/astro astro
+npm install domicile-astro astro
 ```
 
 ## Usage
 
 ```astro
 ---
-import { Button, Card, Alert } from '@domi/astro';
+import { Button, Card, Alert } from 'domicile-astro';
 ---
 
 <Button variant="primary" size="lg">Save</Button>
@@ -71,7 +71,7 @@ import 'domi/css/domi.css';
 
 ## Library invariant
 
-`@domi/astro` does **not** modify the DOMicile design system library. It is a pure-Astro consumer layer that references existing CSS class suffixes.
+`domicile-astro` does **not** modify the DOMicile design system library. It is a pure-Astro consumer layer that references existing CSS class suffixes.
 
 ## Test
 

@@ -1,4 +1,4 @@
-# @domi/react
+# domicile-react
 
 React wrappers for the 15 [DOMicile](../components/primitives) HTML primitives.
 Provides TypeScript-first, class-composition wrappers with escape hatches (`className`, `...props`, `as`, `ref`).
@@ -6,13 +6,13 @@ Provides TypeScript-first, class-composition wrappers with escape hatches (`clas
 ## Install
 
 ```bash
-npm install @domi/react react react-dom
+npm install domicile-react react react-dom
 ```
 
 ## Usage
 
 ```tsx
-import { DomButton, DomCard, DomAlert } from '@domi/react';
+import { DomButton, DomCard, DomAlert } from 'domicile-react';
 
 function SaveButton() {
   return <DomButton variant="primary" size="lg" onClick={save}>Save</DomButton>;
@@ -73,4 +73,4 @@ Runs all repo tests including `packages/react/tests/*.test.tsx` (vitest + jsdom)
 
 ## Library invariant
 
-`@domi/react` does **not** modify the DOMicile design system library (`tokens/`, `components/`, `scripts/domi*.js`, `examples/`). It is a pure-React consumer layer.
+`domicile-react` does **not** modify the DOMicile design system library (`tokens/`, `components/`, `scripts/domi*.js`, `examples/`). It is a pure-React consumer layer.

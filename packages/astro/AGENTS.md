@@ -1,6 +1,6 @@
 # packages/astro/AGENTS.md
 
-Owner: `@domi/astro` wrappers (Phase 3b). 15 components.
+Owner: `domicile-astro` wrappers (Phase 3b). 15 components.
 
 ## Safe zones
 

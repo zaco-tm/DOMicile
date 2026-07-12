@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import * as DomiReact from '../../src';
 
-describe('@domi/react barrel', () => {
+describe('domicile-react barrel', () => {
   it('exports all 15 components', () => {
     const expected = [
       'DomButton', 'DomCard', 'DomForm', 'DomInput', 'DomSelect',
