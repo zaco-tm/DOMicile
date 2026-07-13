@@ -81,7 +81,7 @@ mod tests {
         std::fs::create_dir_all(&root).unwrap();
         std::fs::create_dir_all(&state_dir).unwrap();
         let writer = Arc::new(EventWriter::new(&state_dir.join("events.jsonl")));
-        let state = Arc::new(AppState::new(root, state_dir, writer, 16));
+        let state = Arc::new(AppState::new(root, state_dir, writer, 16, None));
         let state_for_serve = state.clone();
         let serve = tokio::spawn(async move {
             axum::serve(

@@ -30,7 +30,7 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 | Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp domicile/SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` |
 | Any other Agent Skills–compatible client | Replace `<config-dir>` with the agent's skill discovery root: `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` |
 
-Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, run `cargo build --release -p domi-server` once; the skill's wrapper (`tools/domi-serve.sh`) starts and stops the server for you from then on.
+Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, run `cargo build --release -p domi-server` once; the skill's wrapper (`tools/domi-serve.sh`) starts and stops the server for you from then on. The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies.
 
 > **Project-local vs. global.** Every command above uses the global path (`~/...`). For a project-scoped install (only available inside this repo), replace the path with the project-local equivalent — e.g. `.opencode/skills/`, `.claude/skills/`, or `.agents/skills/`.
 
