@@ -1,12 +1,12 @@
-# DOMicile Wire Protocol — Phase 2 Reference
+# DOMicile Wire Protocol — v2 Reference
 
-This is the 2a contract. Consumers: Phase 2b (server-attached JS mode), 2c (Rust server), 2d (agent reader).
+This is the protocol v2 contract. Consumers: the server-attached JS mode (`scripts/runtime/domi-audit.js`), the `domi-server` binary, and the agent-side `domi` CLI.
 
 ## Version
 
 Protocol version: **2**. Every event carries `"v": 2`. The server prints the protocol version on `GET /` as `{ name, version, protocol: 2 }`.
 
-If you read a `v` other than `2`, branch. Older (`v: 1`) events came from Phase 1's `domi.js` — the server rotates those on first read.
+If you read a `v` other than `2`, branch. Older (`v: 1`) events came from legacy `domi.js` — the server rotates those on first read.
 
 ## Event payload
 
@@ -61,7 +61,7 @@ Consumers pick one or both. The server's contract is identical for both — neit
 | `GET` | `/api/events?since=<ULID>&doc=<name>&limit=<n>` | Read events strictly after `<ULID>`. `limit` default 100, max 1000. Response: `{ events: [Event], nextSince: ULID \| null }`. |
 | `GET` | `/ws/events` | WebSocket push. Server sends `{ type: "hello", v: 2, serverId }` on connect, then wraps each event as `{ type: "event", event: <Event> }`. |
 
-### CLI usage (Phase 2d `domi` binary)
+### CLI usage (`domi` binary)
 
 The same routes are exercised by the agent-side `domi` CLI (lives in `crates/domi-server/src/tools/`). All three subcommands default to `--server http://127.0.0.1:4173` and emit the same JSON shapes described above.
 
@@ -79,9 +79,9 @@ domi push --server http://127.0.0.1:4173 \
 --json '{"v":2,"id":null,"ts":null,"src":"browser-ext","doc":"dashboard","kind":"click","target":{"id":"button.ok","selector":null,"rect":{"x":0.0,"y":0.0,"w":0.0,"h":0.0}},"data":{"value":"Save"}}'
 ```
 
-`POST /api/events` validates the body against the schema (`docs/schemas/event.schema.json`). Reject anything missing required fields or with a non-`2` `v`. The server is allowed to reject in either direction; the agent's reader (2d) keeps the file as the durable copy.
+`POST /api/events` validates the body against the schema (`docs/schemas/event.schema.json`). Reject anything missing required fields or with a non-`2` `v`. The server is allowed to reject in either direction; the agent's reader keeps the file as the durable copy.
 
-**`id` stamping rule (since Phase 2b):** clients MAY omit `id` (or send `null`) when posting; the **server MUST stamp a fresh ULID before append**. The schema's `id` field stays required — the server enforces it. Phase 2 JS clients use this to avoid carrying a ULID library; they delegate ID generation to the server.
+**`id` stamping rule:** clients MAY omit `id` (or send `null`) when posting; the **server MUST stamp a fresh ULID before append**. The schema's `id` field stays required — the server enforces it. JS clients use this to avoid carrying a ULID library; they delegate ID generation to the server.
 
 ## WebSocket protocol summary
 
@@ -93,7 +93,7 @@ Connection lifecycle:
 4. Server pings with `{"type":"ping"}` every 30 seconds. Client may pong; absence is logged `warn`.
 5. Server closes on shutdown. Client reconnects with backoff, then calls `GET /api/events?since=<last-id>` to re-sync.
 
-Future message types (e.g., `subscribe`, `pong`) MAY be added in 2c. Clients MUST ignore unknown message types.
+Future message types (e.g., `subscribe`, `pong`) MAY be added in later server versions. Clients MUST ignore unknown message types.
 
 ## JSONL file conventions
 
@@ -104,7 +104,7 @@ Future message types (e.g., `subscribe`, `pong`) MAY be added in 2c. Clients MUS
 - The server opens with `O_APPEND` semantics.
 - The server rotates the file when it exceeds the size cap (default 50 MB) or once per UTC day, whichever comes first. Rotated files are named `events-<UTC-timestamp>.jsonl` and kept indefinitely.
 
-Backward-compat with Phase 1: if the existing `events.jsonl`'s first line has a `v` other than `2`, the server rotates that file before appending. Phase 1 entries from `domi.js` use a shape with `id`, `selector`, `text` fields and no `v` — the server does NOT try to migrate them; rotation preserves them untouched.
+Backward-compat with legacy `v: 1` events: if the existing `events.jsonl`'s first line has a `v` other than `2`, the server rotates that file before appending. Legacy entries from older `domi.js` use a shape with `id`, `selector`, `text` fields and no `v` — the server does NOT try to migrate them; rotation preserves them untouched.
 
 ## Privacy
 
@@ -112,4 +112,4 @@ Backward-compat with Phase 1: if the existing `events.jsonl`'s first line has a 
 
 ## Schema source
 
-The machine-readable JSON Schema lives at `docs/schemas/event.schema.json`. The wire protocol's prose and the schema are kept in sync — drift between the two is a 2a doc bug.
+The machine-readable JSON Schema lives at `docs/schemas/event.schema.json`. The wire protocol's prose and the schema are kept in sync — drift between the two is a wire-protocol doc bug.

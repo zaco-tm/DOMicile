@@ -29,9 +29,9 @@ Open any `templates/<archetype>/index.html` in a browser. No server needed.
 
 ## Reading feedback events
 
-In standalone mode (Phase 1): user clicks "Export feedback" → downloads `events.jsonl` → paste back to the agent.
+In standalone mode: user clicks "Export feedback" → downloads `events.jsonl` → paste back to the agent.
 
-In live mode (Phase 2): `domi-server` writes to `.domi/state/events.jsonl` and pushes via WebSocket. The agent subscribes.
+In server-attached mode: `domi-server` writes to `.domi/state/events.jsonl` and pushes via WebSocket. The agent subscribes.
 
 Event schema:
 

@@ -27,7 +27,6 @@ Where things live today. Anything not listed here is either build-output (under 
   - `docs/AUDIT.md` — audit-loop how-to for working-doc mode.
   - `docs/EXTENDING.md` — library extension rules (new themes, primitives, archetypes).
   - `docs/LAYOUTS.md` — layout recipes (named compositions of primitives).
-  - `docs/PHASE2-SCOPE.md` — sub-project decomposition map for the wire-protocol + server stack.
   - `docs/WIRE-PROTOCOL.md` — v2 protocol reference (events.jsonl, HTTP routes, WS frames).
   - `docs/RUST.md` — Rust crate layout for `domi-server` and `domi-egui`.
   - `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md` — full library docs (referenced by `domicile/SKILL.md` as "Full library docs").
@@ -181,7 +180,6 @@ If the script returns "No graph at…", run `npm run graph` once.
 - Top-level entry: `domicile/SKILL.md`
 - Wire protocol reference: `docs/WIRE-PROTOCOL.md`
 - Wire protocol canonical shape: `docs/schemas/event.schema.json`
-- Wire-protocol + server decomposition map: `docs/PHASE2-SCOPE.md`
 - Rust layout (server + egui): `docs/RUST.md`
 - Library docs: `docs/USAGE.md`, `docs/DESIGN.md`, `docs/STANDARDS.md`
 - Audit loop how-to: `docs/AUDIT.md`
