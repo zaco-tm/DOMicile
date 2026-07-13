@@ -48,7 +48,8 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
     // 7. Bind.
     let addr = format!("{}:{}", args.host, args.port);
     let listener = tokio::net::TcpListener::bind(&addr).await?;
-    tracing::info!(%addr, server_id = %state.server_id, "domi-server listening");
+    let bound = listener.local_addr()?;
+    tracing::info!(bound_url = %format!("http://{}/", bound), server_id = %state.server_id, "domi-server listening");
 
     // 8. Serve with graceful shutdown.
     axum::serve(listener, router)

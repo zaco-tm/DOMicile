@@ -17,12 +17,13 @@ Use this skill when the user wants to *create* UI work (a component, primitive, 
 
 Do NOT use this skill for: pure markdown reports, server-side code, anything the user won't open in a browser as HTML.
 
-## Answer two questions first
+## Answer three questions first
 
 Before writing any HTML, decide:
 
 1. **Create-new or audit-existing?** ("let's build X" vs. "review this thing")
 2. **Working doc or deliverable?** ("let's work on it" vs. "ship the final")
+3. **Standalone or server runtime?** Asked once, only if question 2 lands on working-doc mode — see §"Runtime mode" below. Deliverables never need a runtime choice (they ship as static files).
 
 The combination yields three output modes:
 
@@ -40,9 +41,54 @@ If you're not sure which mode, ask one question with the linguistic signal you s
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
 - Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `templates/<archetype>/index.html`
 - Reference working doc: `templates/working-doc/index.html` — **clone it as your starting point** for any working-doc-mode artifact (audit rail, status chip, `data-feedback` hooks, neo skin all in place). `tools/skill-smoke.mjs` does the same clone + serves it on `http://127.0.0.1:8123/` for review. The smoke serves until SIGINT — foreground run with Ctrl-C; if you background it (common for non-interactive agents), record the PID and `kill <pid>` when finished.
-- Event-backed serving: for the audit thread to persist across reloads/devices, serve from the Rust `domi-server` binary (`cargo build --release -p domi-server`, then `domi-server --root .domi/output --state .domi/state`). The server auto-injects a `window.__DOMI_SERVER__ = true` shim into the working doc; `scripts/runtime/domi-audit.js` then routes comments to `POST /api/events` instead of `localStorage`. Use `tools/skill-smoke-server-test.mjs` to verify the loop end-to-end (boots the binary, drives Playwright, asserts `/api/events?doc=<name>` returns the comment).
+- Event-backed serving: see §"Runtime mode" below. The high-level mechanics haven't changed — the server still auto-injects the `window.__DOMI_SERVER__` shim and `domi-audit.js` still routes comments to `POST /api/events` — but the user-facing flow is now mediated by `tools/domi-serve.sh`. `tools/skill-smoke-server-test.mjs` is still the right end-to-end verification tool.
+- Server process metadata (runtime mode = server only): `.domi/server.url` (full URL, e.g. `http://127.0.0.1:54321/`), `.domi/server.pid` (PID of the running `domi-server`). Both written by `tools/domi-serve.sh start`, both removed by `tools/domi-serve.sh stop`. Gitignored.
 
 Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
+
+## Runtime mode: standalone or server
+
+Before writing any iteration-eligible artifact (Working doc — create or audit, never Deliverable), the agent must ask the user one question:
+
+**"Standalone (`file://` + `localStorage`) or server (event-backed, comments persist across devices)?"**
+
+Default to standalone if the user doesn't pick — it works in any environment without setup. Recommend server when the user says they'll iterate across machines, share the doc, or want comments to survive a tab close + reopen cycle.
+
+### If standalone (the default)
+
+- Write `.domi/output/<name>.html` and tell the user to open it with `file://` or via `tools/skill-smoke.mjs` (which serves the working-doc template on `http://127.0.0.1:8123/`).
+- `domi-audit.js` reads/writes `localStorage` only. No server, no port.
+- Skip to "Working-doc chrome (audit mode)" below.
+
+### If server
+
+1. **Verify the binary exists.** The script prefers `./target/release/domi-server` and falls back to `./target/debug/domi-server`. If neither is present, **do not attempt to compile.** Tell the user:
+
+   > The server binary isn't built yet. Run once:
+   > `cargo build --release -p domi-server`
+   > Then say "ready" and I'll start it.
+
+   Wait for confirmation before proceeding.
+
+2. **Start the server.** Run `tools/domi-serve.sh start`. The script:
+   - picks an ephemeral port via `--port 0` (no collisions with other processes);
+   - writes the chosen URL to `.domi/server.url`;
+   - writes the PID to `.domi/server.pid`;
+   - serves `.domi/output/` as root and `.domi/state/` as the audit thread store.
+
+3. **Read `.domi/server.url`** and pass that URL (not a `file://` path) to the user as the link to open.
+
+4. **All working docs written this session use that URL** as their reference point, with paths relative to `.domi/output/`. The server injects the `__DOMI_SERVER__` shim, which makes `domi-audit.js` route comments through `POST /api/events` and listen for live updates on `/ws/events`.
+
+### Lifecycle
+
+The skill **starts** the server but **does not stop it.** The user owns stop: `tools/domi-serve.sh stop` (reads `.domi/server.pid`, sends SIGTERM, cleans up `.domi/server.url` and `.domi/server.pid`). Why: the page may be open in another tab/session; killing on session-end would orphan work in progress. Stop on demand is one shell command.
+
+### If something goes wrong
+
+- `tools/domi-serve.sh start` fails with "binary not found" → user hasn't built. Show the `cargo build` line, wait.
+- `tools/domi-serve.sh start` fails with "already running" → a previous server is alive. Tell the user: `tools/domi-serve.sh status` to inspect, `tools/domi-serve.sh stop` to clear.
+- Page loads but comments don't persist after reload → the URL the user opened isn't the server's URL (likely `file://`). Tell them to open `.domi/server.url` instead.
 
 ## Working-doc chrome (audit mode)
 
