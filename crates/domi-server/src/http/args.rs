@@ -13,6 +13,8 @@ pub struct Args {
     pub root: PathBuf,
     #[arg(long, default_value = ".domi/state")]
     pub state: PathBuf,
+    #[arg(long)]
+    pub library_root: Option<PathBuf>,
     #[arg(long, default_value = "info")]
     pub log_level: String,
 }
@@ -66,5 +68,30 @@ mod tests {
     fn port_zero_accepted() {
         let a = Args::try_parse_from(["domi-server", "--port", "0"]).expect("--port 0 must parse");
         assert_eq!(a.port, 0);
+    }
+
+    #[test]
+    fn library_root_defaults_to_none() {
+        let a = Args::try_parse_from(["domi-server"]).unwrap();
+        assert!(a.library_root.is_none(), "library_root must default to None");
+    }
+
+    #[test]
+    fn library_root_accepts_path() {
+        let a = Args::try_parse_from(["domi-server", "--library-root", "/tmp/lib"]).unwrap();
+        assert_eq!(a.library_root, Some(PathBuf::from("/tmp/lib")));
+    }
+
+    #[test]
+    fn library_root_can_be_omitted_alongside_other_flags() {
+        let a = Args::try_parse_from([
+            "domi-server",
+            "--port", "9000",
+            "--root", "/tmp/r",
+            "--state", "/tmp/s",
+        ])
+        .unwrap();
+        assert!(a.library_root.is_none());
+        assert_eq!(a.port, 9000);
     }
 }

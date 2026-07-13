@@ -16,8 +16,13 @@ use ulid::Ulid;
 
 use crate::events::{Event, EventData, EventWriter, Kind, Rect, Source, Target};
 use crate::http::state::AppState;
+use crate::serve::file::{serve_file, ContentType, ServeError};
 
 fn test_state() -> (Arc<AppState>, tempfile::TempDir) {
+    test_state_with_library(None)
+}
+
+fn test_state_with_library(library_root: Option<std::path::PathBuf>) -> (Arc<AppState>, tempfile::TempDir) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("root");
     let state = dir.path().join("state");
@@ -25,7 +30,7 @@ fn test_state() -> (Arc<AppState>, tempfile::TempDir) {
     std::fs::create_dir_all(&state).unwrap();
     let events = state.join("events.jsonl");
     let writer = Arc::new(EventWriter::new(&events));
-    let app_state = Arc::new(AppState::new(root, state, writer, 16));
+    let app_state = Arc::new(AppState::new(root, state, writer, 16, library_root));
     (app_state, dir)
 }
 
@@ -471,4 +476,53 @@ async fn get_events_limit_clamped_to_1000() {
     let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(json["events"].as_array().unwrap().len(), 1000);
+}
+
+fn repo_root() -> std::path::PathBuf {
+    // CARGO_MANIFEST_DIR = crates/domi-server. Two parents → repo root.
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(|p| p.parent())
+        .expect("CARGO_MANIFEST_DIR is crates/domi-server; two parents should reach the repo root")
+        .to_path_buf()
+}
+
+#[test]
+fn library_prefix_resolves_components_css() {
+    let components = repo_root().join("components");
+    let served = serve_file(&components, std::path::Path::new("domi.css"))
+        .expect("domi.css should serve from components/");
+    assert_eq!(served.content_type, ContentType::Css);
+    assert!(!served.body.is_empty());
+}
+
+#[test]
+fn library_prefix_rejects_parent_traversal() {
+    let components = repo_root().join("components");
+    let r = serve_file(&components, std::path::Path::new("../Cargo.toml"));
+    assert!(
+        matches!(r, Err(ServeError::EscapedRoot)),
+        ".. must be rejected even under library_root; got {r:?}"
+    );
+}
+
+#[tokio::test]
+async fn router_without_library_root_returns_404_for_components_url() {
+    use crate::http::router::build_router;
+    let (app_state, _dir) = test_state_with_library(None);
+    let app = build_router(app_state);
+    let resp = app
+        .oneshot(
+            Request::builder()
+                .uri("/components/domi.css")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(
+        resp.status(),
+        StatusCode::NOT_FOUND,
+        "without --library_root, /components/* must fall through to the empty-root fallback"
+    );
 }

@@ -15,6 +15,7 @@ pub mod event_normalize;
 pub mod events_get;
 pub mod events_post;
 pub mod healthz;
+pub mod library_serve;
 pub mod static_serve;
 #[cfg(test)]
 mod tests;
@@ -23,4 +24,5 @@ pub use banner::banner;
 pub use events_get::{get_events, GetEventsParams};
 pub use events_post::post_event;
 pub use healthz::healthz;
+pub use library_serve::{library_serve_components, library_serve_scripts, library_serve_tokens};
 pub use static_serve::static_serve;

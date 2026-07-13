@@ -80,6 +80,10 @@ Default to standalone if the user doesn't pick — it works in any environment w
 
 4. **All working docs written this session use that URL** as their reference point, with paths relative to `.domi/output/`. The server injects the `__DOMI_SERVER__` shim, which makes `domi-audit.js` route comments through `POST /api/events` and listen for live updates on `/ws/events`.
 
+   Library asset references use **absolute paths** (`/components/...`, `/scripts/...`, `/tokens/...`), not `../../`. The server resolves those prefixes against `--library-root` (set to the repo root by `tools/domi-serve.sh start`). When you clone a template into `.domi/output/<name>.html`, **rewrite its relative asset paths to absolute**: `../../components/` → `/components/` and `../../scripts/runtime/` → `/scripts/runtime/`. Leave `domi.js`, `domi-audit.js`, `domi-server.js`, `domi-wire.js` filenames unchanged.
+
+   Why: the Rust server rejects `..` paths under `--root` (security), and the template archetypes sit at `templates/<archetype>/index.html` where `../../` lands outside `--root`. Absolute paths route through the library subrouter instead.
+
 ### Lifecycle
 
 The skill **starts** the server but **does not stop it.** The user owns stop: `tools/domi-serve.sh stop` (reads `.domi/server.pid`, sends SIGTERM, cleans up `.domi/server.url` and `.domi/server.pid`). Why: the page may be open in another tab/session; killing on session-end would orphan work in progress. Stop on demand is one shell command.
@@ -89,6 +93,7 @@ The skill **starts** the server but **does not stop it.** The user owns stop: `t
 - `tools/domi-serve.sh start` fails with "binary not found" → user hasn't built. Show the `cargo build` line, wait.
 - `tools/domi-serve.sh start` fails with "already running" → a previous server is alive. Tell the user: `tools/domi-serve.sh status` to inspect, `tools/domi-serve.sh stop` to clear.
 - Page loads but comments don't persist after reload → the URL the user opened isn't the server's URL (likely `file://`). Tell them to open `.domi/server.url` instead.
+- Page loads but assets 404 (missing CSS, broken layout) → the working doc still has relative (`../../components/...`) asset paths, which the Rust server rejects. Re-emit the doc to `.domi/output/<name>.html` with **absolute** asset paths per "### If server" step 4 above.
 
 ## Working-doc chrome (audit mode)
 

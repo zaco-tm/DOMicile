@@ -35,6 +35,7 @@ usage() {
 Usage: tools/domi-serve.sh <start|stop|status|restart>
 
 start   Launch domi-server on an ephemeral port. Writes .domi/server.url.
+        Auto-passes --library-root = git rev-parse --show-toplevel (or $PWD).
 stop    Send SIGTERM to the running domi-server (waits 5s, then SIGKILL).
         Removes .domi/server.url and .domi/server.pid.
 status  Print whether domi-server is running and where.
@@ -82,8 +83,16 @@ cmd_start() {
   # stdin must be redirected from /dev/null too, otherwise Node's child_process
   # stdio pipe stays open and the parent's execFile waits for the grandchild.
   : > "$LOG_FILE"
+  # --library-root points the server's library subrouter at the repo's
+  # design system so cloned working docs use /components/* and /scripts/*
+  # without any agent-side path rewriting. Falls back to PWD in non-git
+  # checkouts (e.g. tarball installs); the library routes will then 404,
+  # which is harmless.
+  local lib_root
+  lib_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
   nohup "$bin" --port 0 --host 127.0.0.1 \
     --root "$DOMI_DIR/output" --state "$DOMI_DIR/state" \
+    --library-root "$lib_root" \
     </dev/null >>"$LOG_FILE" 2>&1 &
   local pid=$!
   disown "$pid" 2>/dev/null || true

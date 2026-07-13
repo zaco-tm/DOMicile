@@ -141,4 +141,22 @@ describe('domi-serve.sh', () => {
     expect(second.code).toBe(2);
     expect(second.stderr).toMatch(/already running/);
   }, 15000);
+
+  it('start passes --library-root so library URLs resolve', async () => {
+    if (!HAS_BINARY) return;
+    const start = await run('start');
+    expect(start.code).toBe(0);
+    expect(start.stdout).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/);
+    const url = readFileSync(URL_FILE, 'utf8').trim().replace(/\/$/, '');
+    const { execFile: ef } = await import('node:child_process');
+    const code = await new Promise((resolveP) => {
+      ef('curl', ['-sS', '-o', '/dev/null', '-w', '%{http_code}',
+        `${url}/components/domi.css`], (err, out) => {
+        resolveP(out ? parseInt(out, 10) : 0);
+      });
+    });
+    expect(code).toBe(200);
+    const stop = await run('stop');
+    expect(stop.code).toBe(0);
+  }, 15000);
 });

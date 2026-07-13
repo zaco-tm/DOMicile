@@ -12,6 +12,7 @@ pub struct AppState {
     pub writer: Arc<EventWriter>,
     pub broadcaster: broadcast::Sender<crate::events::Event>,
     pub server_id: Ulid,
+    pub library_root: Option<PathBuf>,
 }
 
 impl AppState {
@@ -20,7 +21,16 @@ impl AppState {
         state_dir: PathBuf,
         writer: Arc<EventWriter>,
         capacity: usize,
+        library_root: Option<PathBuf>,
     ) -> Self {
+        let resolved_library_root = library_root.map(|p| match std::fs::canonicalize(&p) {
+            Ok(canon) => canon,
+            Err(e) => {
+                tracing::warn!(path = %p.display(), error = %e,
+                    "library_root could not be canonicalized; library routes will 404");
+                p
+            }
+        });
         let (broadcaster, _) = broadcast::channel(capacity);
         Self {
             root,
@@ -28,6 +38,7 @@ impl AppState {
             writer,
             broadcaster,
             server_id: Ulid::new(),
+            library_root: resolved_library_root,
         }
     }
 }
@@ -75,8 +86,9 @@ mod tests {
             dir.path().to_path_buf(),
             w.clone(),
             16,
+            None,
         );
-        let s2 = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 16);
+        let s2 = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 16, None);
         assert_ne!(s1.server_id, s2.server_id);
     }
 
@@ -85,7 +97,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("events.jsonl");
         let w = Arc::new(EventWriter::new(&path));
-        let state = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 16);
+        let state = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 16, None);
         let mut rx = state.broadcaster.subscribe();
         let ev = sample_event();
         let _ = state.broadcaster.send(ev.clone());
@@ -98,7 +110,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("events.jsonl");
         let w = Arc::new(EventWriter::new(&path));
-        let state = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 4);
+        let state = AppState::new(dir.path().to_path_buf(), dir.path().to_path_buf(), w, 4, None);
         assert_eq!(state.broadcaster.receiver_count(), 0, "no subscribers yet");
     }
 }

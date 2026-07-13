@@ -37,6 +37,7 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
         args.state.clone(),
         writer,
         256,
+        args.library_root.clone(),
     ));
 
     // 5. Spawn watcher logger.

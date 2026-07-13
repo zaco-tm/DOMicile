@@ -52,7 +52,13 @@ function startServer() {
   return new Promise((res, rej) => {
     server = spawn(
       targetBinary,
-      ['--port', String(port), '--host', '127.0.0.1', '--root', rootDir, '--state', stateDir],
+      [
+        '--port', String(port),
+        '--host', '127.0.0.1',
+        '--root', rootDir,
+        '--state', stateDir,
+        '--library-root', projectRoot,
+      ],
       { stdio: ['ignore', 'pipe', 'pipe'] }
     );
     let ready = false;
@@ -100,42 +106,20 @@ function check(name, ok, detail) {
 async function run() {
   await startServer();
 
-  // Stage the working doc + the library files the doc references into
-  // the served root. The server only knows one root today; staging both
-  // mirrors what a real production deploy would do (working docs in
-  // .domi/output, library served from a stable prefix). For the e2e test
-  // we replicate the layout in a scratch dir so the test stays hermetic.
+  // The working doc carries ../../components/... and ../../scripts/runtime/...
+  // asset references. The Rust server, now configured with --library-root,
+  // exposes /components/* and /scripts/* directly — no path rewrite or
+  // symlink dance needed (this test previously hand-rolled both, masking
+  // the underlying library-routing gap).
   const archetypePath = join(projectRoot, 'templates/working-doc/index.html');
   const archetype = readFileSync(archetypePath, 'utf8');
   const cloned = archetype
-    .replaceAll('../../components/', '/components/')
-    .replaceAll('../../scripts/', '/scripts/')
     .replace(/docName:\s*'[^']*'/g, `docName: '${docName}'`)
     .replace(/statePath:\s*'[^']*'/g, `statePath: '.domi/state/${docName}.json'`)
     .replace(/<title>[^<]*<\/title>/, `<title>Working Doc — ${docName}</title>`)
     .replace(/data-domini-status-chip(?:="[^"]*")?>([^<]*)/, `data-domini-status-chip>${docName} v0`);
-  const { writeFileSync, symlinkSync } = await import('node:fs');
+  const { writeFileSync } = await import('node:fs');
   writeFileSync(join(rootDir, `${docName}.html`), cloned, 'utf8');
-  // Symlink the components/ and scripts/ trees from the project so the
-  // rewritten absolute URLs (e.g. /components/domi.css) resolve.
-  for (const sub of ['components', 'scripts']) {
-    try {
-      const link = join(rootDir, sub);
-      const target = join(projectRoot, sub);
-      if (!existsSync(target)) continue;
-      try { rmSync(link, { recursive: true, force: true }); } catch { /* */ }
-      symlinkSync(target, link);
-    } catch (e) {
-      // Filesystem may refuse symlinks (e.g. some CI sandboxes). Fall back
-      // to a hard copy so the test still has working library references.
-      const link = join(rootDir, sub);
-      const target = join(projectRoot, sub);
-      if (!existsSync(target)) continue;
-      try { rmSync(link, { recursive: true, force: true }); } catch { /* */ }
-      const { cpSync } = require('node:fs');
-      cpSync(target, link, { recursive: true });
-    }
-  }
 
   const url = `http://127.0.0.1:${port}/${docName}.html`;
   let browser;
