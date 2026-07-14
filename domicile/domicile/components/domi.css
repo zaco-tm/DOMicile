@@ -1,0 +1,295 @@
+/* AUTO-GENERATED from tokens/tokens.json — do not edit by hand */
+:root {
+  --domi-color-primary-gradient: #a89cc8, #f4978e, #ffd6b3;
+  --domi-color-primary-angle: 135deg;
+  --domi-color-secondary-sage: #9caf88;
+  --domi-color-secondary-sage-light: #c8d6b8;
+  --domi-color-accent-plum: #a89cc8;
+  --domi-color-accent-plum-light: #d8d0e8;
+  --domi-color-text-default: #3d2342;
+  --domi-color-text-muted: #3d2342aa;
+  --domi-color-text-inverse: #fff1e6;
+  --domi-color-surface-glass: #ffffff60;
+  --domi-color-surface-glass-strong: #ffffff80;
+  --domi-color-surface-tint: #3d234208;
+  --domi-type-display-family: 'Helvetica Neue', 'Arial Black', sans-serif;
+  --domi-type-display-weight: 900;
+  --domi-type-display-transform: uppercase;
+  --domi-type-display-letterSpacing: -0.02em;
+  --domi-type-body-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-body-weight: 400;
+  --domi-type-label-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-label-weight: 700;
+  --domi-radius-sm: 4px;
+  --domi-radius-md: 8px;
+  --domi-radius-lg: 16px;
+  --domi-radius-pill: 9999px;
+  --domi-glass-blur: 12px;
+  --domi-glass-bgOpacity: 0.4;
+  --domi-glass-borderOpacity: 0.4;
+  --domi-border-thin: 1px solid rgba(61,35,66,0.4);
+  --domi-border-thick: 2px solid #3d2342;
+  --domi-space-xs: 4px;
+  --domi-space-sm: 8px;
+  --domi-space-md: 16px;
+  --domi-space-lg: 24px;
+  --domi-space-xl: 40px;
+  --domi-shadow-soft: 0 2px 12px rgba(61,35,66,0.12);
+  --domi-shadow-offset: 0 3px 0 #3d2342;
+  --domi-breakpoint-sm: 640px;
+  --domi-breakpoint-md: 768px;
+  --domi-breakpoint-lg: 1024px;
+  --domi-breakpoint-xl: 1280px;
+}
+
+.domi-bg-primary {
+  background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3);
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 400;
+  color: var(--domi-color-text-default);
+  background: var(--domi-color-surface-glass);
+  min-height: 100vh;
+}
+
+/* Typography utilities */
+.domi-display {
+  font-family: 'Helvetica Neue', 'Arial Black', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.domi-label {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+.domi-glass {
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-md);
+}
+
+html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }/* DOMicile primitive styles — appended to domi.css by build
+   Tokens come from :root custom properties (see tokens-to-css generator). */
+
+/* button */
+.domi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--domi-space-sm);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: var(--domi-radius-md);
+  border: 1px solid rgba(61, 35, 66, 0.4);
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  color: var(--domi-color-text-default);
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 120ms ease;
+  text-decoration: none;
+}
+.domi-btn:hover { box-shadow: var(--domi-shadow-soft); }
+.domi-btn:active { transform: translateY(1px); }
+.domi-btn:focus-visible { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 2px; }
+.domi-btn--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); color: var(--domi-color-text-default); }
+.domi-btn--ghost { background: transparent; border-color: transparent; }
+.domi-btn--danger { border-color: #c2410c; color: #c2410c; }
+.domi-btn--sm { padding: 5px 10px; font-size: 11px; }
+.domi-btn--lg { padding: 12px 22px; font-size: 15px; }
+
+/* card */
+.domi-card {
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-lg);
+  padding: 16px;
+}
+.domi-card--sm { padding: 8px; border-radius: var(--domi-radius-md); }
+.domi-card--lg { padding: 24px; }
+.domi-card__header { margin-bottom: 12px; font-size: 14px; }
+.domi-card__footer { margin-top: 12px; font-size: 12px; opacity: 0.7; }
+
+/* input / select */
+.domi-input, .domi-select {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: var(--domi-radius-md);
+  border: var(--domi-border-thin);
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  color: var(--domi-color-text-default);
+  width: 100%;
+}
+.domi-input:focus, .domi-select:focus { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 1px; }
+.domi-input--sm, .domi-select--sm { padding: 5px 10px; font-size: 11px; }
+.domi-input--lg, .domi-select--lg { padding: 12px 18px; font-size: 15px; }
+.domi-input--error, .domi-select--error { border-color: #c2410c; color: #c2410c; }
+.domi-input:disabled, .domi-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* checkbox / radio */
+.domi-check, .domi-radio {
+  appearance: none;
+  width: 18px; height: 18px;
+  border: var(--domi-border-thin);
+  background: var(--domi-color-surface-glass);
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+}
+.domi-check { border-radius: 4px; }
+.domi-radio { border-radius: 50%; }
+.domi-check:checked, .domi-radio:checked { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); border-color: var(--domi-color-accent-plum); }
+.domi-check:checked::after { content: '✓'; color: var(--domi-color-text-default); position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; font-size: 13px; }
+.domi-radio:checked::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--domi-color-text-default); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.domi-check-label, .domi-radio-label { display: inline-flex; align-items: center; gap: 8px; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; }
+
+/* form */
+.domi-form { display: flex; flex-direction: column; gap: var(--domi-space-md); }
+.domi-form__row { display: flex; gap: var(--domi-space-md); flex-wrap: wrap; }
+.domi-form__col { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.domi-form__label { font-family: 'SF Mono', 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.domi-form__help { font-size: 11px; opacity: 0.6; }
+.domi-form__error { font-size: 11px; color: #c2410c; }
+
+/* table */
+.domi-table { width: 100%; border-collapse: collapse; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; }
+.domi-table thead th { background: var(--domi-color-surface-glass); backdrop-filter: blur(var(--domi-glass-blur)); padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: var(--domi-border-thin); }
+.domi-table tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(61,35,66,0.1); }
+.domi-table tbody tr:nth-child(even) td { background: var(--domi-color-surface-tint); }
+.domi-table tbody tr:hover td { background: var(--domi-color-surface-glass-strong); }
+
+/* nav */
+.domi-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border-bottom: var(--domi-border-thin);
+}
+.domi-nav__brand { font-family: var(--domi-type-display-family); font-weight: 900; text-transform: uppercase; font-size: 16px; letter-spacing: -0.02em; }
+.domi-nav__links { display: flex; gap: var(--domi-space-md); font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.domi-nav__links a { color: var(--domi-color-text-default); text-decoration: none; opacity: 0.7; }
+.domi-nav__links a:hover { opacity: 1; }
+.domi-nav__actions { display: flex; gap: var(--domi-space-sm); }
+
+/* modal — uses <details> for native standalone-first behavior */
+.domi-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(61, 35, 66, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+.domi-modal[open] { display: flex; }
+.domi-modal__dialog {
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-lg);
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--domi-shadow-soft);
+}
+.domi-modal__title { font-family: var(--domi-type-display-family); font-weight: 900; text-transform: uppercase; font-size: 18px; margin: 0 0 12px; }
+.domi-modal__close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--domi-color-text-default); }
+
+/* alert */
+.domi-alert {
+  padding: 12px 16px;
+  border-radius: var(--domi-radius-md);
+  border: var(--domi-border-thin);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+}
+.domi-alert--info    { border-color: var(--domi-color-accent-plum); }
+.domi-alert--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
+.domi-alert--warning { border-color: #f59e0b; }
+.domi-alert--danger  { border-color: #c2410c; color: #c2410c; }
+
+/* badge */
+.domi-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--domi-radius-pill);
+  border: var(--domi-border-thin);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+}
+.domi-badge--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }
+.domi-badge--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
+.domi-badge--warning { border-color: #f59e0b; color: #f59e0b; }
+.domi-badge--danger  { border-color: #c2410c; color: #c2410c; }
+
+/* tabs — uses radio inputs for standalone CSS-only */
+.domi-tabs { display: flex; flex-direction: column; }
+.domi-tabs__list { display: flex; gap: 4px; border-bottom: var(--domi-border-thin); margin-bottom: 12px; }
+.domi-tab { padding: 8px 14px; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; border-radius: var(--domi-radius-sm) var(--domi-radius-sm) 0 0; opacity: 0.6; }
+.domi-tab[aria-selected="true"] { opacity: 1; background: var(--domi-color-surface-glass); backdrop-filter: blur(var(--domi-glass-blur)); }
+
+/* toast */
+.domi-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-md);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: var(--domi-shadow-soft);
+  z-index: 90;
+}
+
+/* tooltip — pure CSS via data-tooltip + ::after */
+.domi-tooltip {
+  position: relative;
+  display: inline-block;
+}
+.domi-tooltip[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--domi-color-text-default);
+  color: var(--domi-color-text-inverse);
+  padding: 4px 8px;
+  border-radius: var(--domi-radius-sm);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* end primitives */

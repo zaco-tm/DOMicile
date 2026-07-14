@@ -2,10 +2,6 @@
 
 **Open the page. Click what's wrong. The agent fixes it. Repeat until you ship.**
 
-<p align="left">
-  <a href="https://stoopery.app"><img alt="Sponsored by stoopery" src="branding/sponsor-stoopery.svg" width="160"></a>
-</p>
-
 [![npm version](https://img.shields.io/npm/v/domicile-react?label=npm&color=8B4567)](https://www.npmjs.com/package/domicile-react)
 [![crates.io](https://img.shields.io/crates/v/domi-egui?label=crates.io&color=CC6B49)](https://crates.io/crates/domi-egui)
 [![License](https://img.shields.io/badge/license-MIT-3d2342)](./LICENSE)
@@ -85,17 +81,17 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
-| Universal installer ([openskills](https://www.npmjs.com/package/openskills)) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) — *ships only `SKILL.md` today; full bundle pending* |
-| Universal (`~/.agents/skills/`) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` — *see INSTALL.md* |
-| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` — *see INSTALL.md* |
-| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` — *see INSTALL.md* |
-| Kilo Code | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md ~/.roo/skills/domicile/SKILL.md` — *see INSTALL.md* |
-| PI | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` — *see INSTALL.md* |
-| Any other Agent Skills client (Crush, Dirac, …) | `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| Universal installer (openskills, when it gains directory-bundle install) | (not yet supported — use one of the `cp -R` rows above; see [`INSTALL.md`](INSTALL.md) for the universal-fallback install) |
+| Universal (`~/.agents/skills/`) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
+| OpenCode | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
+| Claude Code | `cp -R domicile/domicile ~/.claude/skills/domicile` |
+| Kilo Code | `cp -R domicile/domicile .roo/skills/domicile` |
+| PI | `cp -R domicile/domicile ~/.pi/skills/domicile` |
+| Any other Agent Skills client (Crush, Dirac, …) | `cp -R domicile/domicile <config-dir>/skills/domicile` |
 
-> ⚠️ **The shipped skill today is half the picture.** Single-file install gets you the prompt but not the runtime (audit rail, click-to-target). For a fully-functional loop right now, clone the repo. See [`INSTALL.md`](INSTALL.md) §"Full bundle" for details.
+> ⚠️ **Skill scope.** Each install path above copies the full bundle (`SKILL.md` plus runtime JS plus CSS plus one starter template). Full library (other archetypes, primitives, the Rust `domi-server` binary) requires `git clone`. See [`INSTALL.md`](INSTALL.md) for details.
 
-See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery. Don't worry — it's just one `mkdir` and one `cp`, even if it looks intimidating at first.
+See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery.
 
 ### For developers using the wrappers
 
@@ -197,4 +193,10 @@ The skill loop works end-to-end (local smoke and event-backed server modes both 
 
 MIT — do whatever you want with it.
 
-Built with love (and a lot of `npm test`) by the team at [stoopery](https://stoopery.app).
+---
+
+**Sponsored by [stoopery](https://stoopery.app)** — funding development time and in-house testing.
+
+<a href="https://stoopery.app"><img alt="Sponsored by stoopery" src="branding/sponsor-stoopery.svg" width="88"></a>
+
+Built by [@zaco-tm](https://github.com/zaco-tm) at [stoopery](https://stoopery.app).

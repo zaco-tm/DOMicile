@@ -1,6 +1,6 @@
 # Install DOMicile
 
-DOMicile ships as a skill (an `SKILL.md` + design system library + cross-platform wrappers) that any [Agent Skills](https://agentskills.io/)-compatible client can load. This page covers three audiences:
+DOMicile ships as an [Agent Skills](https://agentskills.io/)-compatible **skill bundle** — a directory (`domicile/domicile/`) containing the prompt (`SKILL.md`), the audit-rail runtime (`scripts/runtime/domi*.js`), the design system CSS, and one starter template. The cross-platform wrappers (`@domi/react`, `@domi/astro`, `domi-egui`) are installed separately. This page covers three audiences:
 
 1. **AI agents** installing the skill for themselves
 2. **Developers** using the design system or wrappers in their own code
@@ -20,51 +20,47 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 | Agent | Install command |
 |---|---|
-| Universal installer ([openskills](https://www.npmjs.com/package/openskills) — `npx`-driven; works for any Agent Skills client) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) — **today this installs only `SKILL.md`; for the full skill bundle see [§ Full bundle](#full-bundle) below** |
-| Universal (`~/.agents/skills/` — picked up by Agent Skills clients as a fallback) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` — **see [§ Full bundle](#full-bundle) for what this doesn't yet include** |
-| [OpenCode](https://opencode.ai/docs/skills/) | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| [Claude Code](https://code.claude.com/docs/en/skills) | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| [PI](https://github.com/badlogic/pi-mono) | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| [Crush](https://github.com/charmbracelet/crush) | `mkdir -p ~/.config/crush/skills/domicile && cp domicile/SKILL.md ~/.config/crush/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| Dirac | `mkdir -p ~/.config/dirac/skills/domicile && cp domicile/SKILL.md ~/.config/dirac/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
-| Any other Agent Skills–compatible client | Replace `<config-dir>` with the agent's skill discovery root: `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` — see [§ Full bundle](#full-bundle) |
+| Universal (`~/.agents/skills/` — fallback for clients without their own discovery) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
+| [OpenCode](https://opencode.ai/docs/skills/) | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
+| [Claude Code](https://code.claude.com/docs/en/skills) | `cp -R domicile/domicile ~/.claude/skills/domicile` |
+| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `cp -R domicile/domicile .roo/skills/domicile` |
+| [PI](https://github.com/badlogic/pi-mono) | `cp -R domicile/domicile ~/.pi/skills/domicile` |
+| [Crush](https://github.com/charmbracelet/crush) | `cp -R domicile/domicile ~/.config/crush/skills/domicile` |
+| Dirac | `cp -R domicile/domicile ~/.config/dirac/skills/domicile` |
+| Any other Agent Skills–compatible client | `cp -R domicile/domicile <config-dir>/skills/domicile` |
+
+Each command copies the full bundle (`SKILL.md` plus runtime and assets). The bundle is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts the bundle is in sync via `npm run test:bundle`.
 
 Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, run `cargo build --release -p domi-server` once; the skill's wrapper (`tools/domi-serve.sh`) starts and stops the server for you from then on. The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies.
 
 > **Project-local vs. global.** Every command above uses the global path (`~/...`). For a project-scoped install (only available inside this repo), replace the path with the project-local equivalent — e.g. `.opencode/skills/`, `.claude/skills/`, or `.agents/skills/`.
 
-### Why the install is just `mkdir + cp` (today)
+### Install shape
 
-DOMicile's prompt-to-the-agent is **a single file** — `domicile/SKILL.md` at the repo root, with valid Agent Skills frontmatter (`name: domicile`, `description: ...`). The file's parent directory matches its `name` field, which is what the [Agent Skills spec](https://agentskills.io/specification) requires.
-
-**However:** the prompt is half the story. The other half is the **runtime** the prompt references — the audit rail, the click-to-target hooks, the wire-protocol handler, and the `domi-audit.js` / `domi-server.js` / `domi-wire.js` JavaScript that gets loaded by working docs. Today those live under `scripts/runtime/` in the repo. A user who installs only `SKILL.md` will get a working prompt but a broken page (the audit rail won't load). This is a known gap and is on the queue to fix ([§ Full bundle](#full-bundle) below).
+The skill ships as a single directory (`domicile/domicile/`) whose contents match the Agent Skills open-standard bundle shape. Installation is one recursive copy.
 
 If you'd rather **symlink** (so edits to the repo immediately reflect in your agent config):
 
 ```bash
-ln -s "$(pwd)/domicile/SKILL.md" ~/.claude/skills/domicile/SKILL.md
+ln -s "$(pwd)/domicile/domicile" ~/.claude/skills/domicile
 ```
 
-### <a id="full-bundle"></a>Full bundle (planned — not yet shipped)
+### <a id="full-bundle"></a>Full bundle
 
-When the bundle restructure lands, the install paths above will need to copy a directory instead of a single file. The intended final shape:
+The install path above copies the full bundle, generated from canonical sources by `tools/build-skill-bundle.sh`. The bundle contains:
 
-```
-<config-dir>/skills/domicile/
-├── SKILL.md                  (the prompt the agent reads)
-├── scripts/
-│   └── runtime/              (audit rail, server-detect shim, wire helpers)
-│       ├── domi.js
-│       ├── domi-audit.js
-│       ├── domi-server.js
-│       └── domi-wire.js
-└── assets/                   (CSS, primitive sources, tokens)
-```
+- `SKILL.md` — the prompt the agent reads.
+- `scripts/runtime/{domi.js, domi-audit.js, domi-server.js, domi-wire.js}` — the audit-rail runtime JS.
+- `components/domi.css` — the design-system stylesheet.
+- `templates/working-doc/index.html` — the canonical starter template for any working-doc-mode artifact.
 
-Until then, a user who copies only `SKILL.md` gets a prompt that mentions resources the agent will then fail to load at runtime — the resulting working doc renders HTML but with a broken audit rail. If you need a working page right now, **clone the whole repo** (instructions below) instead of using the single-file install.
+To rebuild the bundle from canonical sources: `tools/build-skill-bundle.sh`. CI asserts the bundle is in sync via `npm run test:bundle`.
 
-Tracking: spec lives at `docs/superpowers/specs/YYYY-MM-DD-skill-bundle-design.md` once written. Until then, the single-file instructions remain the documented install path — but readers should know the half-truth.
+What the bundle does **not** ship (and requires a full repo checkout via `git clone`):
+
+- The other 5 archetypes (`templates/dashboard/`, `webapp-shell/`, `mobile-app-shell/`, `admin-tool/`, `pos-kiosk/`).
+- The component primitives (`components/primitives/`).
+- The `domi-server` Rust binary — `cargo build --release -p domi-server` produces this. The Rust binary enables server-mode persistence (comments survive across machines), which the standalone install (file + `localStorage`) does not.
 
 ### Agents with prompt-based config (no skills discovery)
 
@@ -80,9 +76,7 @@ After installing for any client above:
 
 1. Start a new session.
 2. Ask something like *"Make me a pricing page in the DOMicile style."* or *"Build a settings screen using the DOMicile skill."*
-3. The agent should produce an HTML page in `.domi/output/<name>.html` — but, until the bundle restructure lands (see [§ Full bundle](#full-bundle)), **the audit rail and `data-feedback` hooks will not be functional in a third-party install**. The page renders; the iteration loop does not.
-
-   For a fully-functional loop today, **clone the repo** and run from a checkout — see [§ Full bundle](#full-bundle) for the temporary workaround.
+3. The agent should produce an HTML page in `.domi/output/<name>.html` with the working-doc chrome (feedback rail, status chip, `data-feedback` hooks) — comments are stored in the browser's `localStorage` for standalone installs, or in the Rust `domi-server` process if you also `cargo build --release -p domi-server` and use `tools/domi-serve.sh`.
 
 If nothing happens, check [§ Troubleshooting](#troubleshooting).
 

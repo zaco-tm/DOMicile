@@ -8,9 +8,10 @@
   ],
   "scripts": {
     "graph": "graphify --update",
-    "pretest": "node tools/check-file-size.mjs --no-fail",
+    "pretest": "node tools/check-file-size.mjs --no-fail && (bash tools/build-skill-bundle.sh --check || echo 'WARNING: bundle drift detected; run tools/build-skill-bundle.sh to refresh')",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:bundle": "bash tools/build-skill-bundle.sh --check",
     "test:domi-serve": "vitest run tools/tests/domi-serve.test.mjs",
     "test:e2e": "node tools/skill-smoke-test.mjs",
     "test:e2e:server": "node tools/skill-smoke-server-test.mjs",
