@@ -85,13 +85,15 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
-| Universal installer ([openskills](https://www.npmjs.com/package/openskills)) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) |
-| Universal (`~/.agents/skills/`) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` |
-| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` |
-| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` |
-| Kilo Code | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md .roo/skills/domicile/SKILL.md` |
-| PI | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` |
-| Any other Agent Skills client (Crush, Dirac, …) | `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` |
+| Universal installer ([openskills](https://www.npmjs.com/package/openskills)) | `npx openskills install zaco-tm/DOMicile` (add `--global` for `~/.claude/skills/`, `--universal` for `.agent/skills/`) — *ships only `SKILL.md` today; full bundle pending* |
+| Universal (`~/.agents/skills/`) | `mkdir -p ~/.agents/skills/domicile && cp domicile/SKILL.md ~/.agents/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| OpenCode | `mkdir -p ~/.config/opencode/skills/domicile && cp domicile/SKILL.md ~/.config/opencode/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| Claude Code | `mkdir -p ~/.claude/skills/domicile && cp domicile/SKILL.md ~/.claude/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| Kilo Code | `mkdir -p .roo/skills/domicile && cp domicile/SKILL.md ~/.roo/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| PI | `mkdir -p ~/.pi/skills/domicile && cp domicile/SKILL.md ~/.pi/skills/domicile/SKILL.md` — *see INSTALL.md* |
+| Any other Agent Skills client (Crush, Dirac, …) | `mkdir -p <config-dir>/skills/domicile && cp domicile/SKILL.md <config-dir>/skills/domicile/SKILL.md` — *see INSTALL.md* |
+
+> ⚠️ **The shipped skill today is half the picture.** Single-file install gets you the prompt but not the runtime (audit rail, click-to-target). For a fully-functional loop right now, clone the repo. See [`INSTALL.md`](INSTALL.md) §"Full bundle" for details.
 
 See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery. Don't worry — it's just one `mkdir` and one `cp`, even if it looks intimidating at first.
 
