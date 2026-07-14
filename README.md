@@ -1,4 +1,8 @@
+<div align="center">
+
 # DOMicile
+
+<img src="branding/domi-mascot.png" alt="DOMi, the DOMicile mascot" width="140">
 
 **Open the page. Click what's wrong. The agent fixes it. Repeat until you ship.**
 
@@ -7,6 +11,8 @@
 [![License](https://img.shields.io/badge/license-MIT-3d2342)](./LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-9caf88)](https://agentskills.io)
 ![Tests](https://img.shields.io/badge/tests-250%20JS%20%2F%2084%20Rust-c2410c)
+
+</div>
 
 ---
 

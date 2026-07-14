@@ -2,6 +2,10 @@
 .domi/
 .superpowers/
 
+# Scratch / throwaway artifacts (untracked working files, generated media,
+# in-progress downloads). Safe to delete at any time.
+tmp/
+
 # Phase planning/internal superpowers artifacts (not for public release).
 # These are append-only trails from the brainstorming/planning skill that
 # helped build this project; they aren't part of DOMicile itself.
