@@ -20,6 +20,8 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 | Agent | Install command |
 |---|---|
+| Universal one-line (vercel-labs/skills, 15+ agents) | `npx skills add zaco-tm/DOMicile -g` |
+| Universal one-line (agent-install, 14+ agents) | `npx agent-install skill add zaco-tm/DOMicile -g` |
 | Universal (`~/.agents/skills/` — fallback for clients without their own discovery) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
 | [OpenCode](https://opencode.ai/docs/skills/) | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
 | [Claude Code](https://code.claude.com/docs/en/skills) | `cp -R domicile/domicile ~/.claude/skills/domicile` |
@@ -29,7 +31,7 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 | Dirac | `cp -R domicile/domicile ~/.config/dirac/skills/domicile` |
 | Any other Agent Skills–compatible client | `cp -R domicile/domicile <config-dir>/skills/domicile` |
 
-Each command copies the full bundle (`SKILL.md` plus runtime and assets). The bundle is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts the bundle is in sync via `npm run test:bundle`.
+Each command copies the full bundle (`SKILL.md` plus runtime and assets). The two `npx` rows install for any agent on a one-liner and support 15+ agents each (Claude Code, OpenCode, Cursor, Cline, Amp, etc.). The bundle is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts the bundle is in sync via `npm run test:bundle`.
 
 Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, run `cargo build --release -p domi-server` once; the skill's wrapper (`tools/domi-serve.sh`) starts and stops the server for you from then on. The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies.
 

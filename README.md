@@ -81,7 +81,8 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 
 | Agent | Install |
 |---|---|
-| Universal installer (openskills, when it gains directory-bundle install) | (not yet supported — use one of the `cp -R` rows above; see [`INSTALL.md`](INSTALL.md) for the universal-fallback install) |
+| Universal one-line (vercel-labs/skills, 15+ agents) | `npx skills add zaco-tm/DOMicile -g` |
+| Universal one-line (agent-install, 14+ agents) | `npx agent-install skill add zaco-tm/DOMicile -g` |
 | Universal (`~/.agents/skills/`) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
 | OpenCode | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
 | Claude Code | `cp -R domicile/domicile ~/.claude/skills/domicile` |
