@@ -1,0 +1,88 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-13
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-14
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Cache cargo registry and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/domi-server
+      - name: cargo test (skip domi-egui for non-wasm)
+        run: cargo test --workspace --target ${{ matrix.target }} --exclude domi-egui
+      - name: cargo build --release
+        run: cargo build --release --target ${{ matrix.target }} -p domi-server
+      - name: Package release artifact
+        shell: bash
+        run: |
+          mkdir -p out/bin
+          cp target/${{ matrix.target }}/release/domi-server out/bin/
+          cp target/${{ matrix.target }}/release/domi        out/bin/
+          if [ "${{ matrix.archive }}" = "tar.gz" ]; then
+            tar -C out -czf domi-server-${{ github.ref_name }}-${{ matrix.target }}.tar.gz .
+          else
+            (cd out && zip -r ../domi-server-${{ github.ref_name }}-${{ matrix.target }}.zip .)
+          fi
+          # Compute and stash SHA-256 for the aggregate job.
+          sha256sum domi-server-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} \
+            > sha256-${{ matrix.target }}.txt
+      - name: Upload build artifact (for aggregate job)
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-${{ matrix.target }}
+          path: |
+            domi-server-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }}
+            sha256-${{ matrix.target }}.txt
+
+  aggregate:
+    name: aggregate SHA256SUMS + upload to release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Concatenate per-target SHA-256 lines
+        run: |
+          cat artifacts/*/sha256-*.txt > SHA256SUMS
+          cat SHA256SUMS
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            SHA256SUMS
+            artifacts/*/domi-server-*.tar.gz
+            artifacts/*/domi-server-*.zip
+          fail_on_unmatched_files: false
