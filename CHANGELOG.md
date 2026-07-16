@@ -4,8 +4,15 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `tools/domi-fetch.sh`: auto-install `domi-server` from GitHub Releases on first `tools/domi-serve.sh start`. SHA-256 verified against the release's `SHA256SUMS`. Falls back to `cargo install domi-server --locked` for unsupported triples or when the network can't reach GitHub. Three env-var escape hatches: `DOMICILE_SKIP_AUTO_INSTALL`, `DOMICILE_BIN_DIR`, `DOMI_SERVER_VERSION_OVERRIDE`. `tools/domi-serve.sh` now auto-fetches in the background rather than asking the user to run `cargo build`.
+- `.github/workflows/release.yml`: 5-target matrix (Linux x86_64 + aarch64, macOS x86_64 + aarch64, Windows MSVC) that builds, packages, and uploads release artifacts on `v*` tag push. Windows is build + upload only; auto-install is POSIX-only for v1.
+- `tools/tests/domi-fetch.test.mjs`: 7 unit tests for `domi-fetch.sh` with stubbed curl/tar/sha256sum/cargo.
+
 ### Changed
 
+- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.0`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
 - Moved `SKILL.md` from the repo root to `domicile/SKILL.md` so its parent directory matches the Agent Skills `name` field. Strict spec readers (`agentskills.io`) rejected the on-disk layout where `SKILL.md` named `domicile` lived under `DOMicile/`. The install path documented in `INSTALL.md` (e.g. `~/.claude/skills/domicile/SKILL.md`) is unchanged — only the source location moved. All cross-references in `README.md`, `INSTALL.md`, `AGENTS.md`, `INIT.md`, `templates/working-doc/README.md`, and `docs/PHASE2-SCOPE.md` were updated. No agent-facing behavior change.
 
 ### Pending decisions (see `README.md` and handoffs for current status)
@@ -15,6 +22,7 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 - GitHub Actions CI matrix (node + rust).
 - `Cargo.lock` tracked vs. gitignored policy flip.
 - v1.0 tag.
+- Backfill the first 5-target release: tag `v0.1.0` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
 
 ## [0.1.0] — 2026-07-06
 

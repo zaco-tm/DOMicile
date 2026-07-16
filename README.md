@@ -96,7 +96,7 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 | PI | `cp -R domicile/domicile ~/.pi/skills/domicile` |
 | Any other Agent Skills client (Crush, Dirac, …) | `cp -R domicile/domicile <config-dir>/skills/domicile` |
 
-> ⚠️ **Skill scope.** Each install path above copies the full bundle (`SKILL.md` plus runtime JS plus CSS plus one starter template). Full library (other archetypes, primitives, the Rust `domi-server` binary) requires `git clone`. See [`INSTALL.md`](INSTALL.md) for details.
+> ⚠️ **Skill scope.** Each install path above copies the full bundle (`SKILL.md` plus runtime JS plus CSS plus one starter template). The full library (other archetypes, primitives) still requires `git clone`. **Server mode works out of the box for skill users** — when the agent asks for server mode, the skill auto-installs `domi-server` from [GitHub Releases](https://github.com/zaco-tm/DOMicile/releases) into `~/.local/bin/`. ~3–10 sec, no Rust toolchain required. See [`INSTALL.md`](INSTALL.md#server-mode-auto-install).
 
 See [`INSTALL.md`](INSTALL.md) for prompt-injection fallback if your agent has no skills discovery.
 
@@ -160,6 +160,8 @@ The agent handles primitives, tokens, and the working-doc chrome. You focus on w
 GIF/MP4 walkthroughs of the loop in action are coming soon — this section will host them once they're cut.
 
 **Troubleshooting?** See [`INSTALL.md`](INSTALL.md) for per-client install paths, prompt-injection fallback, and common-error fixes.
+
+**Server mode auto-install refused?** If `tools/domi-serve.sh start` exits with "domi-server not installed" and your network is up, try `bash tools/domi-fetch.sh install` manually. To permanently disable auto-install (e.g., on air-gapped machines), set `DOMICILE_SKIP_AUTO_INSTALL=1`.
 
 ---
 

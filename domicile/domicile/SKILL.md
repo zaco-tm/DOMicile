@@ -75,13 +75,25 @@ Default to standalone if the user doesn't pick — it works in any environment w
 
 ### If server
 
-1. **Verify the binary exists.** The script prefers `./target/release/domi-server` and falls back to `./target/debug/domi-server`. If neither is present, **do not attempt to compile.** Tell the user:
+1. **Run `tools/domi-serve.sh start`.** The script resolves the binary in this order:
+   1. `$DOMICILE_BIN_DIR/domi-server` (default `~/.local/bin/domi-server`) — version check.
+   2. `./target/release/domi-server` and `./target/debug/domi-server` (dev builds, no version check).
+   3. `$(command -v domi-server)` on PATH (user-installed elsewhere) — version check.
 
-   > The server binary isn't built yet. Run once:
-   > `cargo build --release -p domi-server`
+   If none match the pinned version AND `DOMICILE_SKIP_AUTO_INSTALL != 1`, the script auto-installs the binary from GitHub Releases into `~/.local/bin/` (SHA-256 verified). On unsupported triples or fetch failure, it falls back to `cargo install domi-server --locked` (which still requires a Rust toolchain). After auto-install, the binary is reused on subsequent starts — no second download.
+
+   **If `DOMICILE_SKIP_AUTO_INSTALL=1`** and the binary is missing, tell the user:
+
+   > The server binary isn't installed and auto-install is disabled. Run once:
+   > `bash tools/domi-fetch.sh install`
    > Then say "ready" and I'll start it.
 
    Wait for confirmation before proceeding.
+
+   **Three env-var escape hatches:**
+   - `DOMICILE_BIN_DIR=/somewhere/writable` — override the install location.
+   - `DOMICILE_SKIP_AUTO_INSTALL=1` — refuse auto-install (air-gapped / corporate).
+   - `DOMI_SERVER_VERSION_OVERRIDE=0.x.y` — pin a specific version (e.g., user installed one manually).
 
 2. **Start the server.** Run `tools/domi-serve.sh start`. The script:
    - picks an ephemeral port via `--port 0` (no collisions with other processes);

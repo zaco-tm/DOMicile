@@ -1,5 +1,9 @@
 #!/bin/sh
 # DOMicile installer — builds domi-server + domi from source.
+#
+# For most users, `tools/domi-serve.sh start` will auto-install the binary
+# from GitHub Releases on first use. This script remains the offline /
+# source-build path.
 # Usage: ./scripts/install.sh [--prefix <dir>] [--dry-run] [--no-verify]
 set -eu
 

@@ -197,6 +197,41 @@ cargo build --release -p domi-server
 ./target/release/domi-server --root .domi/output --state .domi/state
 ```
 
+### <a id="server-mode-auto-install"></a>Server mode (auto-install)
+
+When a skill user asks their agent for server mode and `domi-server` is not
+present, the skill auto-installs it from
+[GitHub Releases](https://github.com/zaco-tm/DOMicile/releases) into
+`~/.local/bin/`. ~3–10 sec on broadband, no toolchain required.
+
+If you cloned the repo or installed manually and the script's version pin
+doesn't match your local build, `resolve_binary()` still prefers the local
+`target/{release,debug}/domi-server` first.
+
+**Override the install location:**
+
+```sh
+DOMICILE_BIN_DIR=/opt/domi tools/domi-serve.sh start
+```
+
+**Disable auto-install** (e.g., on air-gapped or corporate machines):
+
+```sh
+DOMICILE_SKIP_AUTO_INSTALL=1 tools/domi-serve.sh start
+# Then run install manually:
+bash tools/domi-fetch.sh install
+```
+
+**Pin a specific version** (e.g., you installed v0.3.0 manually):
+
+```sh
+DOMI_SERVER_VERSION_OVERRIDE=0.3.0 tools/domi-serve.sh start
+```
+
+**Windows users:** download the `.zip` artifact from
+[Releases](https://github.com/zaco-tm/DOMicile/releases), extract, and add
+`bin/` to PATH. Auto-install is POSIX-only.
+
 ---
 
 ## Open a working doc (no install)
