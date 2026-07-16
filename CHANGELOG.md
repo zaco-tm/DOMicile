@@ -12,7 +12,7 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ### Changed
 
-- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.0`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
+- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.1`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
 - Moved `SKILL.md` from the repo root to `domicile/SKILL.md` so its parent directory matches the Agent Skills `name` field. Strict spec readers (`agentskills.io`) rejected the on-disk layout where `SKILL.md` named `domicile` lived under `DOMicile/`. The install path documented in `INSTALL.md` (e.g. `~/.claude/skills/domicile/SKILL.md`) is unchanged — only the source location moved. All cross-references in `README.md`, `INSTALL.md`, `AGENTS.md`, `INIT.md`, `templates/working-doc/README.md`, and `docs/PHASE2-SCOPE.md` were updated. No agent-facing behavior change.
 
 ### Pending decisions (see `README.md` and handoffs for current status)
@@ -22,7 +22,20 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 - GitHub Actions CI matrix (node + rust).
 - `Cargo.lock` tracked vs. gitignored policy flip.
 - v1.0 tag.
-- Backfill the first 5-target release: tag `v0.1.0` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+- Backfill the first 5-target release: tag `v0.1.1` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+
+## [0.1.1] — 2026-07-15
+
+Patch release. Bumps `domi-server` to `0.1.1` to align the crates.io
+artifact with the workspace source. The workspace has had `--library-root`
+(and other small refinements) since `0.1.0` was published; pinning the
+skill's `DOMI_SERVER_VERSION` to `0.1.0` was a half-truth. The 5-target
+release artifacts produced by `.github/workflows/release.yml` are now
+served from this tag; `tools/domi-fetch.sh install` will download them.
+
+### Changed
+- `crates/domi-server/Cargo.toml`: version `0.1.0` → `0.1.1`.
+- `tools/domi-serve.sh`: `DOMI_SERVER_VERSION` default `0.1.0` → `0.1.1`.
 
 ## [0.1.0] — 2026-07-06
 
