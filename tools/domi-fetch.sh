@@ -114,10 +114,13 @@ cmd_install() {
     return $?
   fi
 
-  local url tmpdir
+  local url
   url="$(asset_url "$triple")"
+  # tmpdir is NOT local — the EXIT trap below references it after this
+  # function returns, and `set -u` would fire on the unbound reference.
+  # Setting it at function scope makes the trap robust.
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "$tmpdir"' EXIT
+  trap 'rm -rf "${tmpdir:-}"' EXIT
 
   if ! curl -fsSL --retry 3 -o "$tmpdir/asset.tar.gz" "$url"; then
     echo "[domi-fetch] could not download $url" >&2
