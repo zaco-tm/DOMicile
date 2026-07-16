@@ -1,6 +1,7 @@
 # Runtime / agent
 .domi/
 .superpowers/
+.omo/
 
 # Scratch / throwaway artifacts (untracked working files, generated media,
 # in-progress downloads). Safe to delete at any time.
