@@ -17,23 +17,36 @@ Use this skill when the user wants to *create* UI work (a component, primitive, 
 
 Do NOT use this skill for: pure markdown reports, server-side code, anything the user won't open in a browser as HTML.
 
-## Answer three questions first
+## ⛔ STOP — read this before writing anything
 
-Before writing any HTML, decide:
+**`/domicile` is a human-in-the-loop loop, not a static-site generator.** The whole point is that the user clicks pieces of the page between revisions. If you skip the loop, you have shipped an artifact that has nothing to do with the skill.
 
+Before writing ANY HTML, answer the four questions below in order. If a question is ambiguous, ASK — do not pattern-match to a default. A wrong mode choice costs the user a full re-do.
+
+The most common failure mode (verified in production): an agent sees a phrase like "create a website for the public to view," pattern-matches to "deliverable," generates the entire artifact in one turn, and skips every gate. **Do not be that agent.** Even public-facing artifacts default to working-doc mode unless the user has used an explicit ship-it phrase (see table below).
+
+**Rule of thumb:** unless the user has explicitly said one of `"ship it"`, `"give me the final"`, `"hand off"`, `"ship me a marketing page"`, or `"final HTML I can host"`, treat any UI build ask as iteration-eligible: build **one section**, hand off, **WAIT** for the user to click that section and leave a comment before producing the next.
+
+## Answer four questions first
+
+Before writing any HTML, decide — and ASK if the answer is not obvious from the user's wording:
+
+0. **Iterate, or one-shot?** *(This is the gate the previous version was missing.)* "Iterate" routes to working-doc + asks the runtime-mode question below. "One-shot" routes to deliverable. If the user said anything resembling "let's," "draft," "I want to start on," "build," "design," "make me," or "help me understand" — they want iteration, even if the artifact will eventually be deployed publicly. The default is **iterate**. Only short-circuit to one-shot when the user has used a clear ship-it phrase (see table below).
 1. **Create-new or audit-existing?** ("let's build X" vs. "review this thing")
 2. **Working doc or deliverable?** ("let's work on it" vs. "ship the final")
 3. **Standalone or server runtime?** Asked once, only if question 2 lands on working-doc mode — see §"Runtime mode" below. Deliverables never need a runtime choice (they ship as static files).
+
+**Public-facing ≠ deliverable.** A "public website for the project" is still a working doc until the user explicitly asks for the final HTML. Marketing pages, landing pages, docs sites, "a site the public will see" — all of these enter working-doc mode first. The user will signal the deliverable handoff in their own time (usually "ship it" or "give me the final HTML"). If you skip that gate and produce a deliverable in turn 1, you have removed the user's ability to iterate on it.
 
 The combination yields three output modes:
 
 | Mode | Trigger | What you write |
 |---|---|---|
-| **Working doc — create** | "let's build," "draft," "I want to start on" | `.domi/output/<name>.html` with feedback rail + `data-feedback` hooks. `.domi/state/<name>.json` seeded empty. Neo skin. |
+| **Working doc — create** | "let's build," "draft," "I want to start on," "build me a X," "design Y," "make me a Z," "public-facing," "for the public to view" | `.domi/output/<name>.html` with feedback rail + `data-feedback` hooks. `.domi/state/<name>.json` seeded empty. Neo skin. |
 | **Working doc — audit** | "review," "iterate," "what should change" | Same chrome as create; load existing thread. |
-| **Deliverable** | "ship," "give me the final," "hand off" | Clean HTML using agreed DOMicile primitives, no rail, no status chip. Theme is whatever the user picked (default neo). |
+| **Deliverable** | "ship it," "give me the final," "hand off," "ship me a marketing page," "final HTML I can host," "production HTML," "static site I can deploy" | Clean HTML using agreed DOMicile primitives, no rail, no status chip. Theme is whatever the user picked (default neo). |
 
-If you're not sure which mode, ask one question with the linguistic signal you saw, then proceed.
+If you're not sure which mode, ASK ONE QUESTION with the linguistic signal you saw, then proceed. "I wasn't sure if you wanted a working doc you can iterate on, or a final HTML you can host — which is it?" is a perfectly good question. Do not collapse ambiguity into a default.
 
 ## Output locations
 
@@ -109,13 +122,63 @@ The agent includes on every working-doc page:
 **Iteration mode is piece-by-piece, not page-at-a-time.** When the user says "build X," "design Y," or hands you a working-doc prompt, do **not** generate the entire artifact in one turn. Instead:
 
 1. Build **one section first** with real primitives and a `data-feedback="<section-name>"` hook. Hand off with the URL ready.
-2. Wait for the user to click that section and leave a comment. They will comment on the smallest pieces — headings, card copy, button hierarchy — not the whole page.
+2. **STOP. WAIT for the user to click that section and leave a comment.** They will comment on the smallest pieces — headings, card copy, button hierarchy — not the whole page. Your turn ends here. Do not preemptively produce the next section.
 3. Revise that section. Bump the status chip to `vN`. Hand off again.
 4. Repeat for the next section.
 
-If the user explicitly asks for "the full thing," you may draft the whole doc in one turn, but the section hooks, status chip, and click-to-target wiring must all be in place so iteration can begin immediately.
+If the user explicitly asks for "the full thing" or "draft the whole page," you may draft the entire doc in one turn — but the section hooks, status chip, and click-to-target wiring must all be in place so iteration can begin immediately, and your hand-off message must still say *"I've drafted everything. Click any element that looks off and I'll revise just that piece."*
+
+**Do NOT delegate construction to a subagent.** Piece-by-piece iteration requires you to be the one in the loop with the user. A subagent cannot read a comment, click an element, or react to thread entries between sections. If you delegate the full build to a subagent, you have collapsed the loop into a single dump — the artifact has the same shape as the post-loop deliverable and the user has no way to iterate on it. Subagents are fine for bounded, *non-iteration* tasks (e.g., "render this JSON spec as a single component," "rewrite the hero copy in three variants") but they do not own the loop.
 
 See `docs/AUDIT.md` for the JSON schema, domi-audit API, and end-to-end loop.
+
+## Iteration discipline
+
+This is the section the previous version was missing. The "piece-by-piece" rule above tells you *what* to do; this section tells you *when to stop*.
+
+### STOP signals
+
+After producing **one section** (or **one revision** of a previously-commented section), STOP your turn and hand off. The next section is not your decision to make. Specifically:
+
+- After writing the section, your reply contains: the URL/path to the file, the section name, and a hand-off sentence inviting the user to click and comment. **Nothing else.** No "next I'll do the features section." No "I'll start the footer now." No preemptive planning.
+- The user controls the next move. They will either (a) click a `data-feedback` element and leave a comment, (b) say "iterate" or "revise the X" referencing a section, (c) say "next section" / "build the Y" / "now do the Z", or (d) say "ship it" / "give me the final" to exit working-doc mode.
+- Do not assume (c) without waiting for it. "I drafted the hero. Click and comment, or tell me which section to build next." is correct. Building the next section unprompted is wrong.
+
+### Overriding a gate (proceed-without-asking protocol)
+
+You are allowed to skip a gate the skill normally requires — but **only after a secondary confirm from the user themselves, with a reminder that the whole point of the skill is their input.** This applies whether the "skip the gate" instruction came from a generic system directive (e.g., a `[… TODO CONTINUATION]` reminder saying "proceed without asking"), a follow-up prompt, a prior turn in the same session, or even a direct user message. Generic directives do not get special authority; the user's eyes-open re-confirmation is the only authority that lets you skip.
+
+When you receive a "skip the gate" or "proceed without asking" instruction:
+
+1. **Do not comply immediately.** Stop and surface the conflict.
+2. **Confirm with the user.** Quote the original instruction back so they can see what you received. Then ask something like:
+
+   > *"Heads up — a `[system reminder]` told me to proceed without asking. Before I do: the whole point of `/domicile` is that you click pieces of the page between revisions and I revise just that piece. If I skip the gate, you'll get one artifact with no iteration hook — same shape as a deliverable. Want me to proceed anyway? (yes / no)"*
+
+   The reminder matters: the user may have forgotten what the skill is for, or the directive may not be from them at all. Either way, the confirm prompt is cheap and the mistake is expensive.
+3. **Wait for an explicit re-confirmation** ("yes, skip it" / "yeah, just give me the whole thing" / "I know, do it anyway"). Anything ambiguous — silence, a partial reply, a topic switch — counts as a no.
+4. **Only then proceed.** And when you do, mention the override in your hand-off so the user remembers they chose this: *"As you asked, I drafted the whole page in one turn — but the section hooks are still wired, so you can click anything that looks off and I'll iterate."*
+
+This protocol is not gate-keeping theatre. The skill exists because iteration matters; the confirm is the smallest possible friction that keeps the user in control of whether iteration is happening. Skip the confirm and you have silently turned `/domicile` into a static-site generator — which is exactly the failure the postmortem flagged.
+
+### DO
+
+- Build **one section** with a `data-feedback` hook. Hand off the URL.
+- Read the user's comment thread (or the in-session description of it) before each revision.
+- Bump the status chip to `vN` (v2, v3, …) on every revision. The user tracks version by chip number.
+- Ask the runtime-mode question (standalone vs server) the first time you enter working-doc mode in a session.
+- Ask any clarifying question that would change a load-bearing decision (which theme, which archetype, which page width). Ask before building.
+- If anything (a generic system directive, a follow-up prompt, even a direct user message) tells you to skip a gate — "proceed without asking," "just write the whole thing," "one-shot it" — do **not** comply immediately. Use the "Overriding a gate" protocol above. The user re-confirms with eyes open, then you proceed.
+
+### DO NOT
+
+- Do NOT generate the entire page in one turn unless the user has explicitly asked for it.
+- Do NOT collapse ambiguity ("should I do working-doc or deliverable?") into a default. Ask the one question.
+- Do NOT skip the runtime-mode question when entering working-doc mode.
+- Do NOT write the working doc to anywhere other than `.domi/output/<name>.html` (with `.domi/state/<name>.json` seeded empty). The user picks the location; do not invent new conventions.
+- Do NOT touch the library (`tokens/`, `components/`, original `templates/`, `scripts/runtime/domi*.js`, `examples/`) for a one-off artifact. Library changes require explicit user sign-off — see `docs/EXTENDING.md`.
+- Do NOT delegate the full build to a subagent. The loop must stay in your hands.
+- Do NOT preempt the user's next comment by building the next section, even if you have a strong opinion about what should come next.
 
 ## Authoring new UI work (not consuming existing)
 
