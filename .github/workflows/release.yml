@@ -55,9 +55,15 @@ jobs:
           else
             (cd out && zip -r ../domi-server-${{ github.ref_name }}-${{ matrix.target }}.zip .)
           fi
-          # Compute and stash SHA-256 for the aggregate job.
-          sha256sum domi-server-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} \
-            > sha256-${{ matrix.target }}.txt
+          # Compute and stash SHA-256 for the aggregate job. macOS doesn't
+          # ship coreutils' sha256sum; use shasum -a 256 there instead.
+          if [ "${{ matrix.os }}" = "macos-13" ] || [ "${{ matrix.os }}" = "macos-14" ]; then
+            shasum -a 256 domi-server-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} \
+              > sha256-${{ matrix.target }}.txt
+          else
+            sha256sum domi-server-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} \
+              > sha256-${{ matrix.target }}.txt
+          fi
       - name: Upload build artifact (for aggregate job)
         uses: actions/upload-artifact@v4
         with:

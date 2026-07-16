@@ -95,7 +95,7 @@ describe('domi-serve.sh', () => {
       // Nothing to move; start should still report "not installed".
       const r = await run('start');
       expect(r.code).toBe(1);
-      expect(r.stderr).toMatch(/domi-server v0\.1\.0 not installed/);
+      expect(r.stderr).toMatch(/domi-server v0\.1\.2 not installed/);
       return;
     }
     // Move BOTH binaries aside. The script's resolve_binary now also
@@ -112,7 +112,7 @@ describe('domi-serve.sh', () => {
       if (exists(bakLocal)) { renameSync(bakLocal, `${bakLocal}.bak-test`); localMoved = true; }
       const r = await run('start');
       expect(r.code).toBe(1);
-      expect(r.stderr).toMatch(/domi-server v0\.1\.0 not installed/);
+      expect(r.stderr).toMatch(/domi-server v0\.1\.2 not installed/);
       expect(r.stderr).toMatch(/domi-fetch\.sh install/);
     } finally {
       if (exists(bakRel)) renameSync(bakRel, RELEASE_BIN);

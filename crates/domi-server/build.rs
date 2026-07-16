@@ -47,8 +47,12 @@ fn main() {
     std::fs::write(
         out_dir.join("shim_token.rs"),
         format!(
-            "pub const SHIM_BYTES: &[u8] = include_bytes!(\"{}\");\n",
-            shim_path.display()
+            "pub const SHIM_BYTES: &[u8] = include_bytes!(r\"{}\");\n",
+            // Force forward slashes so the path is valid in a Rust string
+            // literal on every platform. On Windows, Path::display() yields
+            // backslashes (`D:\a\...`) that would need escaping; using a
+            // raw string + forward slashes is simpler and portable.
+            shim_path.to_string_lossy().replace('\\', "/")
         ),
     )
     .expect("write shim_token.rs");

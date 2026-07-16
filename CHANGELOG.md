@@ -12,7 +12,7 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ### Changed
 
-- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.1`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
+- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.2`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
 - Moved `SKILL.md` from the repo root to `domicile/SKILL.md` so its parent directory matches the Agent Skills `name` field. Strict spec readers (`agentskills.io`) rejected the on-disk layout where `SKILL.md` named `domicile` lived under `DOMicile/`. The install path documented in `INSTALL.md` (e.g. `~/.claude/skills/domicile/SKILL.md`) is unchanged — only the source location moved. All cross-references in `README.md`, `INSTALL.md`, `AGENTS.md`, `INIT.md`, `templates/working-doc/README.md`, and `docs/PHASE2-SCOPE.md` were updated. No agent-facing behavior change.
 
 ### Pending decisions (see `README.md` and handoffs for current status)
@@ -22,7 +22,28 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 - GitHub Actions CI matrix (node + rust).
 - `Cargo.lock` tracked vs. gitignored policy flip.
 - v1.0 tag.
-- Backfill the first 5-target release: tag `v0.1.1` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+- Backfill the first 5-target release: tag `v0.1.2` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+
+## [0.1.2] — 2026-07-15
+
+Patch release. Two pre-existing CI build fixes surfaced by the v0.1.1
+release run: `build.rs` on Windows emitted unescaped backslashes into
+the generated `include_bytes!` call (raw string + forward-slash path
+fix), and the release workflow used `sha256sum` on macOS where it
+isn't installed (now branches to `shasum -a 256` on macOS). Also bumps
+`domi-server` to `0.1.2` to pick up the build-script fix.
+
+### Fixed
+- `crates/domi-server/build.rs`: use a raw string literal with
+  forward-slash paths so the generated `shim_token.rs` compiles on
+  Windows. Previously `Path::display()` produced `D:\a\...` strings
+  that failed to parse as Rust string literals.
+- `.github/workflows/release.yml`: use `shasum -a 256` on macOS
+  (where `sha256sum` is not in coreutils).
+
+### Changed
+- `crates/domi-server/Cargo.toml`: version `0.1.1` → `0.1.2`.
+- `tools/domi-serve.sh`: `DOMI_SERVER_VERSION` default `0.1.1` → `0.1.2`.
 
 ## [0.1.1] — 2026-07-15
 

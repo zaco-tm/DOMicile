@@ -712,7 +712,7 @@ dependencies = [
 
 [[package]]
 name = "domi-server"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "axum",
  "chrono",
