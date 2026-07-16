@@ -26,8 +26,24 @@ const URL_FILE = join(DOMI_DIR, 'server.url');
 const PID_FILE = join(DOMI_DIR, 'server.pid');
 
 async function run(subcommand) {
+  // Disable auto-install + redirect DOMICILE_BIN_DIR away from the user's
+  // real ~/.local/bin + strip ~/.local/bin from PATH so the script's
+  // `command -v domi-server` fallback can't find the user's installed
+  // binary either. The lifecycle tests want the local target/ build;
+  // the missing-binary test wants to assert the "nothing found" exit
+  // path. Either way, no surprises from the user's environment.
+  const cleanPath = (process.env.PATH || '/usr/bin:/bin')
+    .split(':')
+    .filter((p) => !p.includes('.local/bin') && !p.includes('/usr/local/bin'))
+    .join(':');
+  const env = {
+    ...process.env,
+    PATH: cleanPath,
+    DOMICILE_SKIP_AUTO_INSTALL: '1',
+    DOMICILE_BIN_DIR: '/tmp/domi-serve-test-no-such-dir',
+  };
   try {
-    const { stdout, stderr } = await execFileP(SCRIPT, [subcommand]);
+    const { stdout, stderr } = await execFileP(SCRIPT, [subcommand], { env });
     return { code: 0, stdout: stdout.trim(), stderr: stderr.trim() };
   } catch (err) {
     return {
@@ -76,26 +92,34 @@ describe('domi-serve.sh', () => {
   it('start fails cleanly if the binary is missing', async () => {
     // Move the binary aside, run, restore. Skip if no binary exists at all.
     if (!HAS_BINARY) {
-      // Nothing to move; start should still report "binary not found".
+      // Nothing to move; start should still report "not installed".
       const r = await run('start');
       expect(r.code).toBe(1);
-      expect(r.stderr).toMatch(/binary not found/);
+      expect(r.stderr).toMatch(/domi-server v0\.1\.0 not installed/);
       return;
     }
-    // Move BOTH binaries aside so the fallback can't pick one up.
+    // Move BOTH binaries aside. The script's resolve_binary now also
+    // checks $HOME/.local/bin/domi-server, so we have to clear that too
+    // for this test to exercise the "nothing found" path.
     const bakRel = `${RELEASE_BIN}.bak-test`;
     const bakDbg = `${DEBUG_BIN}.bak-test`;
+    const bakLocal = `${process.env.HOME}/.local/bin/domi-server`;
     const { renameSync, existsSync: exists } = await import('node:fs');
+    let localMoved = false;
     try {
       if (exists(RELEASE_BIN)) renameSync(RELEASE_BIN, bakRel);
       if (exists(DEBUG_BIN)) renameSync(DEBUG_BIN, bakDbg);
+      if (exists(bakLocal)) { renameSync(bakLocal, `${bakLocal}.bak-test`); localMoved = true; }
       const r = await run('start');
       expect(r.code).toBe(1);
-      expect(r.stderr).toMatch(/binary not found/);
-      expect(r.stderr).toMatch(/cargo build --release -p domi-server/);
+      expect(r.stderr).toMatch(/domi-server v0\.1\.0 not installed/);
+      expect(r.stderr).toMatch(/domi-fetch\.sh install/);
     } finally {
       if (exists(bakRel)) renameSync(bakRel, RELEASE_BIN);
       if (exists(bakDbg)) renameSync(bakDbg, DEBUG_BIN);
+      if (localMoved && exists(`${bakLocal}.bak-test`)) {
+        renameSync(`${bakLocal}.bak-test`, bakLocal);
+      }
     }
   });
 
