@@ -10,12 +10,19 @@
 #
 # Both metadata files are removed by `stop`. All three are gitignored.
 #
+# Binary resolution (resolve_binary, see below):
+#   1. $DOMICILE_BIN_DIR/domi-server (managed; auto-installed by domi-fetch.sh
+#      on first start if missing — see DOMICILE_SKIP_AUTO_INSTALL).
+#   2. $REPO_ROOT/target/{release,debug}/domi-server (dev builds).
+#   3. `command -v domi-server` on PATH.
+#
 # The server is launched with --port 0 (ephemeral) so it never collides with
 # other processes. The bound URL is parsed from the binary's startup log
 # (specifically, the `bound_url=...` field emitted by tracing::info!).
 #
-# This script does NOT compile the binary. If the binary is missing, it exits
-# non-zero with a hint to run `cargo build --release -p domi-server`.
+# This script does NOT compile the binary. If the binary is missing AND
+# auto-install fails, it exits non-zero with a hint to run
+# `tools/domi-fetch.sh install` or `cargo build --release -p domi-server`.
 
 set -euo pipefail
 
@@ -30,6 +37,14 @@ LOG_FILE="$DOMI_DIR/server.log"
 RELEASE_BIN="$REPO_ROOT/target/release/domi-server"
 DEBUG_BIN="$REPO_ROOT/target/debug/domi-server"
 
+DOMI_SERVER_VERSION="${DOMI_SERVER_VERSION_OVERRIDE:-${DOMI_SERVER_VERSION:-0.1.0}}"
+# Bump DOMI_SERVER_VERSION manually on each tag push. The skill ships with
+# the version it was tested against; users auto-update on the next skill
+# install.
+
+DOMICILE_BIN_DIR="${DOMICILE_BIN_DIR:-$HOME/.local/bin}"
+LOCAL_BIN="${DOMICILE_BIN_DIR}/domi-server"
+
 usage() {
   cat <<'EOF'
 Usage: tools/domi-serve.sh <start|stop|status|restart>
@@ -43,14 +58,35 @@ restart stop then start.
 EOF
 }
 
+# Returns the absolute path of the domi-server binary to use, or "" if none
+# matches the pinned version. Preference order:
+#   1. $DOMICILE_BIN_DIR/domi-server (managed install; may be a fresh download)
+#   2. $REPO_ROOT/target/release/domi-server (dev build from `cargo build --release`)
+#   3. $REPO_ROOT/target/debug/domi-server (dev build from `cargo build`)
+#   4. $(command -v domi-server) on PATH (user-installed elsewhere)
+# A candidate must exist AND `domi-server --version` must equal $DOMI_SERVER_VERSION
+# for steps 1 and 4. Dev builds (steps 2 and 3) skip the version check — they're
+# always assumed to be the right version because the dev built them locally.
+domi_version_matches() {
+  local bin="$1" pin="$2"
+  [[ -x "$bin" ]] || return 1
+  local v
+  v="$("$bin" --version 2>/dev/null | awk '{print $NF}')" || return 1
+  [[ "$v" == "$pin" ]]
+}
+
 resolve_binary() {
-  if [[ -x "$RELEASE_BIN" ]]; then
-    echo "$RELEASE_BIN"
-  elif [[ -x "$DEBUG_BIN" ]]; then
-    echo "$DEBUG_BIN"
-  else
-    echo ""
+  if domi_version_matches "$LOCAL_BIN" "$DOMI_SERVER_VERSION"; then
+    echo "$LOCAL_BIN"; return
   fi
+  if [[ -x "$RELEASE_BIN" ]]; then echo "$RELEASE_BIN"; return; fi
+  if [[ -x "$DEBUG_BIN" ]];   then echo "$DEBUG_BIN";   return; fi
+  local p
+  p="$(command -v domi-server 2>/dev/null || true)"
+  if [[ -n "$p" ]] && domi_version_matches "$p" "$DOMI_SERVER_VERSION"; then
+    echo "$p"; return
+  fi
+  echo ""
 }
 
 is_alive() {
@@ -74,9 +110,21 @@ cmd_start() {
   local bin
   bin="$(resolve_binary)"
   if [[ -z "$bin" ]]; then
-    echo "binary not found. Run once:" >&2
-    echo "  cargo build --release -p domi-server" >&2
-    exit 1
+    if [[ "${DOMICILE_SKIP_AUTO_INSTALL:-0}" == "1" ]]; then
+      echo "domi-server v${DOMI_SERVER_VERSION} not installed. Run:" >&2
+      echo "  bash $REPO_ROOT/tools/domi-fetch.sh install" >&2
+      echo "or: cargo install domi-server --locked --root \"$HOME/.local\"" >&2
+      exit 1
+    fi
+    echo "[domi-serve] domi-server v${DOMI_SERVER_VERSION} not found — installing..."
+    if ! DOMI_SERVER_VERSION="$DOMI_SERVER_VERSION" \
+         DOMICILE_BIN_DIR="$DOMICILE_BIN_DIR" \
+         bash "$REPO_ROOT/tools/domi-fetch.sh" install; then
+      echo "[domi-serve] auto-install failed; see above. Re-run with DOMICILE_SKIP_AUTO_INSTALL=1 to disable." >&2
+      exit 1
+    fi
+    bin="$(resolve_binary)"
+    [[ -n "$bin" ]] || { echo "[domi-serve] still no binary after install" >&2; exit 1; }
   fi
 
   # Launch detached: survives this script exiting; logs go to .domi/server.log.
