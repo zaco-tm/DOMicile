@@ -37,7 +37,7 @@ LOG_FILE="$DOMI_DIR/server.log"
 RELEASE_BIN="$REPO_ROOT/target/release/domi-server"
 DEBUG_BIN="$REPO_ROOT/target/debug/domi-server"
 
-DOMI_SERVER_VERSION="${DOMI_SERVER_VERSION_OVERRIDE:-${DOMI_SERVER_VERSION:-0.1.2}}"
+DOMI_SERVER_VERSION="${DOMI_SERVER_VERSION_OVERRIDE:-${DOMI_SERVER_VERSION:-0.1.3}}"
 # Bump DOMI_SERVER_VERSION manually on each tag push. The skill ships with
 # the version it was tested against; users auto-update on the next skill
 # install.

@@ -19,11 +19,36 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 ### Pending decisions (see `README.md` and handoffs for current status)
 
 - npm publish of `domicile-react` and `domicile-astro` to the public registry.
-- crates.io release of `domi-server` and `domi-egui` (currently `publish = false`).
+- crates.io release of `domi-egui` (currently `publish = false`). `domi-server` is now on crates.io as of 0.1.3; maintain the publish-after-tag step documented in INSTALL.md.
 - GitHub Actions CI matrix (node + rust).
 - `Cargo.lock` tracked vs. gitignored policy flip.
 - v1.0 tag.
 - Backfill the first 5-target release: tag `v0.1.2` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+
+## [0.1.3] — 2026-07-18
+
+crates.io release. The 0.1.2 crates.io publish was YANKED because
+`crates/domi-server/build.rs` walked up looking for the workspace's
+`scripts/runtime/domi-server.js` shim, which doesn't exist in the
+published crate — every `cargo install domi-server` panicked at
+build time. 0.1.3 ships the shim inside the crate (`crates/domi-server/
+scripts/runtime/domi-server.js`) so `cargo install` works from
+crates.io. The drift with the workspace source is closed.
+
+### Fixed
+- `crates/domi-server/build.rs`: read the JS shim from the crate's
+  own `scripts/runtime/` directory first (always present in the
+  published crate), with the workspace layout as a dev-time fallback.
+  Previously the workspace-only path meant `cargo install` from
+  crates.io panicked with "could not locate the DOMicile workspace
+  root."
+
+### Changed
+- `crates/domi-server/Cargo.toml`: version `0.1.2` → `0.1.3`.
+- `crates/domi-server/scripts/runtime/domi-server.js`: added (copied
+  from the workspace's `scripts/runtime/domi-server.js` so the
+  shim ships with the published crate).
+- `tools/domi-serve.sh`: `DOMI_SERVER_VERSION` default `0.1.2` → `0.1.3`.
 
 ## [0.1.2] — 2026-07-15
 

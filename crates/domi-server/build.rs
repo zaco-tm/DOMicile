@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 fn main() {
     // CARGO_MANIFEST_DIR is read at runtime (not via `env!()`) so that the
-    // resolved path always reflects the current workspace location. Reading
-    // it at compile time would bake the path into the build-script binary,
+    // resolved path always reflects the current build location. Reading it
+    // at compile time would bake the path into the build-script binary,
     // which cargo then reuses after a workspace rename or move.
     println!("cargo:rerun-if-env-changed=CARGO_MANIFEST_DIR");
 
@@ -12,26 +12,51 @@ fn main() {
         env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is set by cargo for build scripts"),
     );
 
-    let workspace_root = find_workspace_root(&manifest_dir).unwrap_or_else(|| {
-        panic!(
-            "could not locate the DOMicile workspace root by walking up from {}. \
-             Expected a Cargo.toml with a [workspace] table somewhere above this crate.",
-            manifest_dir.display()
-        )
-    });
-    println!("cargo:rerun-if-changed={}", workspace_root.join("Cargo.toml").display());
-
-    let shim_path = workspace_root
+    // The shim ships with the crate (crates/domi-server/scripts/runtime/domi-server.js)
+    // so it works both in a workspace clone AND when installed from crates.io
+    // (where the workspace root doesn't exist).
+    let shim_path = manifest_dir
         .join("scripts")
         .join("runtime")
         .join("domi-server.js");
+
+    if !shim_path.is_file() {
+        // Dev-time fallback: workspace layout. Only used when the in-crate
+        // copy is missing (e.g., if a maintainer deleted it locally).
+        let workspace_root = find_workspace_root(&manifest_dir).unwrap_or_else(|| {
+            panic!(
+                "domi-server.js shim not found at {} and no DOMicile workspace \
+                 root is reachable. The crate ships its own copy at \
+                 crates/domi-server/scripts/runtime/domi-server.js; if you deleted \
+                 it, restore it from the repo or reinstall the crate.",
+                shim_path.display()
+            )
+        });
+        let fallback = workspace_root
+            .join("scripts")
+            .join("runtime")
+            .join("domi-server.js");
+        if fallback.is_file() {
+            println!(
+                "cargo:warning=domi-server.js missing from crate ({}); using \
+                 dev fallback {}. The published crate ships a copy of the shim \
+                 so this warning is harmless outside the workspace.",
+                shim_path.display(),
+                fallback.display()
+            );
+        } else {
+            panic!(
+                "domi-server.js shim not found at {} or {}",
+                shim_path.display(),
+                fallback.display()
+            );
+        }
+    }
     println!("cargo:rerun-if-changed={}", shim_path.display());
 
     let bytes = std::fs::read(&shim_path).unwrap_or_else(|e| {
         panic!(
-            "domi-server.js shim not found at {}: {e}. \
-             The Rust crate embeds the JS shim at compile time; \
-             the file must live at <workspace-root>/scripts/runtime/domi-server.js.",
+            "domi-server.js shim not readable at {}: {e}",
             shim_path.display()
         )
     });
