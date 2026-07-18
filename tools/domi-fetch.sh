@@ -122,14 +122,17 @@ cmd_install() {
   tmpdir="$(mktemp -d)"
   trap 'rm -rf "${tmpdir:-}"' EXIT
 
-  if ! curl -fsSL --retry 3 -o "$tmpdir/asset.tar.gz" "$url"; then
+  if ! curl -fsSL --retry 10 --retry-all-errors --retry-delay 2 \
+       --retry-max-time 60 \
+       -o "$tmpdir/asset.tar.gz" "$url"; then
     echo "[domi-fetch] could not download $url" >&2
     echo "[domi-fetch] falling back to source build (5-15 minutes)" >&2
     cmd_fallback_cargo
     return $?
   fi
 
-  if ! curl -fsSL -o "$tmpdir/SHA256SUMS" "${url%/domi-server-*}/SHA256SUMS"; then
+  if ! curl -fsSL --retry 5 --retry-all-errors --retry-delay 1 \
+       -o "$tmpdir/SHA256SUMS" "${url%/domi-server-*}/SHA256SUMS"; then
     echo "[domi-fetch] could not download SHA256SUMS — refusing to install unverified bytes" >&2
     return 1
   fi
