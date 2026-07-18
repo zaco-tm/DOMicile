@@ -58,7 +58,9 @@ jobs:
           if [ "${{ matrix.archive }}" = "tar.gz" ]; then
             tar -C out -czf domi-server-${{ github.ref_name }}-${{ matrix.target }}.tar.gz .
           else
-            (cd out && zip -r ../domi-server-${{ github.ref_name }}-${{ matrix.target }}.zip .)
+            # Windows Git Bash doesn't have `zip` on PATH. Use PowerShell's
+            # built-in Compress-Archive via a one-liner.
+            powershell -NoProfile -Command "Compress-Archive -Path 'out/*' -DestinationPath 'domi-server-${{ github.ref_name }}-${{ matrix.target }}.zip' -Force"
           fi
           # Compute and stash SHA-256 for the aggregate job. macOS doesn't
           # ship coreutils' sha256sum; use shasum -a 256 there instead.
