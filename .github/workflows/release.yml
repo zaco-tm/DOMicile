@@ -27,8 +27,9 @@ jobs:
             os: windows-latest
             archive: zip
           # x86_64-apple-darwin (macOS Intel) is intentionally omitted:
-          # GitHub-hosted Intel macOS runners are heavily backlogged as of
-          # 2026-07. To be re-added when runner availability improves.
+          # the platform is past its useful support window for AI-agent
+          # workflows (the 2026-07 runner backlog made this concrete).
+          # Not on the roadmap.
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

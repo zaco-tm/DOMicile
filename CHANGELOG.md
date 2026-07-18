@@ -20,10 +20,9 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 - npm publish of `domicile-react` and `domicile-astro` to the public registry.
 - crates.io release of `domi-egui` (currently `publish = false`). `domi-server` is now on crates.io as of 0.1.3; maintain the publish-after-tag step documented in INSTALL.md.
-- GitHub Actions CI matrix (node + rust).
-- `Cargo.lock` tracked vs. gitignored policy flip.
+- Full GitHub Actions CI matrix (node + rust). The release workflow (`.github/workflows/release.yml`) covers the 5-target matrix; a per-PR CI matrix for `cargo test --workspace` and `npm test` is still pending.
 - v1.0 tag.
-- Backfill the first 5-target release: tag `v0.1.2` (or current) and manually run `gh workflow run release --ref <tag>` to produce the artifacts `domi-fetch.sh` will download.
+- x86_64-apple-darwin release artifact: dropped from the matrix entirely. Intel Mac users need to build from source (the `cargo install domi-server --locked` path on crates.io works for them).
 
 ## [0.1.3] — 2026-07-18
 

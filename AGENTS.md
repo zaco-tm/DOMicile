@@ -44,7 +44,7 @@ Where things live today. Anything not listed here is either build-output (under 
   - `.domi/output/<name>.html` — agent-authored working docs.
   - `.domi/state/<name>.json` — server-side audit thread state.
   - `.superpowers/` — gitignored scaffolding from prior SDD sessions (do not treat as canonical; ignore unless explicitly told otherwise).
-  - `target/`, `node_modules/`, `dist/`, `.astro/`, `Cargo.lock`, `build/` — gitignored build artifacts.
+  - `target/`, `node_modules/`, `dist/`, `.astro/`, `build/` — gitignored build artifacts. (`Cargo.lock` is tracked — see "Cargo.lock policy" below.)
 - **Legacy / one-offs**: `branding/sponsor-stoopery.svg` (sponsor badge, kept); `status/STATUS.html`, `status/UX-MEMORY.html` (historical docs referenced from the old README). Don't add new content under `branding/` or `status/`.
 
 ## RTK — use it when available
@@ -83,7 +83,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 - **Library invariant.** Changes to `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` require explicit user sign-off in the session. New author work lives in `.domi/output/`.
 - **Tests on every change.** JS: `npm test` (vitest, jsdom) and `npm run test:e2e` / `npm run test:e2e:server` for the skill loop. Rust: `cargo test --workspace`. Both must remain green.
 - **Pre-existing dirty state.** `components/domi.css` has been modified on disk but not committed since v0.1.0. Don't touch it unless the user explicitly asks; it's pre-existing.
-- **Cargo.lock policy.** Untracked, in `.gitignore`. Policy rationale: the workspace now contains both a binary (`domi-server`) and a library (`domi-egui`), so reproducible builds would benefit from committing `Cargo.lock`, but the user has chosen to keep it out of git until distribution lands. Don't `git add Cargo.lock` unless the user explicitly asks.
+- **Cargo.lock policy.** Tracked. The workspace contains both a binary (`domi-server`) and a library (`domi-egui`), and the binary is what gets shipped as a release artifact — committing `Cargo.lock` is required for reproducible CI builds. The `.gitignore` comment marks the policy flip on 2026-07-11. Bumping a dependency is a deliberate change visible in PR review.
 - **Subagent discipline.** If dispatching subagents, follow `superpowers:subagent-driven-development`. Fresh subagent per task + reviewer per task + whole-branch review at the end.
 - **Cross-language drift.** The Rust `Event` struct (`crates/domi-server/src/events/event.rs`) and the JS test fixtures (`tests/wire-protocol.test.js`) both reference the wire protocol. If one changes, check the other.
 - **Don't auto-commit.** The user has explicit instructions in AGENTS.md to never commit without request. Confirm before any `git commit`, `git push`, or PR creation.
@@ -91,7 +91,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 ## Failure modes to watch for
 
 - **Wraparound: tooling reverting to defaults.** If you start writing `cat foo.md` instead of `rtk read foo.md`, stop and reset. RTK usage is a session-level habit, not a one-off optimization.
-- **Cargo.lock creeping in.** Don't `git add Cargo.lock` unless the user asks. Currently untracked.
+- **Cargo.lock creeping in.** Already tracked (since 2026-07-11). Bumping a dependency should be a deliberate, reviewable change. Don't `cargo update` without a clear reason.
 - **`components/domi.css` "dirty" status.** It's pre-existing. Don't fix it; don't sweep it into your diff.
 - **Touching the library by accident.** If your change set includes files under `tokens/` or `components/`, stop and ask the user before committing.
 - **Editing a file past its size threshold.** `node tools/check-file-size.mjs` reports any file ≥500 lines. Adding to one of those files is a hard stop; extract a coherent responsibility first.
