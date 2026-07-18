@@ -10,7 +10,7 @@
 [![crates.io](https://img.shields.io/crates/v/domi-egui?label=crates.io&color=CC6B49)](https://crates.io/crates/domi-egui)
 [![License](https://img.shields.io/badge/license-MIT-3d2342)](./LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-9caf88)](https://agentskills.io)
-![Tests](https://img.shields.io/badge/tests-250%20JS%20%2F%2084%20Rust-c2410c)
+![Tests](https://img.shields.io/badge/tests-269%20JS%20%2F%2090%20Rust-c2410c)
 
 </div>
 
@@ -194,7 +194,19 @@ docs/
 
 The skill loop works end-to-end (local smoke and event-backed server modes both green). The library is stable and the skill is playable.
 
-**Tests:** 250 JS passed (2 skipped) / 84 Rust passed (13 ignored).
+**Tests:** 269 JS passed (2 skipped) / 90 Rust passed (13 ignored). Last verified 2026-07-18.
+
+**Published artifacts (verified 2026-07-18):**
+
+| Package | Registry | Version | Install |
+|---|---|---|---|
+| `domicile-react` | npm | 0.1.0 | `npm install domicile-react react react-dom` |
+| `domicile-astro` | npm | 0.1.0 | `npm install domicile-astro astro` |
+| `domi-server` | crates.io | 0.1.3 | `cargo install domi-server --locked` |
+| `domi-egui` | crates.io | 0.1.0 | `cargo install domi-egui` |
+| GitHub Release | [releases](https://github.com/zaco-tm/DOMicile/releases/tag/v0.1.2) | v0.1.2 | 4 platform tarballs + SHA256SUMS |
+
+The skill's `tools/domi-serve.sh start` auto-downloads the right binary from GitHub Releases on first run; `domi-fetch.sh install` is the same logic exposed as a one-shot command. See [`INSTALL.md`](INSTALL.md#server-mode-auto-install).
 
 ---
 

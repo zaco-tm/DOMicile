@@ -33,7 +33,7 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 
 Each command copies the full bundle (`SKILL.md` plus runtime and assets). The two `npx` rows install for any agent on a one-liner and support 15+ agents each (Claude Code, OpenCode, Cursor, Cline, Amp, etc.). The bundle is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts the bundle is in sync via `npm run test:bundle`.
 
-Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, run `cargo build --release -p domi-server` once; the skill's wrapper (`tools/domi-serve.sh`) starts and stops the server for you from then on. The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies.
+Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, the skill's wrapper (`tools/domi-serve.sh start`) auto-installs `domi-server` from GitHub Releases into `~/.local/bin/` on first run (~3–10 sec, no Rust toolchain required). The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies. For maintainers who want the source build instead, `cargo build --release -p domi-server` still works and is preferred. See [Server mode (auto-install)](#server-mode-auto-install) below.
 
 > **Project-local vs. global.** Every command above uses the global path (`~/...`). For a project-scoped install (only available inside this repo), replace the path with the project-local equivalent — e.g. `.opencode/skills/`, `.claude/skills/`, or `.agents/skills/`.
 
@@ -62,7 +62,7 @@ What the bundle does **not** ship (and requires a full repo checkout via `git cl
 
 - The other 5 archetypes (`templates/dashboard/`, `webapp-shell/`, `mobile-app-shell/`, `admin-tool/`, `pos-kiosk/`).
 - The component primitives (`components/primitives/`).
-- The `domi-server` Rust binary — `cargo build --release -p domi-server` produces this. The Rust binary enables server-mode persistence (comments survive across machines), which the standalone install (file + `localStorage`) does not.
+- The `domi-server` Rust binary. **Skill users get this automatically** — `tools/domi-serve.sh start` downloads it from GitHub Releases on first run. Maintainers / contributors building from source: `cargo build --release -p domi-server`. The binary enables server-mode persistence (comments survive across machines), which the standalone install (file + `localStorage`) does not.
 
 ### Agents with prompt-based config (no skills discovery)
 
@@ -78,7 +78,7 @@ After installing for any client above:
 
 1. Start a new session.
 2. Ask something like *"Make me a pricing page in the DOMicile style."* or *"Build a settings screen using the DOMicile skill."*
-3. The agent should produce an HTML page in `.domi/output/<name>.html` with the working-doc chrome (feedback rail, status chip, `data-feedback` hooks) — comments are stored in the browser's `localStorage` for standalone installs, or in the Rust `domi-server` process if you also `cargo build --release -p domi-server` and use `tools/domi-serve.sh`.
+3. The agent should produce an HTML page in `.domi/output/<name>.html` with the working-doc chrome (feedback rail, status chip, `data-feedback` hooks) — comments are stored in the browser's `localStorage` for standalone installs, or in the Rust `domi-server` process if you also choose server-backed iteration (the binary auto-installs on first `tools/domi-serve.sh start`).
 
 If nothing happens, check [§ Troubleshooting](#troubleshooting).
 

@@ -2,27 +2,66 @@
 
 All notable changes to DOMicile are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Release Status Snapshot
+
+Verified via `cargo search` / `npm view` / `gh release list` on 2026-07-18:
+
+| Artifact | Registry | Version | Status |
+|---|---|---|---|
+| `domicile-react` | npm | `0.1.0` | ✅ Published 2026-07-11 |
+| `domicile-astro` | npm | `0.1.0` | ✅ Published 2026-07-12 |
+| `domi-server` | crates.io | `0.1.3` | ✅ Published 2026-07-18 (0.1.0 + 0.1.2 also exist; 0.1.2 yanked) |
+| `domi-egui` | crates.io | `0.1.0` | ✅ Published 2026-07-12 |
+| GitHub Release `v0.1.2` | github.com | — | ✅ Published 2026-07-18 (4 platform assets + SHA256SUMS) |
+| `Cargo.lock` | — | — | ✅ Tracked (since 2026-07-11) |
+
+**Workspace ↔ registry sync:** `crates/domi-server` 0.1.3, `crates/domi-egui` 0.1.0, `packages/react` 0.1.0, `packages/astro` 0.1.0 — all in lockstep with their published counterparts.
+
+**Maintainer release process (manual, documented in `INSTALL.md`):**
+1. Bump versions + commit.
+2. Push tag → GitHub Actions builds 4-target release artifacts.
+3. `cargo publish -p domi-server` (and `domi-egui` if bumped).
+4. `npm publish` in `packages/react` and `packages/astro` (if bumped).
+
+**Genuinely pending:** per-PR CI matrix (cargo test + npm test on PRs), v1.0 tag.
+
 ## [Unreleased]
 
 ### Added
 
 - `tools/domi-fetch.sh`: auto-install `domi-server` from GitHub Releases on first `tools/domi-serve.sh start`. SHA-256 verified against the release's `SHA256SUMS`. Falls back to `cargo install domi-server --locked` for unsupported triples or when the network can't reach GitHub. Three env-var escape hatches: `DOMICILE_SKIP_AUTO_INSTALL`, `DOMICILE_BIN_DIR`, `DOMI_SERVER_VERSION_OVERRIDE`. `tools/domi-serve.sh` now auto-fetches in the background rather than asking the user to run `cargo build`.
-- `.github/workflows/release.yml`: 5-target matrix (Linux x86_64 + aarch64, macOS x86_64 + aarch64, Windows MSVC) that builds, packages, and uploads release artifacts on `v*` tag push. Windows is build + upload only; auto-install is POSIX-only for v1.
+- `.github/workflows/release.yml`: 4-target matrix (Linux x86_64 + aarch64, macOS aarch64, Windows MSVC) that builds, packages, and uploads release artifacts on `v*` tag push. `x86_64-apple-darwin` is intentionally omitted — the platform is past its useful support window for AI-agent workflows (Intel Mac users build from source via `cargo install domi-server --locked` from crates.io). Windows is build + upload only; auto-install is POSIX-only for v1.
 - `tools/tests/domi-fetch.test.mjs`: 7 unit tests for `domi-fetch.sh` with stubbed curl/tar/sha256sum/cargo.
 
 ### Changed
 
-- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.2`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
+- `tools/domi-serve.sh`: `resolve_binary()` rewritten to prefer `$DOMICILE_BIN_DIR/domi-server` (the managed install) with a version check against a pinned `DOMI_SERVER_VERSION` (default `0.1.3`, bumped per release). Falls back to local `target/{release,debug}/domi-server` (dev builds, no version check), then to `command -v domi-server` on PATH.
 - `tools/domi-fetch.sh`: hardened against GitHub release-CDN flakiness. curl's default `--retry` only retries on transient errors (5xx, 408, 429) — NOT on 404 — so the script fell through to `cargo install` fallback even when the asset existed. Added `--retry-all-errors` (curl 7.71+) plus `--retry 10 --retry-delay 2 --retry-max-time 60` to ride out the warm-up window after a fresh release. End users hitting a transient 404 should retry the install in a few minutes; the script's 60-second retry budget covers most cases.
 - Moved `SKILL.md` from the repo root to `domicile/SKILL.md` so its parent directory matches the Agent Skills `name` field. Strict spec readers (`agentskills.io`) rejected the on-disk layout where `SKILL.md` named `domicile` lived under `DOMicile/`. The install path documented in `INSTALL.md` (e.g. `~/.claude/skills/domicile/SKILL.md`) is unchanged — only the source location moved. All cross-references in `README.md`, `INSTALL.md`, `AGENTS.md`, `INIT.md`, `templates/working-doc/README.md`, and `docs/PHASE2-SCOPE.md` were updated. No agent-facing behavior change.
 
-### Pending decisions (see `README.md` and handoffs for current status)
+### Genuinely pending decisions
 
-- ~~npm publish of `domicile-react` and `domicile-astro` to the public registry.~~ Already published as `0.1.0` on 2026-07-11/12. The CHANGELOG note was stale. Maintain the publish-after-tag step documented in INSTALL.md (apply equally to npm + crates.io + GitHub Releases).
-- ~~crates.io release of `domi-egui` (currently `publish = false`).~~ Already published as `domi-egui 0.1.0` on 2026-07-12. The CHANGELOG note was stale. `domi-server` is on crates.io as of 0.1.3; maintain the publish-after-tag step documented in INSTALL.md.
-- Full GitHub Actions CI matrix (node + rust). The release workflow (`.github/workflows/release.yml`) covers the 5-target matrix; a per-PR CI matrix for `cargo test --workspace` and `npm test` is still pending.
+See the "Release Status Snapshot" at the top of this file for the
+ground truth. As of 2026-07-18:
+
+- Per-PR CI matrix (`cargo test --workspace` + `npm test` on every PR).
+  Currently the only CI workflow is the release one
+  (`.github/workflows/release.yml`); no PR-time gating.
 - v1.0 tag.
-- x86_64-apple-darwin release artifact: dropped from the matrix entirely. Intel Mac users need to build from source (the `cargo install domi-server --locked` path on crates.io works for them).
+
+### Not pending (resolved)
+
+- npm publish of `domicile-react` and `domicile-astro` — already on
+  the public registry at `0.1.0`. The earlier "pending" line in this
+  section was stale.
+- crates.io release of `domi-egui` — already on the public registry at
+  `0.1.0`. The earlier "pending" line was stale.
+- x86_64-apple-darwin release artifact — dropped from the matrix
+  intentionally (Intel Mac past its useful support window). Intel Mac
+  users get the binary via `cargo install domi-server --locked` from
+  crates.io.
+- `Cargo.lock` policy — tracked (since 2026-07-11). Earlier text said
+  it was gitignored; that was stale.
 
 ## [0.1.3] — 2026-07-18
 

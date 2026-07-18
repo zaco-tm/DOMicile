@@ -7,7 +7,7 @@ This file is for AI coding agents (Claude, Cursor, etc.) operating in this repos
 - **Use `rtk` for filesystem, git, grep, and test commands** when available — it token-trims noisy output. See "RTK" below.
 - The DOMicile design system library is **read-only by default**. Don't edit `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` unless the user explicitly asks for library changes. New author work goes in `.domi/output/<name>.html` (committed or untracked depending on context; check with the user).
 - The wire protocol is pinned at v2 by two specs: `docs/schemas/event.schema.json` (canonical shape) and `docs/WIRE-PROTOCOL.md` (prose). Cross-language drift between Rust, JS, and either doc is a bug — fix both ends.
-- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state: **256 JS passed / 2 skipped, 84 Rust passed / 13 ignored**.
+- Tests: `npm test` (JS, vitest, jsdom) and `cargo test --workspace` (Rust). Both must stay green. Last verified state: **269 JS passed / 2 skipped (2026-07-18), 90 Rust passed / 13 ignored (2026-07-18)**.
 
 ## Repo layout
 
@@ -34,8 +34,8 @@ Where things live today. Anything not listed here is either build-output (under 
   - `crates/domi-server/` — HTTP binary (`domi-server`) + agent CLI (`domi`). Sources split into `events/` (writer), `serve/` (file/watcher), `http/` (axum routes), `tools/` (CLI subcommands).
   - `crates/domi-egui/` — Rust crate: 15 per-widget leaves + 5 composites. WASM-capable. Token parity is enforced by a SHA-256 test against the baked-in `tokens.json`.
 - **npm workspaces** (`package.json` `workspaces: ["packages/*"]`):
-  - `packages/react/` — `@domi/react`: 15 components, `cn()` util, types, tests, CSS-AUDIT. Build via `tsup`.
-  - `packages/astro/` — `@domi/astro`: Astro components with hydration-control wrappers.
+  - `packages/react/` — `domicile-react`: 15 components, `cn()` util, types, tests, CSS-AUDIT. Build via `tsup`.
+  - `packages/astro/` — `domicile-astro`: Astro components with hydration-control wrappers.
 - **Tooling**:
   - `tools/` — Node scripts: `skill-smoke.mjs` (clones `templates/working-doc/` and serves it on `http://127.0.0.1:8123/` until SIGINT), `skill-smoke-test.mjs` (Playwright e2e for the standalone loop), `skill-smoke-server-test.mjs` (boots `domi-server` binary and drives Playwright against the event-backed loop), `smoke.mjs`, `tokens-to-css.mjs`, `check-file-size.mjs`, `tests/check-file-size.test.mjs`.
   - `scripts/shell/verify-skill-loop.sh`, `scripts/shell/verify-skill-loop-server.sh` — bash wrappers that orchestrate the Node tools.
@@ -82,7 +82,7 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 - **Specs before code.** Anything non-trivial goes through a design spec → implementation plan → implementation, ending with a handoff. The brainstorming skill governs the spec step. Phase specs and handoffs are kept operator-local and aren't part of the public release.
 - **Library invariant.** Changes to `tokens/`, `components/`, original `templates/*/`, `scripts/runtime/domi*.js`, or `examples/` require explicit user sign-off in the session. New author work lives in `.domi/output/`.
 - **Tests on every change.** JS: `npm test` (vitest, jsdom) and `npm run test:e2e` / `npm run test:e2e:server` for the skill loop. Rust: `cargo test --workspace`. Both must remain green.
-- **Pre-existing dirty state.** `components/domi.css` has been modified on disk but not committed since v0.1.0. Don't touch it unless the user explicitly asks; it's pre-existing.
+- **Pre-existing dirty state.** As of 2026-07-18, no files are pre-dirty on `main`. (`components/domi.css` was previously flagged here as dirty since v0.1.0; that resolved when the file was committed via the 2026-07-06 rename commit. Re-check with `git status` if a future flag reappears.)
 - **Cargo.lock policy.** Tracked. The workspace contains both a binary (`domi-server`) and a library (`domi-egui`), and the binary is what gets shipped as a release artifact — committing `Cargo.lock` is required for reproducible CI builds. The `.gitignore` comment marks the policy flip on 2026-07-11. Bumping a dependency is a deliberate change visible in PR review.
 - **Subagent discipline.** If dispatching subagents, follow `superpowers:subagent-driven-development`. Fresh subagent per task + reviewer per task + whole-branch review at the end.
 - **Cross-language drift.** The Rust `Event` struct (`crates/domi-server/src/events/event.rs`) and the JS test fixtures (`tests/wire-protocol.test.js`) both reference the wire protocol. If one changes, check the other.
@@ -91,8 +91,8 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 ## Failure modes to watch for
 
 - **Wraparound: tooling reverting to defaults.** If you start writing `cat foo.md` instead of `rtk read foo.md`, stop and reset. RTK usage is a session-level habit, not a one-off optimization.
-- **Cargo.lock creeping in.** Already tracked (since 2026-07-11). Bumping a dependency should be a deliberate, reviewable change. Don't `cargo update` without a clear reason.
-- **`components/domi.css` "dirty" status.** It's pre-existing. Don't fix it; don't sweep it into your diff.
+- **Cargo.lock policy is loaded, but verify before any `git status` flagged it as untracked.** `Cargo.lock` has been tracked since 2026-07-11 (per the `.gitignore` comment + commit history). If `git status` ever shows `Cargo.lock` as untracked, that means someone re-ignored it — don't `git add` until you confirm.
+- **`components/domi.css` "dirty" status.** No longer pre-dirty as of 2026-07-06 (renamed + committed via the DOMicile rename). If `git status` ever flags it as dirty again, check the AGENTS.md TL;DR for the current state before assuming it's pre-existing.
 - **Touching the library by accident.** If your change set includes files under `tokens/` or `components/`, stop and ask the user before committing.
 - **Editing a file past its size threshold.** `node tools/check-file-size.mjs` reports any file ≥500 lines. Adding to one of those files is a hard stop; extract a coherent responsibility first.
 - **Tokens for things already in context.** When the contents of a file are already in your conversation (you read it earlier this session), don't re-read it — reference the prior read instead.
