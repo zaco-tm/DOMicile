@@ -18,7 +18,7 @@ All notable changes to DOMicile are documented here. The format follows [Keep a 
 
 ### Pending decisions (see `README.md` and handoffs for current status)
 
-- npm publish of `domicile-react` and `domicile-astro` to the public registry.
+- ~~npm publish of `domicile-react` and `domicile-astro` to the public registry.~~ Already published as `0.1.0` on 2026-07-11/12. The CHANGELOG note was stale. Maintain the publish-after-tag step documented in INSTALL.md (apply equally to npm + crates.io + GitHub Releases).
 - ~~crates.io release of `domi-egui` (currently `publish = false`).~~ Already published as `domi-egui 0.1.0` on 2026-07-12. The CHANGELOG note was stale. `domi-server` is on crates.io as of 0.1.3; maintain the publish-after-tag step documented in INSTALL.md.
 - Full GitHub Actions CI matrix (node + rust). The release workflow (`.github/workflows/release.yml`) covers the 5-target matrix; a per-PR CI matrix for `cargo test --workspace` and `npm test` is still pending.
 - v1.0 tag.
@@ -94,6 +94,11 @@ served from this tag; `tools/domi-fetch.sh install` will download them.
 ## [0.1.0] — 2026-07-06
 
 Initial public release. Bundles everything shipped through Phase 4 on `main`.
+
+### Published
+- 2026-07-11/12: `domicile-react@0.1.0`, `domicile-astro@0.1.0`, `domi-server@0.1.0`,
+  `domi-egui@0.1.0` published to npm and crates.io a few days after
+  the GitHub release. All at `0.1.0`.
 
 ### Added
 
