@@ -3,6 +3,10 @@
 .superpowers/
 .omo/
 
+# Git worktree machinery (project-local feature branches).
+# Linked worktrees live here so we don't pollute the main checkout.
+.worktrees/
+
 # Scratch / throwaway artifacts (untracked working files, generated media,
 # in-progress downloads). Safe to delete at any time.
 tmp/
