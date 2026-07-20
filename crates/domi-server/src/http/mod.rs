@@ -9,11 +9,14 @@ pub mod state;
 pub mod ws;
 
 use std::sync::Arc;
+use std::time::Duration;
 
+use tokio::sync::broadcast;
 use tracing_subscriber::EnvFilter;
 
 use crate::events::EventWriter;
-use crate::serve::watcher::{NotifyWatcher, WatchEventKind, Watcher};
+use crate::serve::file_change::{FileChange, FileChangeBroadcaster};
+use crate::serve::watcher::NotifyWatcher;
 
 use self::args::Args;
 use self::state::AppState;
@@ -31,6 +34,10 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
     // 3. Construct EventWriter (sync).
     let writer = Arc::new(EventWriter::new(&events_path));
 
+    // 3.5. Construct the file-change broadcast channel BEFORE AppState so
+    // AppState can hold the sender.
+    let (file_changes_tx, _) = broadcast::channel::<FileChange>(64);
+
     // 4. Construct AppState.
     let state = Arc::new(AppState::new(
         args.root.clone(),
@@ -38,10 +45,26 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
         writer,
         256,
         args.library_root.clone(),
+        file_changes_tx,
+        200,
     ));
 
-    // 5. Spawn watcher logger.
-    spawn_watcher_logger(&args.root);
+    // 5. Spawn the file-change broadcaster.
+    match NotifyWatcher::new(&args.root, 50) {
+        Ok(watcher) => {
+            let bc = FileChangeBroadcaster::new(
+                Box::new(watcher),
+                args.root.clone(),
+                state.file_change_state_dir.clone(),
+                Duration::from_millis(state.file_change_debounce_ms as u64),
+                state.file_changes.clone(),
+            );
+            tokio::spawn(bc.run());
+        }
+        Err(e) => {
+            tracing::warn!(error = %e, "watcher init failed; continuing without auto-reload");
+        }
+    }
 
     // 6. Build router.
     let router = router::build_router(state.clone());
@@ -58,38 +81,6 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
         .await?;
 
     Ok(())
-}
-
-fn spawn_watcher_logger(root: &std::path::Path) {
-    let mut watcher = match NotifyWatcher::new(root, 50) {
-        Ok(w) => w,
-        Err(e) => {
-            tracing::warn!(error = %e, "watcher init failed; continuing without");
-            return;
-        }
-    };
-    tokio::spawn(async move {
-        loop {
-            match watcher.next_event(500) {
-                Ok(Some(ev)) => {
-                    let kind = match ev.kind {
-                        WatchEventKind::Created => "created",
-                        WatchEventKind::Modified => "modified",
-                        WatchEventKind::Removed => "removed",
-                        WatchEventKind::Any => "any",
-                    };
-                    for p in &ev.paths {
-                        tracing::debug!(kind, path = %p.display(), "watcher");
-                    }
-                }
-                Ok(None) => continue,
-                Err(e) => {
-                    tracing::warn!(error = %e, "watcher error; stopping");
-                    break;
-                }
-            }
-        }
-    });
 }
 
 async fn shutdown_signal() {

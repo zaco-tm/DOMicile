@@ -88,12 +88,14 @@ domi push --server http://127.0.0.1:4173 \
 Connection lifecycle:
 
 1. Client opens `ws://HOST:PORT/ws/events`.
-2. Server sends `{"type":"hello","v":2,"serverId":"<ULID>"}`.
-3. Server forwards each new event as `{"type":"event","event":<Event>}`.
-4. Server pings with `{"type":"ping"}` every 30 seconds. Client may pong; absence is logged `warn`.
-5. Server closes on shutdown. Client reconnects with backoff, then calls `GET /api/events?since=<last-id>` to re-sync.
+2. Server sends `{"type":"hello","v":2,"serverId":"<ULID>","debounceMs":<N>}`. `debounceMs` is the file-change debounce window the server is currently using (default 200 ms) — informational, for future "reloading in…" UI.
+3. Client sends `{"type":"subscribe","path":"/<open-path>"}` once to declare the URL the tab is viewing. The server uses this to filter `MatchingPath` reloads to the right tabs. Clients that never send `subscribe` still receive `AllTabs` reloads.
+4. Server forwards each new event as `{"type":"event","event":<Event>}`.
+5. When a watched file changes, server sends `{"type":"reload","path":"<rel>","target":"path"|"all"}`. Clients MUST call `location.reload()` on receipt. `target` is `"path"` if the server sent it because the changed file's relative path matched this tab's subscribed URL (HTML change → only matching tabs reload). `target` is `"all"` if the server sent it to every tab because the change is a shared asset (CSS/JS/image → every tab reloads). `path` is the changed file's path relative to the served root, for debugging/logging.
+6. Server pings with `{"type":"ping"}` every 30 seconds. Client may pong; absence is logged `warn`.
+7. Server closes on shutdown. Client reconnects with backoff, then calls `GET /api/events?since=<last-id>` to re-sync.
 
-Future message types (e.g., `subscribe`, `pong`) MAY be added in later server versions. Clients MUST ignore unknown message types.
+Future message types (e.g., `pong`) MAY be added in later server versions. Clients MUST ignore unknown message types.
 
 ## JSONL file conventions
 

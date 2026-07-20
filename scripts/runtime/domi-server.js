@@ -5,7 +5,10 @@
   let socket;
   function connect() {
     socket = new WebSocket(url);
-    socket.addEventListener('open', () => dispatchEvent(new CustomEvent('domi-server-open')));
+    socket.addEventListener('open', () => {
+      dispatchEvent(new CustomEvent('domi-server-open'));
+      socket.send(JSON.stringify({ type: 'subscribe', path: location.pathname }));
+    });
     socket.addEventListener('close', () => setTimeout(connect, 500));
     socket.addEventListener('error', () => setTimeout(connect, 500));
     socket.addEventListener('message', (ev) => {
@@ -13,6 +16,8 @@
         const msg = JSON.parse(ev.data);
         if (msg && msg.type === 'event' && msg.event) {
           dispatchEvent(new CustomEvent('domi-event', { detail: msg.event }));
+        } else if (msg && msg.type === 'reload') {
+          location.reload();
         }
       } catch (_) {}
     });

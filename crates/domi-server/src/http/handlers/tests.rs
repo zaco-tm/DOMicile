@@ -22,7 +22,9 @@ fn test_state() -> (Arc<AppState>, tempfile::TempDir) {
     test_state_with_library(None)
 }
 
-fn test_state_with_library(library_root: Option<std::path::PathBuf>) -> (Arc<AppState>, tempfile::TempDir) {
+fn test_state_with_library(
+    library_root: Option<std::path::PathBuf>,
+) -> (Arc<AppState>, tempfile::TempDir) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("root");
     let state = dir.path().join("state");
@@ -30,7 +32,16 @@ fn test_state_with_library(library_root: Option<std::path::PathBuf>) -> (Arc<App
     std::fs::create_dir_all(&state).unwrap();
     let events = state.join("events.jsonl");
     let writer = Arc::new(EventWriter::new(&events));
-    let app_state = Arc::new(AppState::new(root, state, writer, 16, library_root));
+    let (file_tx, _) = tokio::sync::broadcast::channel::<crate::serve::file_change::FileChange>(16);
+    let app_state = Arc::new(AppState::new(
+        root,
+        state,
+        writer,
+        16,
+        library_root,
+        file_tx,
+        200,
+    ));
     (app_state, dir)
 }
 
@@ -146,7 +157,10 @@ async fn serve_html_200_with_shim_injected() {
     let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
     let s = std::str::from_utf8(&body).unwrap();
     assert!(s.contains("window.__DOMI_SERVER__"), "shim injected");
-    assert!(s.contains("runtime/domi.js"), "original script tag preserved");
+    assert!(
+        s.contains("runtime/domi.js"),
+        "original script tag preserved"
+    );
     // shim must come BEFORE the original `<script>` so it sets the flag first.
     let shim_pos = s.find("window.__DOMI_SERVER__").unwrap();
     let original_pos = s.find("runtime/domi.js").unwrap();
