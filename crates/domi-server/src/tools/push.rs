@@ -29,7 +29,7 @@ use url::Url;
 /// Args for `domi push` (see `crate::tools::cli::PushArgs` for docs).
 #[derive(Debug, Clone, ClapArgs)]
 pub struct PushArgs {
-    /// Event kind (e.g., `comment`, `rail-add`, `click`).
+    /// Event kind (e.g., `comment`, `rail-add`, `click`, `agent-iterating`).
     #[arg(long)]
     pub r#type: String,
 
@@ -42,9 +42,14 @@ pub struct PushArgs {
     pub target: Option<String>,
 
     /// Full event payload as a JSON string. When provided, overrides the
-    /// `--type`/`--doc`/`--target` defaults and is sent verbatim.
+    /// `--type`/`--doc`/`--target`/`--state` defaults and is sent verbatim.
     #[arg(long)]
     pub json: Option<String>,
+
+    /// State for `--type agent-iterating`: `start` or `end`. Required when
+    /// `--type=agent-iterating`; ignored for other types.
+    #[arg(long, value_parser = ["start", "end"])]
+    pub state: Option<String>,
 }
 
 /// POST a single event to the configured server.
@@ -68,19 +73,47 @@ pub async fn run(args: PushArgs, server: &Url) -> i32 {
                 return 2;
             }
         },
-        None => json!({
-            "v": 2,
-            "id": null,
-            "src": "domi.js",
-            "kind": args.r#type,
-            "doc": args.doc.clone().unwrap_or_else(|| "synthetic".to_string()),
-            "target": {
-                "id": args.target.clone().unwrap_or_default(),
-                "selector": null,
-                "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
-            },
-            "data": {},
-        }),
+        None => {
+            if args.r#type == "agent-iterating" {
+                match args.state.as_deref() {
+                    Some(s @ ("start" | "end")) => json!({
+                        "v": 2,
+                        "id": null,
+                        "src": "domi",
+                        "kind": "agent-iterating",
+                        "doc": args.doc.clone().unwrap_or_else(|| "synthetic".to_string()),
+                        "target": {
+                            "id": args.target.clone().unwrap_or_default(),
+                            "selector": null,
+                            "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
+                        },
+                        "data": { "state": s, "source": "explicit" },
+                    }),
+                    Some(other) => {
+                        eprintln!("--state must be 'start' or 'end', got '{other}'");
+                        return 2;
+                    }
+                    None => {
+                        eprintln!("--type=agent-iterating requires --state <start|end>");
+                        return 2;
+                    }
+                }
+            } else {
+                json!({
+                    "v": 2,
+                    "id": null,
+                    "src": "domi.js",
+                    "kind": args.r#type,
+                    "doc": args.doc.clone().unwrap_or_else(|| "synthetic".to_string()),
+                    "target": {
+                        "id": args.target.clone().unwrap_or_default(),
+                        "selector": null,
+                        "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
+                    },
+                    "data": {},
+                })
+            }
+        }
     };
 
     // 2. Build the HTTP client. 5s timeout keeps `push_unreachable`
@@ -153,5 +186,45 @@ mod tests {
             "ts must be omitted so the server stamps it"
         );
         assert_eq!(body["id"], serde_json::Value::Null);
+    }
+
+    #[test]
+    fn agent_iterating_payload_uses_domi_source_and_correct_data_shape() {
+        let body = json!({
+            "v": 2,
+            "id": null,
+            "src": "domi",
+            "kind": "agent-iterating",
+            "doc": "test",
+            "target": {
+                "id": "",
+                "selector": null,
+                "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
+            },
+            "data": { "state": "start", "source": "explicit" },
+        });
+        assert_eq!(body["src"], "domi", "explicit CLI must stamp src=domi");
+        assert_eq!(body["kind"], "agent-iterating");
+        assert_eq!(body["data"]["state"], "start");
+        assert_eq!(body["data"]["source"], "explicit");
+    }
+
+    #[test]
+    fn agent_iterating_end_payload() {
+        let body = json!({
+            "v": 2,
+            "id": null,
+            "src": "domi",
+            "kind": "agent-iterating",
+            "doc": "test",
+            "target": {
+                "id": "",
+                "selector": null,
+                "rect": {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
+            },
+            "data": { "state": "end", "source": "explicit" },
+        });
+        assert_eq!(body["data"]["state"], "end");
+        assert_eq!(body["data"]["source"], "explicit");
     }
 }
