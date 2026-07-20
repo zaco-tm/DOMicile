@@ -15,9 +15,9 @@ If you read a `v` other than `2`, branch. Older (`v: 1`) events came from legacy
   "v": 2,
   "id": "01J8XZQ5K2J9Z9Q4X5Y6Z7X8Y1",
   "ts": "2026-07-05T18:21:00.000Z",
-  "src": "domi.js | domi-audit.js | browser-ext | unknown",
+  "src": "domi.js | domi-audit.js | browser-ext | domi-server | domi | unknown",
   "doc": "<docName>",
-  "kind": "click | input | submit | rail-add | rail-resolve | custom",
+  "kind": "click | input | submit | rail-add | rail-resolve | custom | agent-iterating",
   "target": {
     "id": "data-feedback attribute, or null",
     "selector": "CSS selector path, or null",
@@ -39,6 +39,7 @@ If you read a `v` other than `2`, branch. Older (`v: 1`) events came from legacy
 | `rail-add` | `{ body: string, targetId: string \| null }` |
 | `rail-resolve` | `{ entryId: ULID }` |
 | `custom` | `{ payload: any }` |
+| `agent-iterating` | `{ state: "start" \| "end", source: "watcher" \| "explicit" }` |
 
 Anything else is a server error — the server rejects with `400`.
 
@@ -50,6 +51,15 @@ The same event JSON reaches the agent via either of:
 - **WebSocket:** `ws://localhost:PORT/ws/events`.
 
 Consumers pick one or both. The server's contract is identical for both — neither channel is "more canonical." If they ever disagree (e.g., crash between append and broadcast), the file is the source of truth at restart; the WS client re-syncs via `GET /api/events?since=<last-seen-id>`.
+
+### Agent-iteration status
+
+`agent-iterating` events signal that an agent (human or LLM) is mid-edit on a doc. They are emitted by:
+
+- **Watcher (`source: "watcher"`)** — `domi-server` watches `.domi/output/**/*.html` and broadcasts a `start` event on first modify, an `end` event after `--iter-quiescence-ms` of quiet (default 1500ms), or a forced `end` after `--iter-max-duration-ms` (default 30000ms).
+- **Explicit CLI (`source: "explicit"`)** — agents can post `domi push --type agent-iterating --state <start|end> --doc <name>` to extend or close the in-flight window without touching a file (planning phase, web fetch, etc.).
+
+Clients ignore `agent-iterating` events for docs they are not viewing. Pages that load after a `start` event has already been emitted do NOT receive a backfill — the modal stays hidden until the next watcher activity (matches the existing v=2 contract: events are not backfilled to late-joining clients).
 
 ## HTTP routes
 
