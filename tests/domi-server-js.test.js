@@ -20,7 +20,10 @@ describe('domi-server.js shim', () => {
     expect(SHIM).not.toContain('localhost:');
   });
 
-  it('is under 1 KB', () => {
-    expect(SHIM.length).toBeLessThanOrEqual(1024);
+  it('is under 2 KB', () => {
+    // Was 1 KB before the auto-reload feature added subscribe + reload handlers;
+    // bumped to 2 KB to reflect that. The shim is still tiny for a runtime
+    // embedded by build.rs and loaded by every working doc.
+    expect(SHIM.length).toBeLessThanOrEqual(2048);
   });
 });
