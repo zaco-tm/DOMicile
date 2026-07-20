@@ -24,7 +24,7 @@
     },
     "src": {
       "type": "string",
-      "enum": ["domi.js", "domi-audit.js", "browser-ext", "unknown"],
+      "enum": ["domi.js", "domi-audit.js", "browser-ext", "domi-server", "domi", "unknown"],
       "description": "Which runtime produced the event."
     },
     "doc": {
@@ -34,7 +34,7 @@
     },
     "kind": {
       "type": "string",
-      "enum": ["click", "input", "submit", "rail-add", "rail-resolve", "custom"],
+      "enum": ["click", "input", "submit", "rail-add", "rail-resolve", "custom", "agent-iterating"],
       "description": "Event kind. Determines the shape of `data`."
     },
     "target": {
@@ -153,6 +153,21 @@
             "required": ["payload"],
             "properties": {
               "payload": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "agent-iterating" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["state", "source"],
+            "properties": {
+              "state": { "type": "string", "enum": ["start", "end"] },
+              "source": { "type": "string", "enum": ["watcher", "explicit"] }
             }
           }
         }

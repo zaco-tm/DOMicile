@@ -100,6 +100,54 @@ describe('event.schema.json', () => {
   });
 });
 
+describe('agent-iterating kind', () => {
+  const baseEvent = {
+    v: 2,
+    id: '01J8XZQ5K2J9Z9Q4X5Y6Z7X8Y1',
+    ts: '2026-07-20T18:21:00.000Z',
+    src: 'domi-server',
+    doc: 'test',
+    kind: 'agent-iterating',
+    target: { id: null, selector: null, rect: { x: 0, y: 0, w: 0, h: 0 } },
+    data: { state: 'start', source: 'watcher' },
+  };
+
+  it('accepts valid agent-iterating start event from watcher', () => {
+    expect(validate(baseEvent)).toBe(true);
+  });
+
+  it('accepts agent-iterating end event from explicit CLI', () => {
+    const ev = structuredClone(baseEvent);
+    ev.src = 'domi';
+    ev.data = { state: 'end', source: 'explicit' };
+    expect(validate(ev)).toBe(true);
+  });
+
+  it('rejects agent-iterating event missing state field', () => {
+    const ev = structuredClone(baseEvent);
+    ev.data = { source: 'watcher' };
+    expect(validate(ev)).toBe(false);
+  });
+
+  it('rejects agent-iterating event with invalid state value', () => {
+    const ev = structuredClone(baseEvent);
+    ev.data = { state: 'running', source: 'watcher' };
+    expect(validate(ev)).toBe(false);
+  });
+
+  it('rejects agent-iterating event with unknown source value', () => {
+    const ev = structuredClone(baseEvent);
+    ev.data = { state: 'start', source: 'auto' };
+    expect(validate(ev)).toBe(false);
+  });
+
+  it('rejects agent-iterating event with extra fields in data', () => {
+    const ev = structuredClone(baseEvent);
+    ev.data = { state: 'start', source: 'watcher', extra: true };
+    expect(validate(ev)).toBe(false);
+  });
+});
+
 describe('WIRE-PROTOCOL.md (drift guard against the spec markdown)', () => {
   const wireDoc = readFileSync(resolve(here, '../docs/WIRE-PROTOCOL.md'), 'utf8');
 
