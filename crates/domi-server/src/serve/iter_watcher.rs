@@ -66,6 +66,10 @@ impl<W: Watcher> IterWatcher<W> {
         }
     }
 
+    pub fn broadcaster(&self) -> &broadcast::Sender<Event> {
+        &self.broadcaster
+    }
+
     /// Returns the document name for HTML beneath the served root.
     pub fn classify(&self, path: &Path) -> Option<String> {
         if path.starts_with(&self.state_dir) {

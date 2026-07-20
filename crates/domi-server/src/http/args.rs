@@ -17,6 +17,16 @@ pub struct Args {
     pub library_root: Option<PathBuf>,
     #[arg(long, default_value = "info")]
     pub log_level: String,
+    /// Quiescence window for the iter-watcher. After this many ms of no
+    /// `.html` modifications to a doc, an `agent-iterating` `end` event is
+    /// emitted. Default 1500.
+    #[arg(long, default_value_t = 1500)]
+    pub iter_quiescence_ms: u32,
+    /// Hard timeout for an iteration cycle. After this many ms, an
+    /// `agent-iterating` `end` event is emitted even if modifications
+    /// continue. Default 30000.
+    #[arg(long, default_value_t = 30000)]
+    pub iter_max_duration_ms: u32,
 }
 
 #[cfg(test)]
@@ -31,6 +41,20 @@ mod tests {
         assert_eq!(a.root, PathBuf::from(".domi/output"));
         assert_eq!(a.state, PathBuf::from(".domi/state"));
         assert_eq!(a.log_level, "info");
+        assert_eq!(a.iter_quiescence_ms, 1500);
+        assert_eq!(a.iter_max_duration_ms, 30_000);
+    }
+
+    #[test]
+    fn iter_flags_override() {
+        let a = Args::try_parse_from([
+            "domi-server",
+            "--iter-quiescence-ms", "500",
+            "--iter-max-duration-ms", "10000",
+        ])
+        .unwrap();
+        assert_eq!(a.iter_quiescence_ms, 500);
+        assert_eq!(a.iter_max_duration_ms, 10_000);
     }
 
     #[test]

@@ -16,6 +16,7 @@ use tracing_subscriber::EnvFilter;
 
 use crate::events::EventWriter;
 use crate::serve::file_change::{FileChange, FileChangeBroadcaster};
+use crate::serve::iter_watcher::{IterConfig, IterWatcher};
 use crate::serve::watcher::NotifyWatcher;
 
 use self::args::Args;
@@ -63,6 +64,39 @@ pub async fn run(args: Args) -> Result<(), Box<dyn std::error::Error + Send + Sy
         }
         Err(e) => {
             tracing::warn!(error = %e, "watcher init failed; continuing without auto-reload");
+        }
+    }
+
+    // 5.5 Spawn the iter-watcher (agent-iterating events).
+    match NotifyWatcher::new(&args.root, 50) {
+        Ok(watcher) => {
+            let iter_config = IterConfig {
+                quiescence_ms: args.iter_quiescence_ms,
+                max_duration_ms: args.iter_max_duration_ms,
+            };
+            let broadcaster = state.broadcaster.clone();
+            let root = args.root.clone();
+            let state_dir = args.state.clone();
+            tokio::task::spawn_blocking(move || {
+                let mut iw = IterWatcher::new(
+                    watcher,
+                    root,
+                    state_dir,
+                    iter_config,
+                    broadcaster,
+                    std::time::Instant::now(),
+                );
+                loop {
+                    let now = std::time::Instant::now();
+                    for (_, event) in iw.tick(now) {
+                        let _ = iw.broadcaster().send(event);
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                }
+            });
+        }
+        Err(e) => {
+            tracing::warn!(error = %e, "iter-watcher init failed; continuing without iter status");
         }
     }
 
