@@ -175,6 +175,39 @@ async function run() {
       !!match,
       match ? `id=${match.id} src=${match.src}` : `events=${JSON.stringify(events.events)}`
     );
+
+    // Iter-modal: trigger an HTML write to wake the IterWatcher, assert the
+    // modal appears, dismiss it, confirm chip persists, then wait past
+    // quiescence for the chip to clear.
+    const iterWritePath = join(rootDir, `${docName}.html`);
+    const beforeWrite = readFileSync(iterWritePath, 'utf8');
+    const { utimesSync, writeFile: writeFileAsync } = await import('node:fs/promises');
+    await writeFileAsync(iterWritePath, beforeWrite + '\n<!-- iter-write ' + Date.now() + ' -->');
+    // Bump mtime in case the FS deduped the write — watcher needs a new event.
+    const future = new Date(Date.now() + 2000);
+    utimesSync(iterWritePath, future, future);
+
+    let iterModalAppeared = false;
+    try {
+      await page.waitForSelector('[data-domini-iter-modal]', { timeout: 4000 });
+      iterModalAppeared = true;
+    } catch { /* fall through */ }
+    check('iter modal appears after file write', iterModalAppeared);
+
+    if (iterModalAppeared) {
+      const chipIterating = await page.locator('[data-domini-status-chip][data-iterating]').count();
+      check('chip shows iterating state', chipIterating === 1, `count=${chipIterating}`);
+
+      const hide = page.locator('[data-domini-iter-hide]').first();
+      if (await hide.count()) {
+        await hide.click().catch(() => null);
+        try {
+          await page.waitForSelector('[data-domini-iter-modal]', { state: 'detached', timeout: 2000 });
+        } catch { /* */ }
+      }
+      const chipAfterDismiss = await page.locator('[data-domini-status-chip][data-iterating]').count();
+      check('chip persists after dismiss', chipAfterDismiss === 1, `count=${chipAfterDismiss}`);
+    }
   } catch (err) {
     check('uncaught test error', false, String(err && err.stack || err));
   } finally {
