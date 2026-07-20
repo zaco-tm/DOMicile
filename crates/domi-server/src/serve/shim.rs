@@ -1,8 +1,10 @@
-//! Embedded server-side shim. Build script reads `scripts/domi-server.js`
-//! at compile time and produces `SHIM_BYTES` (the raw bytes) and
-//! `SHIM_BYTES_LEN` (length) so `serve_file` can inject without runtime I/O.
+//! Embedded server-side shims. Build script reads `scripts/runtime/*.js`
+//! at compile time and produces `SHIM_BYTES` (the WS-bridge shim) and
+//! `STATUS_SHIM_BYTES` (the iter-status modal shim), so `serve_file` can
+//! inject without runtime I/O.
 
 include!(concat!(env!("OUT_DIR"), "/shim_token.rs"));
+include!(concat!(env!("OUT_DIR"), "/status_shim_token.rs"));
 
 #[cfg(test)]
 mod tests {
@@ -10,7 +12,6 @@ mod tests {
 
     #[test]
     fn shim_contains_marker() {
-        // Sanity: the embedded bytes actually contain the marker line.
         let s = std::str::from_utf8(SHIM_BYTES).expect("shim is utf-8");
         assert!(
             s.contains("window.__DOMI_SERVER__"),
@@ -29,5 +30,18 @@ mod tests {
     #[test]
     fn shim_under_2kb_safety_margin() {
         assert!(SHIM_BYTES.len() <= 2048);
+    }
+
+    #[test]
+    fn status_shim_subscribes_to_agent_iterating_events() {
+        let s = std::str::from_utf8(STATUS_SHIM_BYTES).expect("status shim is utf-8");
+        assert!(s.contains("agent-iterating"), "status shim must filter agent-iterating events");
+        assert!(s.contains("domi-event"), "status shim must listen on domi-event");
+        assert!(s.contains("Iterating"), "status shim must render the Iterating label");
+    }
+
+    #[test]
+    fn status_shim_is_nontrivial() {
+        assert!(STATUS_SHIM_BYTES.len() > 500, "status shim should include the modal + chip logic");
     }
 }

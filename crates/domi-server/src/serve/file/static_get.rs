@@ -13,31 +13,28 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use super::safety::{content_type_for_path, ensure_no_parent_dir_components};
-use crate::serve::shim::SHIM_BYTES;
+use crate::serve::shim::{SHIM_BYTES, STATUS_SHIM_BYTES};
 
-/// Insert shim bytes as an inline-blocking `<script>` before the first
-/// `<script>` tag (opening tag — not a `</script>` closer). If no opening
-/// `<script>` tag exists, the body is returned unchanged (we don't mint
-/// a new tag — the page would have to opt in).
+/// Concatenated shims injected as a single inline-blocking `<script>`
+/// before the first opening `<script>` tag. The WS-bridge shim sets
+/// `window.__DOMI_SERVER__` and opens the WebSocket; the iter-status
+/// shim subscribes to `domi-event` and toggles the modal + chip.
 fn inject_shim_inline(body: Vec<u8>) -> Vec<u8> {
     let open = b"<script";
     if !body.windows(open.len()).any(|w| w == open) {
         return body;
     }
-    let mut out =
-        Vec::with_capacity(body.len() + SHIM_BYTES.len() + open.len() + b"></script>".len());
+    let mut out = Vec::with_capacity(
+        body.len() + SHIM_BYTES.len() + STATUS_SHIM_BYTES.len() + open.len() + b"></script>".len(),
+    );
     let mut injected = false;
     let mut i = 0usize;
     while i < body.len() {
         if !injected && body[i..].starts_with(&open[..]) {
-            // Emit injected inline-blocking <script>.
             out.extend_from_slice(b"<script>");
             out.extend_from_slice(SHIM_BYTES);
+            out.extend_from_slice(STATUS_SHIM_BYTES);
             out.extend_from_slice(b"</script>");
-            // Preserve the original opening tag verbatim, then skip
-            // any whitespace immediately after it (newline/tab between
-            // the `<script>` and inline content). The tag itself stays
-            // intact so `<script src="...">` keeps its `src`.
             let tag_end = body[i..]
                 .iter()
                 .position(|&b| b == b'>')
