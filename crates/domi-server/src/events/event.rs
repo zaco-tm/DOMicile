@@ -23,6 +23,10 @@ pub enum Source {
     DomiAuditJs,
     #[serde(rename = "browser-ext")]
     BrowserExt,
+    #[serde(rename = "domi-server")]
+    Server,
+    #[serde(rename = "domi")]
+    Domi,
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -36,6 +40,7 @@ pub enum Kind {
     RailAdd,
     RailResolve,
     Custom,
+    AgentIterating,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -47,7 +52,15 @@ pub enum EventData {
     // `{body, targetId}` payload — the rail-add wire shape from
     // domi-audit.js — binds to RailAdd rather than accidentally binding
     // to Click with `body` ignored as an unknown field.
+    // AgentIterating follows the same convention: both its fields are
+    // required String, so it must precede the greedy Click variant —
+    // otherwise a `{state, source}` payload would silently bind to
+    // Click with state/source dropped as unknown fields.
     RailAdd { body: String, #[serde(rename = "targetId")] target_id: Option<String> },
+    AgentIterating {
+        state: String,    // "start" | "end"
+        source: String,   // "watcher" | "explicit"
+    },
     Click { value: Option<String> },
     Input { name: String, value: String },
     Submit {
@@ -130,5 +143,30 @@ mod tests {
             let back: super::Event = serde_json::from_str(&s).expect("deserialize");
             assert_eq!(ev.id, back.id);
         }
+    }
+
+    #[test]
+    fn agent_iterating_kind_serializes_as_kebab() {
+        let k = super::Kind::AgentIterating;
+        let s = serde_json::to_string(&k).unwrap();
+        assert_eq!(s, "\"agent-iterating\"");
+    }
+
+    #[test]
+    fn agent_iterating_data_round_trip() {
+        let data = super::EventData::AgentIterating {
+            state: "start".into(),
+            source: "watcher".into(),
+        };
+        let json = serde_json::to_string(&data).unwrap();
+        assert_eq!(json, r#"{"state":"start","source":"watcher"}"#);
+        let back: super::EventData = serde_json::from_str(&json).unwrap();
+        assert_eq!(back, data);
+    }
+
+    #[test]
+    fn source_server_and_domi_serialize_correctly() {
+        assert_eq!(serde_json::to_string(&super::Source::Server).unwrap(), "\"domi-server\"");
+        assert_eq!(serde_json::to_string(&super::Source::Domi).unwrap(), "\"domi\"");
     }
 }
