@@ -62,11 +62,10 @@ fn sample_payload(doc: &str) -> serde_json::Value {
     })
 }
 
-fn write_three_events(state: &Arc<AppState>) -> Vec<Ulid> {
+fn write_three_events_with_ids(state: &Arc<AppState>, ids: &[Ulid; 3]) -> Vec<Ulid> {
     let w = state.writer.clone();
-    let mut ids = Vec::new();
-    for i in 0..3 {
-        let id = Ulid::new();
+    let mut written = Vec::with_capacity(3);
+    for (i, &id) in ids.iter().enumerate() {
         let ev = Event {
             v: 2,
             id,
@@ -89,9 +88,24 @@ fn write_three_events(state: &Arc<AppState>) -> Vec<Ulid> {
             },
         };
         w.write(&ev).unwrap();
-        ids.push(id);
+        written.push(id);
     }
-    ids
+    written
+}
+
+/// Writes three events with lexicographically-ordered, fixed ULIDs so any
+/// test that depends on the IDs being in a known order (e.g. the
+/// `?since=<first id>` cursor filter) is deterministic. ULIDs are
+/// 26-char Crockford base32; the trailing `0/1/2` makes the order explicit.
+fn write_three_events(state: &Arc<AppState>) -> Vec<Ulid> {
+    write_three_events_with_ids(
+        state,
+        &[
+            Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ0").unwrap(),
+            Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ1").unwrap(),
+            Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ2").unwrap(),
+        ],
+    )
 }
 
 fn app_router(state: Arc<AppState>) -> axum::Router {

@@ -5,7 +5,7 @@ use axum::{
     extract::State,
     response::IntoResponse,
 };
-use futures::{SinkExt, StreamExt};
+use futures::StreamExt;
 use serde_json::json;
 use tokio::sync::broadcast::error::RecvError;
 
@@ -132,6 +132,7 @@ fn filter_for_conn(fc: &FileChange, conn: &Arc<ConnState>) -> Option<ReloadTarge
 mod tests {
     use super::*;
     use crate::events::{Event, EventData, EventWriter, Kind, Rect, Source, Target};
+    use futures::SinkExt;
     use std::path::PathBuf;
     use std::sync::Arc;
     use tempfile::tempdir;

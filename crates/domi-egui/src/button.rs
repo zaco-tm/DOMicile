@@ -69,7 +69,7 @@ pub fn domi_button(ui: &mut egui::Ui, props: ButtonProps) -> egui::Response {
         painter.rect_stroke(
             rect,
             theme.radius.1,
-            egui::Stroke::new(1.0, theme.text_default),
+            egui::Stroke::new(1.0_f32, theme.text_default),
             egui::StrokeKind::Inside,
         );
         let text_color = match variant {
