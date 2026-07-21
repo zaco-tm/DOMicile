@@ -89,6 +89,31 @@
     };
   }
 
+  const REF_RE = /@([0-9A-HJKMNP-TV-Z]{4,7})(?![0-9A-HJKMNP-TV-Z])/g;
+
+  function parseRefs(body, knownShorts) {
+    const segments = [];
+    let lastIndex = 0;
+    let m;
+    REF_RE.lastIndex = 0;
+    while ((m = REF_RE.exec(body)) !== null) {
+      const candidate = m[1];
+      if (knownShorts.has(candidate)) {
+        if (m.index > lastIndex) {
+          segments.push({ kind: 'text', value: body.slice(lastIndex, m.index) });
+        }
+        segments.push({ kind: 'ref', value: m[0], refId: candidate });
+        lastIndex = m.index + m[0].length;
+      }
+      // If not a known short, the @... stays as part of the surrounding text segment.
+    }
+    if (lastIndex < body.length) {
+      segments.push({ kind: 'text', value: body.slice(lastIndex) });
+    }
+    if (segments.length === 0) segments.push({ kind: 'text', value: '' });
+    return segments;
+  }
+
   function computeIterations(events) {
     const sorted = [...events].sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
     const iters = [];
@@ -285,5 +310,5 @@
     return JSON.stringify(_state);
   }
 
-  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON, _internals: { computeIterations } };
+  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON, _internals: { computeIterations, parseRefs } };
 })();
