@@ -89,6 +89,45 @@
     };
   }
 
+  function computeIterations(events) {
+    const sorted = [...events].sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
+    const iters = [];
+    let open = null; // index into iters, or null
+    let initial = { id: -1, startTs: null, endTs: null, entryIds: [], isInitial: true };
+    iters.push(initial);
+
+    for (const e of sorted) {
+      if (e.kind === 'agent-iterating' && e.data && (e.data.state === 'start' || e.data.state === 'end')) {
+        if (e.data.state === 'start') {
+          // Auto-close the prior open iteration (if any) at this start's ts.
+          if (open !== null) iters[open].endTs = e.ts;
+          const idx = iters.length;
+          iters.push({ id: iters.length, startTs: e.ts, endTs: null, entryIds: [], isInitial: false });
+          open = idx;
+        } else {
+          // end. If there's an open iteration, close it.
+          if (open !== null) {
+            iters[open].endTs = e.ts;
+            open = null;
+          }
+          // else: end without a preceding start — ignore.
+        }
+      } else if (e.kind === 'rail-add') {
+        // Sticky rule: bucket to the most recently opened real iteration, or the
+        // synthetic initial group if no iteration has been opened yet.
+        const bucket = iters.length > 1 ? iters[iters.length - 1] : initial;
+        bucket.entryIds.push(e.id);
+      }
+      // other event kinds: ignored for iteration purposes.
+    }
+
+    // Drop the synthetic initial group if it has no entries.
+    if (initial.entryIds.length === 0) iters.shift();
+    // Reassign 1-based ids (the initial group used -1 as a placeholder).
+    iters.forEach((it, i) => { it.id = i + 1; });
+    return iters;
+  }
+
   function _render() {
     const list = document.querySelector('[data-domini-rail-list]');
     if (!list) return;
@@ -246,5 +285,5 @@
     return JSON.stringify(_state);
   }
 
-  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON };
+  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON, _internals: { computeIterations } };
 })();
