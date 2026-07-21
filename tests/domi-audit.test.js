@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const SRC = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
+const RENDER_SRC = readFileSync('scripts/runtime/domi-audit-render.js', 'utf8');
 
 describe('domi-audit.js runtime', () => {
   beforeEach(() => {
@@ -11,6 +12,7 @@ describe('domi-audit.js runtime', () => {
     // Eval the runtime fresh in this test world. vitest's vm context would be cleaner;
     // for a small runtime, dynamic import from the file works.
     globalThis.eval(SRC);
+    globalThis.eval(RENDER_SRC);
   });
 
   it('exposes DomiAudit with mount, addComment, export', () => {
@@ -256,8 +258,10 @@ describe('domi-audit.js runtime', () => {
 
 describe('domi-audit.js server mode', () => {
   let src;
+  let renderSrc;
   beforeEach(() => {
     src = readFileSync('scripts/runtime/domi-audit.js', 'utf8');
+    renderSrc = readFileSync('scripts/runtime/domi-audit-render.js', 'utf8');
     document.body.innerHTML = '';
     localStorage.clear();
     delete globalThis.DomiAudit;
@@ -269,11 +273,13 @@ describe('domi-audit.js server mode', () => {
     window.__DOMI_SERVER__ = true;
     window.location = { origin: 'http://x', pathname: '/' };
     (0, eval)(src);
+    (0, eval)(renderSrc);
   }
   function loadAsStandaloneMode() {
     window.__DOMI_SERVER__ = false;
     window.location = { origin: 'http://x', pathname: '/' };
     (0, eval)(src);
+    (0, eval)(renderSrc);
   }
 
   it('addComment POSTs a rail-add event in server mode', async () => {
