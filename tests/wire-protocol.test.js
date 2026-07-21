@@ -36,10 +36,11 @@ describe('event.schema.json', () => {
       '01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ4',
       '01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ5',
       '01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ6',
+      '01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ7',
     ];
     const entryId = '01H8XZQ5K2J9Z9Q4X5Y6Z7XXZ9';
     let i = 0;
-    for (const kind of ['click', 'input', 'submit', 'rail-add', 'rail-resolve', 'custom']) {
+    for (const kind of ['click', 'input', 'submit', 'rail-add', 'rail-resolve', 'rail-remove', 'custom']) {
       const e = structuredClone(MINIMAL_EVENT);
       e.kind = kind;
       e.id = ids[i++];
@@ -47,6 +48,7 @@ describe('event.schema.json', () => {
       else if (kind === 'submit') e.data = { formId: 'signup', fields: { email: 'a@b.co' } };
       else if (kind === 'rail-add') e.data = { body: 'too prominent', targetId: 'btn-save' };
       else if (kind === 'rail-resolve') e.data = { entryId };
+      else if (kind === 'rail-remove') e.data = { entryId };
       else if (kind === 'custom') e.data = { payload: { whatever: 'goes' } };
       expect(validate(e)).toBe(true);
     }
@@ -90,6 +92,20 @@ describe('event.schema.json', () => {
     const bad = structuredClone(MINIMAL_EVENT);
     bad.kind = 'rail-add';
     bad.data = { body: '', targetId: 'btn-save' };
+    expect(validate(bad)).toBe(false);
+  });
+
+  it('rejects rail-remove with no entryId', () => {
+    const bad = structuredClone(MINIMAL_EVENT);
+    bad.kind = 'rail-remove';
+    bad.data = {};
+    expect(validate(bad)).toBe(false);
+  });
+
+  it('rejects rail-remove with non-ULID entryId', () => {
+    const bad = structuredClone(MINIMAL_EVENT);
+    bad.kind = 'rail-remove';
+    bad.data = { entryId: 'not-a-ulid' };
     expect(validate(bad)).toBe(false);
   });
 
