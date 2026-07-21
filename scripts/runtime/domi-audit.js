@@ -10,8 +10,12 @@
       return null;
     }
     const raw = localStorage.getItem(STORAGE_PREFIX + docName);
-    if (!raw) return { version: 1, name: docName, entries: [] };
-    try { return JSON.parse(raw); } catch { return { version: 1, name: docName, entries: [] }; }
+    if (!raw) return { version: 1, name: docName, entries: [], removed: [] };
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.removed)) parsed.removed = [];
+      return parsed;
+    } catch { return { version: 1, name: docName, entries: [], removed: [] }; }
   }
 
   function saveEntries(docName, state) {
@@ -19,7 +23,7 @@
     localStorage.setItem(STORAGE_PREFIX + docName, JSON.stringify(state));
   }
 
-  let _state = { version: 1, name: '', entries: [] };
+  let _state = { version: 1, name: '', entries: [], removed: [], iterEvents: [] };
   let _docName = '';
   let _statePath = '';
   let _hydrationDone = false;
@@ -32,30 +36,41 @@
     return fetch(url)
       .then((r) => (r.ok ? r.json() : { events: [] }))
       .then((body) => {
-        const entries = (body.events || [])
-          .filter((e) => (e.src === 'domi-audit.js') && (e.kind === 'rail-add' || e.kind === 'rail-resolve'))
-          .map((e) => {
-            if (e.kind === 'rail-add') {
-              return {
-                id: e.id, targetId: (e.data && e.data.targetId) || null,
-                author: e.src === 'domi-audit.js' ? 'user' : 'agent',
-                timestamp: e.ts, body: (e.data && e.data.body) || '',
-                resolved: false,
-              };
-            }
-            // rail-resolve: mark existing entry resolved.
+        const events = (body.events || [])
+          .filter((e) => (
+            (e.src === 'domi-audit.js' && (e.kind === 'rail-add' || e.kind === 'rail-resolve' || e.kind === 'rail-remove'))
+            || (e.kind === 'agent-iterating')
+          ));
+        const entries = [];
+        const removed = new Set(_state.removed || []);
+        // _state.iterEvents must include both rail-add and agent-iterating
+        // events — computeIterations buckets rail-adds by the iter windows
+        // that are open at their ts, so it needs to see the rail-adds too.
+        // (Brief suggested filtering to only agent-iterating; that's the
+        // 4th brief bug — see task-5-report.md.)
+        const iterEvents = [];
+        for (const e of events) {
+          if (e.kind === 'rail-add') {
+            entries.push({
+              id: e.id,
+              targetId: (e.data && e.data.targetId) || null,
+              author: 'user',
+              timestamp: e.ts,
+              body: (e.data && e.data.body) || '',
+              resolved: false,
+            });
+            iterEvents.push(e);
+          } else if (e.kind === 'rail-remove') {
             const entryId = e.data && e.data.entryId;
-            if (entryId) {
-              const idx = _state.entries.findIndex((x) => x.id === entryId);
-              if (idx >= 0) _state.entries[idx] = Object.assign({}, _state.entries[idx], { resolved: true });
-            }
-            return null;
-          })
-          .filter(Boolean);
-        // Deduplicate by id (server may emit duplicates if WS and GET overlap).
+            if (entryId) removed.add(entryId);
+          } else if (e.kind === 'agent-iterating') {
+            iterEvents.push(e);
+          }
+        }
+        // Deduplicate entries by id.
         const seen = new Set();
         const merged = entries.filter((e) => { if (seen.has(e.id)) return false; seen.add(e.id); return true; });
-        return { version: 1, name: docName, entries: merged };
+        return { version: 1, name: docName, entries: merged, removed: Array.from(removed), iterEvents: iterEvents.sort((a, b) => (a.ts || '').localeCompare(b.ts || '')) };
       })
       .catch(() => _state);
   }
@@ -89,16 +104,95 @@
     };
   }
 
+  const REF_RE = /@([0-9A-HJKMNP-TV-Z]{4,7})(?![0-9A-HJKMNP-TV-Z])/g;
+
+  function parseRefs(body, knownShorts) {
+    const segments = [];
+    let lastIndex = 0;
+    let m;
+    REF_RE.lastIndex = 0;
+    while ((m = REF_RE.exec(body)) !== null) {
+      const candidate = m[1];
+      if (knownShorts.has(candidate)) {
+        if (m.index > lastIndex) {
+          segments.push({ kind: 'text', value: body.slice(lastIndex, m.index) });
+        }
+        segments.push({ kind: 'ref', value: m[0], refId: candidate });
+        lastIndex = m.index + m[0].length;
+      }
+      // If not a known short, the @... stays as part of the surrounding text segment.
+    }
+    if (lastIndex < body.length) {
+      segments.push({ kind: 'text', value: body.slice(lastIndex) });
+    }
+    if (segments.length === 0) segments.push({ kind: 'text', value: '' });
+    return segments;
+  }
+
+  function computeIterations(events) {
+    const sorted = [...events].sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
+    const iters = [];
+    let open = null; // index into iters, or null
+    let initial = { id: -1, startTs: null, endTs: null, entryIds: [], isInitial: true };
+    iters.push(initial);
+
+    for (const e of sorted) {
+      if (e.kind === 'agent-iterating' && e.data && (e.data.state === 'start' || e.data.state === 'end')) {
+        if (e.data.state === 'start') {
+          // Auto-close the prior open iteration (if any) at this start's ts.
+          if (open !== null) iters[open].endTs = e.ts;
+          const idx = iters.length;
+          iters.push({ id: iters.length, startTs: e.ts, endTs: null, entryIds: [], isInitial: false });
+          open = idx;
+        } else {
+          // end. If there's an open iteration, close it.
+          if (open !== null) {
+            iters[open].endTs = e.ts;
+            open = null;
+          }
+          // else: end without a preceding start — ignore.
+        }
+      } else if (e.kind === 'rail-add') {
+        // Sticky rule: bucket to the most recently opened real iteration, or the
+        // synthetic initial group if no iteration has been opened yet.
+        const bucket = iters.length > 1 ? iters[iters.length - 1] : initial;
+        bucket.entryIds.push(e.id);
+      }
+      // other event kinds: ignored for iteration purposes.
+    }
+
+    // Drop the synthetic initial group if it has no entries.
+    if (initial.entryIds.length === 0) iters.shift();
+    // Reassign 1-based ids (the initial group used -1 as a placeholder).
+    iters.forEach((it, i) => { it.id = i + 1; });
+    return iters;
+  }
+
+  // Crockford base-32 alphabet (no I, L, O, U).
+  const B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+
+  // 10 chars of timestamp + 16 chars of randomness = 26 chars total.
+  // Time-sortable like ULID, but local. Server stamps canonical ULIDs in
+  // server mode; this only runs in standalone.
+  function genLocalId() {
+    let s = '';
+    let n = Date.now();
+    for (let i = 0; i < 10; i++) {
+      s = B32[n & 0x1f] + s;
+      n = Math.floor(n / 32);
+    }
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    for (const b of bytes) s += B32[b & 0x1f];
+    return s;
+  }
+
+  // Thin orchestrator: the real DOM construction lives in
+  // scripts/runtime/domi-audit-render.js (loaded as a sibling IIFE). We
+  // dispatch through _internals.render so the main file can stay focused on
+  // state mgmt + wire protocol.
   function _render() {
-    const list = document.querySelector('[data-domini-rail-list]');
-    if (!list) return;
-    list.innerHTML = '';
-    _state.entries.forEach((e) => {
-      const li = document.createElement('li');
-      li.dataset.entryId = e.id;
-      li.textContent = `[${e.targetId || 'doc'}] ${e.body}`;
-      list.appendChild(li);
-    });
+    const render = globalThis.DomiAudit?._internals?.render;
+    if (typeof render === 'function') render();
   }
 
   function onServerEvent(event) {
@@ -113,6 +207,15 @@
         body: (event.data && event.data.body) || '',
         resolved: false,
       });
+      if (!Array.isArray(_state.iterEvents)) _state.iterEvents = [];
+      _state.iterEvents.push(event);
+      _state.iterEvents.sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
+      _render();
+    } else if (event.kind === 'rail-remove') {
+      const entryId = event.data && event.data.entryId;
+      if (entryId && !_state.removed.includes(entryId)) {
+        _state.removed.push(entryId);
+      }
       _render();
     } else if (event.kind === 'rail-resolve') {
       const entryId = event.data && event.data.entryId;
@@ -121,6 +224,11 @@
         _state.entries[idx] = Object.assign({}, _state.entries[idx], { resolved: true });
         _render();
       }
+    } else if (event.kind === 'agent-iterating') {
+      if (!Array.isArray(_state.iterEvents)) _state.iterEvents = [];
+      _state.iterEvents.push(event);
+      _state.iterEvents.sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
+      _render();
     }
   }
 
@@ -180,7 +288,16 @@
         const byId = new Map();
         bootMirror.entries.forEach((e) => byId.set(e.id, e));
         serverState.entries.forEach((e) => byId.set(e.id, e));
-        _state = { version: 1, name: docName, entries: Array.from(byId.values()) };
+        const removed = new Set([
+          ...(bootMirror.removed || []),
+          ...(serverState.removed || []),
+        ]);
+        _state = {
+          version: 1, name: docName,
+          entries: Array.from(byId.values()),
+          removed: Array.from(removed),
+          iterEvents: serverState.iterEvents || [],
+        };
         _hydrationDone = true;
         _render();
       });
@@ -197,8 +314,12 @@
   // Boot mirror read (always, even in server mode — see Q1=A).
   function loadLocal(docName) {
     const raw = localStorage.getItem(STORAGE_PREFIX + docName);
-    if (!raw) return { version: 1, name: docName, entries: [] };
-    try { return JSON.parse(raw); } catch { return { version: 1, name: docName, entries: [] }; }
+    if (!raw) return { version: 1, name: docName, entries: [], removed: [] };
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.removed)) parsed.removed = [];
+      return parsed;
+    } catch { return { version: 1, name: docName, entries: [], removed: [] }; }
   }
 
   function addComment({ targetId, body }) {
@@ -210,7 +331,7 @@
       return;
     }
     const entry = {
-      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      id: genLocalId(),
       targetId: targetId || null,
       author: 'user',
       timestamp: new Date().toISOString(),
@@ -237,14 +358,35 @@
     }
   }
 
-  function exportJSON() {
+  function removeEntry(entryId) {
+    if (!entryId) return;
     if (SERVER) {
-      // Synchronous export returns the current in-memory state (after hydration).
-      // Phase 2 callers wanting the full server snapshot should use fetch.
-      return JSON.stringify(_state);
+      postRail({
+        kind: 'rail-remove',
+        target: null,
+        data: { entryId },
+      });
+      return;
     }
-    return JSON.stringify(_state);
+    // No-op for entryIds not present in _state.entries (avoids littering
+    // _state.removed with stale ULIDs from typos or replayed WS events).
+    if (!_state.entries.some((e) => e.id === entryId)) return;
+    if (!_state.removed.includes(entryId)) {
+      _state.removed.push(entryId);
+    }
+    saveEntries(_docName, _state);
+    _render();
   }
 
-  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON };
+  function exportJSON() {
+    const visibleEntries = _state.entries.filter((e) => !_state.removed.includes(e.id));
+    const out = Object.assign({}, _state, { entries: visibleEntries });
+    if (SERVER) return JSON.stringify(out);
+    return JSON.stringify(out);
+  }
+
+  globalThis.DomiAudit = {
+    mount, addComment, resolveEntry, removeEntry, export: exportJSON,
+    _internals: { computeIterations, parseRefs, getState: () => _state },
+  };
 })();

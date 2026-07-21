@@ -27,6 +27,7 @@ for entry in \
   "SKILL.md:domicile/SKILL.md" \
   "scripts/runtime/domi.js:scripts/runtime/domi.js" \
   "scripts/runtime/domi-audit.js:scripts/runtime/domi-audit.js" \
+  "scripts/runtime/domi-audit-render.js:scripts/runtime/domi-audit-render.js" \
   "scripts/runtime/domi-server.js:scripts/runtime/domi-server.js" \
   "scripts/runtime/domi-wire.js:scripts/runtime/domi-wire.js" \
   "components/domi.css:components/domi.css" \

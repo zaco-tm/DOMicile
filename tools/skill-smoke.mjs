@@ -158,6 +158,7 @@ setTimeout(() => {
       const checks = [
         ['data-feedback hooks present', /data-feedback="[^"]+"/.test(buf)],
         ['scripts/runtime/domi-audit.js loaded', /\/scripts\/(runtime\/)?domi-audit\.js/.test(buf)],
+        ['scripts/runtime/domi-audit-render.js loaded', /\/scripts\/(runtime\/)?domi-audit-render\.js/.test(buf)],
         ['DomiAudit.mount invoked', /DomiAudit\.mount/.test(buf)],
         // The status chip should reflect the docName (not the archetype's
         // default text "v0.1.0-working"); regression-tested after a rewrite

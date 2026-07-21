@@ -17,6 +17,61 @@
     [data-feedback] { cursor: copy; transition: outline-color .15s ease; }
     [data-feedback]:hover { outline: 1px dashed rgba(60, 35, 66, 0.35); outline-offset: 4px; }
     [data-feedback][data-domini-target] { outline: 2px solid #c2410c; outline-offset: 4px; }
+
+    /* Iteration groups */
+    [data-domini-rail-list] { list-style: none; padding: 0; margin: 8px 0 0; }
+    [data-domini-rail-list] > li[data-iter] { margin: 6px 0; }
+    .iter-head {
+      display: flex; align-items: baseline; gap: 6px;
+      padding: 4px 0; border-bottom: 1px solid rgba(60,35,66,0.08);
+    }
+    .iter-toggle {
+      border: 0; background: transparent; cursor: pointer; padding: 0 2px;
+      font: inherit; line-height: 1; color: rgba(60,35,66,0.6);
+    }
+    .iter-toggle:hover { color: #c2410c; }
+    .iter-label { font-weight: 600; }
+    .iter-meta { font-size: 12px; opacity: .65; margin-left: auto; }
+    .iter-entries { list-style: none; padding: 0 0 0 12px; margin: 4px 0 0; }
+    [data-iter][data-open="false"] .iter-entries { display: none; }
+
+    /* Entries */
+    .entry {
+      display: flex; align-items: flex-start; gap: 6px;
+      padding: 4px 6px; border-radius: 4px;
+    }
+    .entry:hover { background: rgba(60,35,66,0.04); }
+    .entry-id {
+      flex: 0 0 auto; font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 11px; opacity: .55; cursor: copy; padding: 1px 4px;
+      border-radius: 3px; user-select: all;
+    }
+    .entry-id:hover { opacity: 1; background: rgba(60,35,66,0.08); }
+    .entry-id[data-copied] { position: relative; opacity: 1; }
+    .entry-id[data-copied]::after {
+      content: "Copied"; position: absolute; left: 0; top: -22px;
+      background: #1f2937; color: #fff; font-size: 11px; padding: 2px 6px;
+      border-radius: 3px; white-space: nowrap;
+    }
+    .entry-body { flex: 1 1 auto; }
+    .entry-ref {
+      display: inline-block; font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 11px; padding: 0 4px; border-radius: 3px;
+      background: rgba(60,35,66,0.08); color: inherit; text-decoration: none;
+    }
+    .entry-ref:hover { background: rgba(194,65,12,0.15); }
+    .entry-ref[data-target-state="removed"] {
+      opacity: .4; text-decoration: line-through; cursor: not-allowed;
+    }
+    .entry-remove {
+      flex: 0 0 auto; opacity: 0; border: 0; background: transparent;
+      cursor: pointer; padding: 0 4px; font-size: 16px; line-height: 1;
+      color: rgba(60,35,66,0.5);
+    }
+    .entry:hover .entry-remove,
+    .entry:focus-within .entry-remove { opacity: 1; }
+    .entry-remove:hover { color: #c2410c; }
+    .entry[data-flash] { background: rgba(194,65,12,0.18); transition: background 1s ease; }
   </style>
 </head>
 <body>
@@ -39,6 +94,7 @@
   <aside data-domini-rail></aside>
   <span data-domini-status-chip>v0.1.0-working</span>
   <script src="../../scripts/runtime/domi-audit.js" defer></script>
+  <script src="../../scripts/runtime/domi-audit-render.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       DomiAudit.mount({ statePath: '.domi/state/example-audit.json', docName: 'example-audit' });

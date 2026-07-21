@@ -38,8 +38,11 @@ If you read a `v` other than `2`, branch. Older (`v: 1`) events came from legacy
 | `submit` | `{ formId: string, fields: { [name]: value } }` |
 | `rail-add` | `{ body: string, targetId: string \| null }` |
 | `rail-resolve` | `{ entryId: ULID }` |
+| `rail-remove` | `{ entryId: ULID }` |
 | `custom` | `{ payload: any }` |
 | `agent-iterating` | `{ state: "start" \| "end", source: "watcher" \| "explicit" }` |
+
+**`rail-remove`** is a soft delete: the event is appended to `events.jsonl` but the audit runtime hides the entry from the rail. The audit trail is preserved. The `entryId` references a prior `rail-add` (or other rail event with a body). The runtime treats `rail-remove` as idempotent and silently ignores unknown or already-removed `entryId`s.
 
 Anything else is a server error — the server rejects with `400`.
 

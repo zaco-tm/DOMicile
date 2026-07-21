@@ -17,12 +17,13 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC_SKILL="$REPO_ROOT/domicile/SKILL.md"
 DST="$REPO_ROOT/domicile/domicile"
 
-# The 7-file mapping: relative path -> canonical relative path.
+# The file mapping: relative path -> canonical relative path.
 # Edited in one place for easy maintenance.
 SOURCES=(
   "SKILL.md:$REPO_ROOT/domicile/SKILL.md"
   "scripts/runtime/domi.js:$REPO_ROOT/scripts/runtime/domi.js"
   "scripts/runtime/domi-audit.js:$REPO_ROOT/scripts/runtime/domi-audit.js"
+  "scripts/runtime/domi-audit-render.js:$REPO_ROOT/scripts/runtime/domi-audit-render.js"
   "scripts/runtime/domi-server.js:$REPO_ROOT/scripts/runtime/domi-server.js"
   "scripts/runtime/domi-wire.js:$REPO_ROOT/scripts/runtime/domi-wire.js"
   "components/domi.css:$REPO_ROOT/components/domi.css"
@@ -77,6 +78,7 @@ mkdir -p "$DST/scripts/runtime" "$DST/components" "$DST/templates/working-doc"
 cp "$REPO_ROOT/domicile/SKILL.md"                        "$DST/SKILL.md"
 cp "$REPO_ROOT/scripts/runtime/domi.js"                "$DST/scripts/runtime/domi.js"
 cp "$REPO_ROOT/scripts/runtime/domi-audit.js"           "$DST/scripts/runtime/domi-audit.js"
+cp "$REPO_ROOT/scripts/runtime/domi-audit-render.js"    "$DST/scripts/runtime/domi-audit-render.js"
 cp "$REPO_ROOT/scripts/runtime/domi-server.js"          "$DST/scripts/runtime/domi-server.js"
 cp "$REPO_ROOT/scripts/runtime/domi-wire.js"            "$DST/scripts/runtime/domi-wire.js"
 cp "$REPO_ROOT/components/domi.css"                     "$DST/components/domi.css"
@@ -91,4 +93,4 @@ next bundle build. To change a bundled file, edit the canonical source and
 re-run the build script.
 EOF
 
-echo "bundle: built (7 files copied)"
+echo "bundle: built (8 files copied)"

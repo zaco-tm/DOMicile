@@ -34,7 +34,7 @@
     },
     "kind": {
       "type": "string",
-      "enum": ["click", "input", "submit", "rail-add", "rail-resolve", "custom", "agent-iterating"],
+      "enum": ["click", "input", "submit", "rail-add", "rail-resolve", "rail-remove", "custom", "agent-iterating"],
       "description": "Event kind. Determines the shape of `data`."
     },
     "target": {
@@ -129,6 +129,23 @@
     },
     {
       "if": { "properties": { "kind": { "const": "rail-resolve" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "required": ["entryId"],
+            "properties": {
+              "entryId": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "rail-remove" } }, "required": ["kind"] },
       "then": {
         "properties": {
           "data": {

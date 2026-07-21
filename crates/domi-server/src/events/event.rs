@@ -39,6 +39,7 @@ pub enum Kind {
     Submit,
     RailAdd,
     RailResolve,
+    RailRemove,
     Custom,
     AgentIterating,
 }
@@ -69,6 +70,10 @@ pub enum EventData {
         fields: serde_json::Map<String, serde_json::Value>,
     },
     RailResolve {
+        #[serde(rename = "entryId")]
+        entry_id: ulid::Ulid,
+    },
+    RailRemove {
         #[serde(rename = "entryId")]
         entry_id: ulid::Ulid,
     },
@@ -127,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn all_six_kinds_serialize() {
+    fn all_seven_kinds_serialize() {
         for (kind, data) in [
             (super::Kind::Click, super::EventData::Click { value: Some("x".into()) }),
             (super::Kind::Input, super::EventData::Input { name: "k".into(), value: "v".into() }),
@@ -135,6 +140,9 @@ mod tests {
             (super::Kind::RailAdd, super::EventData::RailAdd { body: "x".into(), target_id: Some("btn-save".into()) }),
             (super::Kind::RailResolve, super::EventData::RailResolve {
                 entry_id: ulid::Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ9").unwrap(),
+            }),
+            (super::Kind::RailRemove, super::EventData::RailRemove {
+                entry_id: ulid::Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ8").unwrap(),
             }),
             (super::Kind::Custom, super::EventData::Custom { payload: serde_json::Map::new().into() }),
         ] {
