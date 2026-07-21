@@ -109,6 +109,61 @@ describe('domi-audit.js runtime', () => {
     fireClick(document.querySelector('[data-domini-rail-form] textarea'));
     expect(document.querySelector('[data-domini-target]')).toBe(btn);
   });
+
+  it('removeEntry appends to _state.removed and re-renders in standalone mode', () => {
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    globalThis.DomiAudit.addComment({ targetId: null, body: 'first' });
+    globalThis.DomiAudit.addComment({ targetId: null, body: 'second' });
+    const before = JSON.parse(globalThis.DomiAudit.export());
+    const secondId = before.entries[1].id;
+    globalThis.DomiAudit.removeEntry(secondId);
+    const after = JSON.parse(globalThis.DomiAudit.export());
+    expect(after.entries).toHaveLength(1);
+    expect(after.entries[0].body).toBe('first');
+    expect(after.removed).toContain(secondId);
+  });
+
+  it('removeEntry is idempotent (no error on second call)', () => {
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    globalThis.DomiAudit.addComment({ targetId: null, body: 'first' });
+    const before = JSON.parse(globalThis.DomiAudit.export());
+    const firstId = before.entries[0].id;
+    globalThis.DomiAudit.removeEntry(firstId);
+    globalThis.DomiAudit.removeEntry(firstId); // should not throw
+    const after = JSON.parse(globalThis.DomiAudit.export());
+    expect(after.entries).toHaveLength(0);
+    expect(after.removed).toEqual([firstId]);
+  });
+
+  it('hydrates removed[] from localStorage on mount', () => {
+    const seed = {
+      version: 1, name: 'x',
+      entries: [
+        { id: 'a', targetId: null, author: 'user', timestamp: '2026-07-05T00:00:00Z', body: 'kept', resolved: false },
+        { id: 'b', targetId: null, author: 'user', timestamp: '2026-07-05T00:00:01Z', body: 'gone', resolved: false },
+      ],
+      removed: ['b'],
+    };
+    localStorage.setItem('domicile:x', JSON.stringify(seed));
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const exported = JSON.parse(globalThis.DomiAudit.export());
+    expect(exported.entries).toHaveLength(1);
+    expect(exported.entries[0].body).toBe('kept');
+    expect(exported.removed).toEqual(['b']);
+  });
+
+  it('removeEntry is a no-op for an unknown entryId', () => {
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    globalThis.DomiAudit.addComment({ targetId: null, body: 'first' });
+    expect(() => globalThis.DomiAudit.removeEntry('does-not-exist')).not.toThrow();
+    const after = JSON.parse(globalThis.DomiAudit.export());
+    expect(after.entries).toHaveLength(1);
+    expect(after.removed ?? []).toEqual([]);
+  });
 });
 
 describe('domi-audit.js server mode', () => {
@@ -221,5 +276,66 @@ describe('domi-audit.js server mode', () => {
     DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
     DomiAudit.addComment({ targetId: null, body: 'hi' });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('removeEntry POSTs a rail-remove event in server mode', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204, text: async () => '' });
+    globalThis.fetch = fetchMock;
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    await new Promise((r) => setTimeout(r, 10));
+    fetchMock.mockClear();
+    DomiAudit.removeEntry('01ZENTRY');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(fetchMock).toHaveBeenCalled();
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('http://x/api/events');
+    const body = JSON.parse(init.body);
+    expect(body.v).toBe(2);
+    expect(body.kind).toBe('rail-remove');
+    expect(body.src).toBe('domi-audit.js');
+    expect(body.doc).toBe('x');
+    expect(body.data.entryId).toBe('01ZENTRY');
+  });
+
+  it('WS-bridge listener applies a rail-remove from the server', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ events: [
+      { id: '01AB', ts: '2026-07-05T00:00:00Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'will be removed', targetId: null } },
+    ], nextSince: '01AB' }) });
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    await new Promise((r) => setTimeout(r, 10));
+    window.dispatchEvent(new CustomEvent('domi-event', { detail: {
+      id: '02AB', ts: '2026-07-05T00:00:01Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-remove',
+      target: null, data: { entryId: '01AB' }
+    }}));
+    await new Promise((r) => setTimeout(r, 0));
+    const exported = JSON.parse(DomiAudit.export());
+    expect(exported.entries).toHaveLength(0);
+    expect(exported.removed).toContain('01AB');
+  });
+
+  it('WS-bridge listener re-renders on agent-iterating (no entry change)', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ events: [
+      { id: '01AB', ts: '2026-07-05T00:00:00Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'comment', targetId: null } },
+    ], nextSince: '01AB' }) });
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    await new Promise((r) => setTimeout(r, 10));
+    window.dispatchEvent(new CustomEvent('domi-event', { detail: {
+      id: '03AB', ts: '2026-07-05T00:00:02Z', src: 'domi-server', doc: 'x', kind: 'agent-iterating',
+      target: null, data: { state: 'start', source: 'watcher' }
+    }}));
+    await new Promise((r) => setTimeout(r, 0));
+    // The entry list doesn't change; only the iteration derivation would
+    // (verified in Task 5 by the render test). For now, confirm the entry is
+    // still present and no error was thrown.
+    const exported = JSON.parse(DomiAudit.export());
+    expect(exported.entries).toHaveLength(1);
   });
 });

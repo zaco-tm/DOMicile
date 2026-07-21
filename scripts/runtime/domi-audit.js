@@ -10,8 +10,12 @@
       return null;
     }
     const raw = localStorage.getItem(STORAGE_PREFIX + docName);
-    if (!raw) return { version: 1, name: docName, entries: [] };
-    try { return JSON.parse(raw); } catch { return { version: 1, name: docName, entries: [] }; }
+    if (!raw) return { version: 1, name: docName, entries: [], removed: [] };
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.removed)) parsed.removed = [];
+      return parsed;
+    } catch { return { version: 1, name: docName, entries: [], removed: [] }; }
   }
 
   function saveEntries(docName, state) {
@@ -19,7 +23,7 @@
     localStorage.setItem(STORAGE_PREFIX + docName, JSON.stringify(state));
   }
 
-  let _state = { version: 1, name: '', entries: [] };
+  let _state = { version: 1, name: '', entries: [], removed: [] };
   let _docName = '';
   let _statePath = '';
   let _hydrationDone = false;
@@ -32,30 +36,35 @@
     return fetch(url)
       .then((r) => (r.ok ? r.json() : { events: [] }))
       .then((body) => {
-        const entries = (body.events || [])
-          .filter((e) => (e.src === 'domi-audit.js') && (e.kind === 'rail-add' || e.kind === 'rail-resolve'))
-          .map((e) => {
-            if (e.kind === 'rail-add') {
-              return {
-                id: e.id, targetId: (e.data && e.data.targetId) || null,
-                author: e.src === 'domi-audit.js' ? 'user' : 'agent',
-                timestamp: e.ts, body: (e.data && e.data.body) || '',
-                resolved: false,
-              };
-            }
-            // rail-resolve: mark existing entry resolved.
+        const events = (body.events || [])
+          .filter((e) => (
+            (e.src === 'domi-audit.js' && (e.kind === 'rail-add' || e.kind === 'rail-resolve' || e.kind === 'rail-remove'))
+            || (e.kind === 'agent-iterating')
+          ));
+        const entries = [];
+        const removed = new Set(_state.removed || []);
+        const iterEvents = [];
+        for (const e of events) {
+          if (e.kind === 'rail-add') {
+            entries.push({
+              id: e.id,
+              targetId: (e.data && e.data.targetId) || null,
+              author: 'user',
+              timestamp: e.ts,
+              body: (e.data && e.data.body) || '',
+              resolved: false,
+            });
+          } else if (e.kind === 'rail-remove') {
             const entryId = e.data && e.data.entryId;
-            if (entryId) {
-              const idx = _state.entries.findIndex((x) => x.id === entryId);
-              if (idx >= 0) _state.entries[idx] = Object.assign({}, _state.entries[idx], { resolved: true });
-            }
-            return null;
-          })
-          .filter(Boolean);
-        // Deduplicate by id (server may emit duplicates if WS and GET overlap).
+            if (entryId) removed.add(entryId);
+          } else if (e.kind === 'agent-iterating') {
+            iterEvents.push(e);
+          }
+        }
+        // Deduplicate entries by id.
         const seen = new Set();
         const merged = entries.filter((e) => { if (seen.has(e.id)) return false; seen.add(e.id); return true; });
-        return { version: 1, name: docName, entries: merged };
+        return { version: 1, name: docName, entries: merged, removed: Array.from(removed) };
       })
       .catch(() => _state);
   }
@@ -178,6 +187,12 @@
         resolved: false,
       });
       _render();
+    } else if (event.kind === 'rail-remove') {
+      const entryId = event.data && event.data.entryId;
+      if (entryId && !_state.removed.includes(entryId)) {
+        _state.removed.push(entryId);
+      }
+      _render();
     } else if (event.kind === 'rail-resolve') {
       const entryId = event.data && event.data.entryId;
       const idx = _state.entries.findIndex((e) => e.id === entryId);
@@ -185,6 +200,9 @@
         _state.entries[idx] = Object.assign({}, _state.entries[idx], { resolved: true });
         _render();
       }
+    } else if (event.kind === 'agent-iterating') {
+      // Re-render only — iteration derivation is a render concern.
+      _render();
     }
   }
 
@@ -244,7 +262,11 @@
         const byId = new Map();
         bootMirror.entries.forEach((e) => byId.set(e.id, e));
         serverState.entries.forEach((e) => byId.set(e.id, e));
-        _state = { version: 1, name: docName, entries: Array.from(byId.values()) };
+        const removed = new Set([
+          ...(bootMirror.removed || []),
+          ...(serverState.removed || []),
+        ]);
+        _state = { version: 1, name: docName, entries: Array.from(byId.values()), removed: Array.from(removed) };
         _hydrationDone = true;
         _render();
       });
@@ -261,8 +283,12 @@
   // Boot mirror read (always, even in server mode — see Q1=A).
   function loadLocal(docName) {
     const raw = localStorage.getItem(STORAGE_PREFIX + docName);
-    if (!raw) return { version: 1, name: docName, entries: [] };
-    try { return JSON.parse(raw); } catch { return { version: 1, name: docName, entries: [] }; }
+    if (!raw) return { version: 1, name: docName, entries: [], removed: [] };
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.removed)) parsed.removed = [];
+      return parsed;
+    } catch { return { version: 1, name: docName, entries: [], removed: [] }; }
   }
 
   function addComment({ targetId, body }) {
@@ -301,14 +327,32 @@
     }
   }
 
-  function exportJSON() {
+  function removeEntry(entryId) {
+    if (!entryId) return;
     if (SERVER) {
-      // Synchronous export returns the current in-memory state (after hydration).
-      // Phase 2 callers wanting the full server snapshot should use fetch.
-      return JSON.stringify(_state);
+      postRail({
+        kind: 'rail-remove',
+        target: null,
+        data: { entryId },
+      });
+      return;
     }
-    return JSON.stringify(_state);
+    // No-op for entryIds not present in _state.entries (avoids littering
+    // _state.removed with stale ULIDs from typos or replayed WS events).
+    if (!_state.entries.some((e) => e.id === entryId)) return;
+    if (!_state.removed.includes(entryId)) {
+      _state.removed.push(entryId);
+    }
+    saveEntries(_docName, _state);
+    _render();
   }
 
-  globalThis.DomiAudit = { mount, addComment, resolveEntry, export: exportJSON, _internals: { computeIterations, parseRefs } };
+  function exportJSON() {
+    const visibleEntries = _state.entries.filter((e) => !_state.removed.includes(e.id));
+    const out = Object.assign({}, _state, { entries: visibleEntries });
+    if (SERVER) return JSON.stringify(out);
+    return JSON.stringify(out);
+  }
+
+  globalThis.DomiAudit = { mount, addComment, resolveEntry, removeEntry, export: exportJSON, _internals: { computeIterations, parseRefs } };
 })();
