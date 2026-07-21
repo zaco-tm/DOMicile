@@ -1,0 +1,1536 @@
+<!doctype html>
+<!-- DOMicile landing page — clean deliverable, public-site version. v28. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DOMicile — The page is the conversation.</title>
+  <meta name="description" content="DOMicile is an AI-agent design system. The page is the conversation — click what's wrong, the agent revises just that part. 15 primitives, 5 archetypes, 3 languages.">
+  <meta name="theme-color" content="#3d2342">
+  <meta name="color-scheme" content="light">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DOMicile — The page is the conversation.">
+  <meta property="og:description" content="An AI-agent design system. Click what's wrong, the agent revises just that part. 15 primitives, 5 archetypes, 3 languages.">
+  <meta property="og:image" content="domi-mascot-200.png">
+  <meta property="og:image:alt" content="DOMi, the DOMicile mascot">
+  <meta property="og:site_name" content="DOMicile">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DOMicile — The page is the conversation.">
+  <meta name="twitter:description" content="An AI-agent design system. Click what's wrong, the agent revises just that part.">
+  <meta name="twitter:image" content="domi-mascot-200.png">
+
+  <!-- iOS home screen + canonical -->
+  <link rel="apple-touch-icon" href="domi-mascot-200.png">
+  <link rel="canonical" href="https://zaco-tm.github.io/DOMicile/">
+  <link rel="icon" type="image/png" href="domi-mascot-200.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap">
+  <style>
+    /* ---- DOMicile tokens (inlined from components/domi.css) ---- */
+/* AUTO-GENERATED from tokens/tokens.json — do not edit by hand */
+:root {
+  --domi-color-primary-gradient: #a89cc8, #f4978e, #ffd6b3;
+  --domi-color-primary-angle: 135deg;
+  --domi-color-secondary-sage: #9caf88;
+  --domi-color-secondary-sage-light: #c8d6b8;
+  --domi-color-accent-plum: #a89cc8;
+  --domi-color-accent-plum-light: #d8d0e8;
+  --domi-color-text-default: #3d2342;
+  --domi-color-text-muted: #3d2342aa;
+  --domi-color-text-inverse: #fff1e6;
+  --domi-color-surface-glass: #ffffff60;
+  --domi-color-surface-glass-strong: #ffffff80;
+  --domi-color-surface-tint: #3d234208;
+  --domi-type-display-family: 'Helvetica Neue', 'Arial Black', sans-serif;
+  --domi-type-display-weight: 900;
+  --domi-type-display-transform: uppercase;
+  --domi-type-display-letterSpacing: -0.02em;
+  --domi-type-body-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-body-weight: 400;
+  --domi-type-label-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-label-weight: 700;
+  --domi-radius-sm: 4px;
+  --domi-radius-md: 8px;
+  --domi-radius-lg: 16px;
+  --domi-radius-pill: 9999px;
+  --domi-glass-blur: 12px;
+  --domi-glass-bgOpacity: 0.4;
+  --domi-glass-borderOpacity: 0.4;
+  --domi-border-thin: 1px solid rgba(61,35,66,0.4);
+  --domi-border-thick: 2px solid #3d2342;
+  --domi-space-xs: 4px;
+  --domi-space-sm: 8px;
+  --domi-space-md: 16px;
+  --domi-space-lg: 24px;
+  --domi-space-xl: 40px;
+  --domi-shadow-soft: 0 2px 12px rgba(61,35,66,0.12);
+  --domi-shadow-offset: 0 3px 0 #3d2342;
+  --domi-breakpoint-sm: 640px;
+  --domi-breakpoint-md: 768px;
+  --domi-breakpoint-lg: 1024px;
+  --domi-breakpoint-xl: 1280px;
+}
+
+.domi-bg-primary {
+  background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3);
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 400;
+  color: var(--domi-color-text-default);
+  background: var(--domi-color-surface-glass);
+  min-height: 100vh;
+}
+
+/* Typography utilities */
+.domi-display {
+  font-family: 'Helvetica Neue', 'Arial Black', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.domi-label {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+.domi-glass {
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-md);
+}
+
+html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }/* DOMicile primitive styles — appended to domi.css by build
+   Tokens come from :root custom properties (see tokens-to-css generator). */
+
+/* button */
+.domi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--domi-space-sm);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: var(--domi-radius-md);
+  border: 1px solid rgba(61, 35, 66, 0.4);
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  color: var(--domi-color-text-default);
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 120ms ease;
+  text-decoration: none;
+}
+.domi-btn:hover { box-shadow: var(--domi-shadow-soft); }
+.domi-btn:active { transform: translateY(1px); }
+.domi-btn:focus-visible { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 2px; }
+.domi-btn--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); color: var(--domi-color-text-default); }
+.domi-btn--ghost { background: transparent; border-color: transparent; }
+.domi-btn--danger { border-color: #c2410c; color: #c2410c; }
+.domi-btn--sm { padding: 5px 10px; font-size: 11px; }
+.domi-btn--lg { padding: 12px 22px; font-size: 15px; }
+
+/* card */
+.domi-card {
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  -webkit-backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-lg);
+  padding: 16px;
+}
+.domi-card--sm { padding: 8px; border-radius: var(--domi-radius-md); }
+.domi-card--lg { padding: 24px; }
+.domi-card__header { margin-bottom: 12px; font-size: 14px; }
+.domi-card__footer { margin-top: 12px; font-size: 12px; opacity: 0.7; }
+
+/* input / select */
+.domi-input, .domi-select {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: var(--domi-radius-md);
+  border: var(--domi-border-thin);
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  color: var(--domi-color-text-default);
+  width: 100%;
+}
+.domi-input:focus, .domi-select:focus { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 1px; }
+.domi-input--sm, .domi-select--sm { padding: 5px 10px; font-size: 11px; }
+.domi-input--lg, .domi-select--lg { padding: 12px 18px; font-size: 15px; }
+.domi-input--error, .domi-select--error { border-color: #c2410c; color: #c2410c; }
+.domi-input:disabled, .domi-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* checkbox / radio */
+.domi-check, .domi-radio {
+  appearance: none;
+  width: 18px; height: 18px;
+  border: var(--domi-border-thin);
+  background: var(--domi-color-surface-glass);
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+}
+.domi-check { border-radius: 4px; }
+.domi-radio { border-radius: 50%; }
+.domi-check:checked, .domi-radio:checked { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); border-color: var(--domi-color-accent-plum); }
+.domi-check:checked::after { content: '✓'; color: var(--domi-color-text-default); position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; font-size: 13px; }
+.domi-radio:checked::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--domi-color-text-default); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.domi-check-label, .domi-radio-label { display: inline-flex; align-items: center; gap: 8px; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; }
+
+/* form */
+.domi-form { display: flex; flex-direction: column; gap: var(--domi-space-md); }
+.domi-form__row { display: flex; gap: var(--domi-space-md); flex-wrap: wrap; }
+.domi-form__col { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.domi-form__label { font-family: 'SF Mono', 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.domi-form__help { font-size: 11px; opacity: 0.6; }
+.domi-form__error { font-size: 11px; color: #c2410c; }
+
+/* table */
+.domi-table { width: 100%; border-collapse: collapse; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; }
+.domi-table thead th { background: var(--domi-color-surface-glass); backdrop-filter: blur(var(--domi-glass-blur)); padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: var(--domi-border-thin); }
+.domi-table tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(61,35,66,0.1); }
+.domi-table tbody tr:nth-child(even) td { background: var(--domi-color-surface-tint); }
+.domi-table tbody tr:hover td { background: var(--domi-color-surface-glass-strong); }
+
+/* nav */
+.domi-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border-bottom: var(--domi-border-thin);
+}
+.domi-nav__brand { font-family: var(--domi-type-display-family); font-weight: 900; text-transform: uppercase; font-size: 16px; letter-spacing: -0.02em; }
+.domi-nav__links { display: flex; gap: var(--domi-space-md); font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.domi-nav__links a { color: var(--domi-color-text-default); text-decoration: none; opacity: 0.7; }
+.domi-nav__links a:hover { opacity: 1; }
+.domi-nav__actions { display: flex; gap: var(--domi-space-sm); }
+
+/* modal — uses <details> for native standalone-first behavior */
+.domi-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(61, 35, 66, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+.domi-modal[open] { display: flex; }
+.domi-modal__dialog {
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-lg);
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--domi-shadow-soft);
+}
+.domi-modal__title { font-family: var(--domi-type-display-family); font-weight: 900; text-transform: uppercase; font-size: 18px; margin: 0 0 12px; }
+.domi-modal__close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--domi-color-text-default); }
+
+/* alert */
+.domi-alert {
+  padding: 12px 16px;
+  border-radius: var(--domi-radius-md);
+  border: var(--domi-border-thin);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+}
+.domi-alert--info    { border-color: var(--domi-color-accent-plum); }
+.domi-alert--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
+.domi-alert--warning { border-color: #f59e0b; }
+.domi-alert--danger  { border-color: #c2410c; color: #c2410c; }
+
+/* badge */
+.domi-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--domi-radius-pill);
+  border: var(--domi-border-thin);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: blur(var(--domi-glass-blur));
+}
+.domi-badge--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }
+.domi-badge--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
+.domi-badge--warning { border-color: #f59e0b; color: #f59e0b; }
+.domi-badge--danger  { border-color: #c2410c; color: #c2410c; }
+
+/* tabs — uses radio inputs for standalone CSS-only */
+.domi-tabs { display: flex; flex-direction: column; }
+.domi-tabs__list { display: flex; gap: 4px; border-bottom: var(--domi-border-thin); margin-bottom: 12px; }
+.domi-tab { padding: 8px 14px; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; border-radius: var(--domi-radius-sm) var(--domi-radius-sm) 0 0; opacity: 0.6; }
+.domi-tab[aria-selected="true"] { opacity: 1; background: var(--domi-color-surface-glass); backdrop-filter: blur(var(--domi-glass-blur)); }
+
+/* toast */
+.domi-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  background: var(--domi-color-surface-glass-strong);
+  backdrop-filter: blur(var(--domi-glass-blur));
+  border: var(--domi-border-thin);
+  border-radius: var(--domi-radius-md);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: var(--domi-shadow-soft);
+  z-index: 90;
+}
+
+/* tooltip — pure CSS via data-tooltip + ::after */
+.domi-tooltip {
+  position: relative;
+  display: inline-block;
+}
+.domi-tooltip[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--domi-color-text-default);
+  color: var(--domi-color-text-inverse);
+  padding: 4px 8px;
+  border-radius: var(--domi-radius-sm);
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* end primitives */
+
+    /* ── Page reset + base ───────────────────────────────────────── */
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: var(--domi-type-body-family);
+      color: var(--domi-color-text-default);
+      background: linear-gradient(135deg, #a89cc8 0%, #f4978e 50%, #ffd6b3 100%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* The runtime injects the working-doc chrome (rail + status chip).
+       Reserve a 320px gutter on the right for it, like the template. */
+    main { display: block; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .domi-page { padding: 24px 16px 64px 24px; min-width: 0; }
+    
+
+    /* ── Audit-rail hover/cursor wiring (mirrors the template) ───── */
+
+    /* ── Hero ────────────────────────────────────────────────────── */
+    .hero {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 64px 0 40px;
+      position: relative;
+    }
+    .hero-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      max-width: 900px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-wordmark {
+      display: inline-block;
+      padding: 14px 20px 12px;
+      background: linear-gradient(135deg, rgba(194, 65, 12, 0.95) 0%, rgba(168, 156, 200, 0.95) 100%);
+      border: 2px solid #3d2342;
+      border-radius: 12px;
+      box-shadow: 0 4px 0 #1a0e1f, 0 6px 16px rgba(61, 35, 66, 0.25);
+      text-decoration: none;
+      transition: transform .1s ease;
+    }
+    .hero-wordmark:hover { transform: translateY(-1px); }
+    .hero-wordmark-text {
+      font-family: 'Press Start 2P', 'Space Mono', monospace;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      font-size: 20px;
+      line-height: 1;
+      color: #fff1e6;
+    }
+
+    /* The mascot — partly behind the headline, peeking out top-right. */
+    .hero-mascot {
+      position: absolute;
+      right: -20px;
+      top: 110px;
+      width: 220px;
+      height: auto;
+      display: block;
+      z-index: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 24px rgba(61, 35, 66, 0.2));
+    }
+    @media (max-width: 860px) {
+      .hero-mascot { display: none; }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--domi-color-text-default);
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(61, 35, 66, 0.4);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      backdrop-filter: blur(8px);
+      justify-self: start;
+    }
+    .hero-eyebrow .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #9caf88;
+    }
+
+    .hero-headline {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-size: clamp(40px, 6.4vw, 72px);
+      line-height: 0.96;
+      color: var(--domi-color-text-default);
+      margin: 20px 0 18px;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: #c2410c;
+    }
+    .hero-headline em.secondary {
+      color: #6b3a7a;
+    }
+
+    .hero-subhead {
+      font-size: 18px;
+      line-height: 1.55;
+      max-width: 52ch;
+      color: var(--domi-color-text-default);
+      opacity: 0.85;
+      margin: 12px 0 32px;
+    }
+    .hero-subhead::before {
+      content: "";
+      display: block;
+      width: 56px;
+      height: 3px;
+      background: linear-gradient(90deg, #c2410c 0%, #6b3a7a 100%);
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+    .hero-subhead code {
+      font-family: var(--domi-type-label-family);
+      font-size: 0.95em;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(61, 35, 66, 0.25);
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    .domi-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid #3d2342;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .domi-btn-primary {
+      background: #3d2342;
+      color: #fff1e6;
+      box-shadow: 0 3px 0 #3d2342;
+    }
+    .domi-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #3d2342; }
+    .domi-btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 #3d2342; }
+    .domi-btn-ghost {
+      background: rgba(255, 255, 255, 0.55);
+      color: #3d2342;
+      backdrop-filter: blur(8px);
+    }
+    .domi-btn-ghost:hover { background: rgba(255, 255, 255, 0.75); }
+
+    /* Install card: dark plum, header + two rows (agent + dev) with copy buttons. */
+    .hero-install {
+      width: 100%;
+      max-width: 640px;
+      background: linear-gradient(160deg, #2a1631 0%, #3d2342 100%);
+      color: #ffd6b3;
+      border: 1px solid rgba(255, 214, 179, 0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      font-family: var(--domi-type-label-family);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 3px 0 #1a0e1f, 0 6px 16px rgba(61, 35, 66, 0.25);
+    }
+    .hero-install-title {
+      font-family: var(--domi-type-label-family);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #a89cc8;
+      padding: 0 4px 2px;
+    }
+    .hero-install-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .hero-install-row.is-primary { background: rgba(255, 214, 179, 0.08); }
+    .hero-install-row .label {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #a89cc8;
+      min-width: 108px;
+    }
+    .hero-install-row .prompt { color: #9caf88; user-select: none; font-size: 12px; }
+    .hero-install-row .cmd {
+      color: #ffd6b3; font-size: 12px;
+      flex: 1; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .hero-install-row .copy {
+      font-size: 10px;
+      color: #a89cc8;
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      transition: background .12s ease;
+    }
+    .hero-install-row .copy:hover { background: rgba(255, 214, 179, 0.15); color: #fff1e6; }
+
+    .hero-meta {
+      margin-top: 8px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+      font-family: var(--domi-type-label-family);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--domi-color-text-default);
+      justify-self: start;
+    }
+    .hero-meta span {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(61, 35, 66, 0.25);
+      border-radius: 9999px;
+      padding: 6px 12px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-meta span::before {
+      content: "";
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #c2410c;
+    }
+    .hero-meta span:nth-child(2)::before { background: #9caf88; }
+    .hero-meta span:nth-child(3)::before { background: #a89cc8; }
+    .hero-meta span:nth-child(4)::before { background: #3d2342; }
+
+    /* Subtle drift animation on the loop arrow — communicates "the loop is alive" */
+    @keyframes drift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+    .loop-arrow { animation: drift 2.6s ease-in-out infinite; transform-origin: center; }
+
+    /* ── Section: the 60-sec loop ────────────────────────────────── */
+    .loop-section {
+      max-width: 1080px;
+      margin: 80px auto 0;
+      padding: 0 0 24px;
+    }
+    .loop-section-head { text-align: center; margin-bottom: 48px; }
+    .loop-section-title {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.05;
+      color: var(--domi-color-text-default);
+      margin: 0 0 12px;
+    }
+    .loop-section-sub {
+      font-size: 16px;
+      color: var(--domi-color-text-default);
+      opacity: 0.75;
+      max-width: 52ch;
+      margin: 0 auto;
+    }
+
+    /* The diagram: 4 cards in a row with a "not yet?" loop above. */
+    .loop-diagram {
+      position: relative;
+      padding-top: 64px; /* room for the loop arrow above */
+      width: 100%;
+    }
+    .loop-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      position: relative;
+      align-items: stretch;
+      width: 100%;
+    }
+    @media (max-width: 900px) {
+      .loop-track { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .loop-diagram { padding-top: 0; }
+      .loop-loop-arrow { display: none; }
+    }
+    @media (max-width: 520px) {
+      .loop-track { grid-template-columns: 1fr; }
+    }
+    .loop-step {
+      position: relative;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(61, 35, 66, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 22px 20px 20px;
+      box-shadow: 0 2px 12px rgba(61, 35, 66, 0.08);
+      display: flex; flex-direction: column;
+    }
+    .loop-step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #3d2342;
+      color: #fff1e6;
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .loop-step-icon { width: 32px; height: 32px; margin: 4px 0 12px; color: #c2410c; }
+    .loop-step-title {
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: var(--domi-color-text-default);
+      margin: 0 0 6px;
+    }
+    .loop-step-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--domi-color-text-default);
+      opacity: 0.8;
+      margin: 0;
+    }
+    /* Step 4 — the exit / goal. Strong plum fill so it reads as the destination. */
+    .loop-step.is-exit {
+      background: linear-gradient(160deg, #3d2342 0%, #5a2e5a 100%);
+      border: 2px solid #3d2342;
+      color: #fff1e6;
+      box-shadow: 0 6px 0 #1a0e1f, 0 8px 24px rgba(61, 35, 66, 0.25);
+      transform: translateY(-4px);
+    }
+    .loop-step.is-exit .loop-step-num { background: #c2410c; color: #fff1e6; }
+    .loop-step.is-exit .loop-step-icon { color: #ffd6b3; }
+    .loop-step.is-exit .loop-step-title { color: #fff1e6; }
+    .loop-step.is-exit .loop-step-body { color: #fff1e6; opacity: 0.9; }
+    .loop-step.is-exit .loop-step-shipped {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 12px;
+      padding: 4px 10px;
+      background: #9caf88;
+      color: #1a0e1f;
+      border-radius: 9999px;
+      font-family: var(--domi-type-label-family);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+    .loop-step-default-pill { display: none; }
+
+    /* "→" between cards on desktop */
+    .loop-step::after {
+      content: "→";
+      position: absolute;
+      right: -16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #3d2342;
+      opacity: 0.5;
+      z-index: 2;
+    }
+    .loop-step:last-child::after { content: ""; }
+    @media (max-width: 900px) {
+      .loop-step::after { display: none; }
+    }
+
+    /* The "not yet?" loop arrow above the row (desktop only). */
+    .loop-loop-arrow {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      pointer-events: none;
+    }
+
+    /* Big callout banner — way more prominent than v3. */
+    .loop-callout {
+      margin-top: 40px;
+      padding: 28px 32px;
+      background: linear-gradient(135deg, rgba(194, 65, 12, 0.95) 0%, rgba(168, 156, 200, 0.95) 100%);
+      border: 2px solid #3d2342;
+      border-radius: 16px;
+      box-shadow: 0 6px 0 #1a0e1f, 0 10px 28px rgba(61, 35, 66, 0.25);
+      color: #fff1e6;
+      position: relative;
+      overflow: hidden;
+    }
+    .loop-callout::before {
+      content: "";
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(255, 214, 179, 0.4) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .loop-callout-label {
+      display: inline-block;
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(255, 241, 230, 0.2);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+    .loop-callout-title {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      font-size: clamp(22px, 2.6vw, 30px);
+      line-height: 1.1;
+      margin: 0 0 10px;
+      color: #fff1e6;
+    }
+    .loop-callout-title em { font-style: normal; color: #ffd6b3; }
+    .loop-callout-body {
+      font-size: 15px;
+      line-height: 1.55;
+      margin: 0;
+      color: #fff1e6;
+      opacity: 0.95;
+      max-width: 60ch;
+    }
+
+    /* ── Section: what's in the box ──────────────────────────────── */
+    .box-section {
+      max-width: 1080px;
+      margin: 96px auto 0;
+      padding: 0 0 24px;
+    }
+    .box-section-head { text-align: center; margin-bottom: 40px; }
+    .box-section-title {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.05;
+      color: var(--domi-color-text-default);
+      margin: 0 0 12px;
+    }
+    .box-section-sub {
+      font-size: 16px;
+      color: var(--domi-color-text-default);
+      opacity: 0.75;
+      max-width: 52ch;
+      margin: 0 auto;
+    }
+
+    /* Respect users who don't want motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .box-primitive, .box-archetype, .box-lang { animation: none !important; opacity: 1; }
+    }
+
+    /* Touch devices: make the popup always visible since :hover is unreliable. */
+    @media (hover: none) {
+      .box-popup { display: block; position: static; margin-top: 12px; box-shadow: none; border-style: dashed; }
+      .box-popup::before { display: none; }
+    }
+    .box-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+    .box-card.box-archetypes { grid-column: 1 / -1; }
+    @media (max-width: 900px) {
+      .box-grid { grid-template-columns: 1fr; }
+      .box-card.box-archetypes { grid-column: 1; }
+    }
+    .box-card {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(61, 35, 66, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 22px 22px 24px;
+      box-shadow: 0 2px 12px rgba(61, 35, 66, 0.08);
+      display: flex; flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+    .box-card:hover,
+    .box-card:focus-within {
+      z-index: 40;
+    }
+    .box-card-head {
+      display: flex; align-items: baseline; gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(61, 35, 66, 0.2);
+    }
+    .box-card-title {
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--domi-color-text-default);
+      margin: 0;
+    }
+    .box-card-count {
+      font-family: 'Space Mono', 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 20px;
+      color: #c2410c;
+      line-height: 1;
+    }
+    .box-card-hint {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--domi-color-text-default);
+      opacity: 0.55;
+      margin-left: auto;
+      letter-spacing: 0.04em;
+    }
+
+    /* Primitives: 2x2 grid of 4 featured, popup reveals all 15 on hover. */
+    .box-primitive-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .box-primitive {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(61, 35, 66, 0.2);
+      border-radius: 8px;
+      font-family: var(--domi-type-label-family);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--domi-color-text-default);
+    }
+    .box-primitive-mark {
+      width: 12px; height: 12px; border-radius: 3px;
+      background: var(--mark, #a89cc8);
+      flex-shrink: 0;
+    }
+
+    /* Archetypes: 3 in a row, popup reveals all 5 on hover. */
+    .box-archetype-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .box-archetype {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(61, 35, 66, 0.2);
+      border-radius: 8px;
+    }
+    .box-archetype svg {
+      width: 44px; height: 32px;
+      flex-shrink: 0;
+      background: rgba(61, 35, 66, 0.06);
+      border-radius: 4px;
+    }
+    .box-archetype-name {
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--domi-color-text-default);
+      line-height: 1.2;
+    }
+
+    /* Languages: all 3 in a vertical list, no popup. */
+    .box-lang-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .box-lang {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(61, 35, 66, 0.2);
+      border-radius: 8px;
+    }
+    .box-lang-icon {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff1e6;
+      flex-shrink: 0;
+    }
+    .box-lang-icon.react { background: #6b3a7a; }
+    .box-lang-icon.astro { background: #c2410c; }
+    .box-lang-icon.rust  { background: #3d2342; }
+    .box-lang-body { min-width: 0; }
+    .box-lang-name {
+      font-family: var(--domi-type-label-family);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--domi-color-text-default);
+      line-height: 1.1;
+    }
+    .box-lang-desc {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--domi-color-text-default);
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+
+    /* Hover popup: shows the full list of primitives or archetypes. */
+    .box-popup {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid rgba(61, 35, 66, 0.35);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 16px 40px rgba(61, 35, 66, 0.25);
+      backdrop-filter: blur(16px);
+      display: none;
+    }
+    .box-card:hover .box-popup,
+    .box-card:focus-within .box-popup {
+      display: block;
+    }
+    /* Small caret connecting the popup to the card. */
+    .box-popup::before {
+      content: "";
+      position: absolute;
+      top: -8px; left: 24px;
+      width: 14px; height: 14px;
+      background: rgba(255, 255, 255, 0.96);
+      border-left: 2px solid rgba(61, 35, 66, 0.35);
+      border-top: 2px solid rgba(61, 35, 66, 0.35);
+      transform: rotate(45deg);
+    }
+    .box-popup-label {
+      font-family: var(--domi-type-label-family);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--domi-color-text-default);
+      opacity: 0.6;
+      margin-bottom: 10px;
+    }
+    .box-popup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .box-popup-grid .box-primitive { padding: 8px 10px; font-size: 11px; }
+    .box-popup-grid .box-archetype { padding: 8px 10px; }
+    .box-popup-grid .box-archetype-name { font-size: 11px; }
+
+    /* Touch devices: always show the popup since :hover is unreliable. */
+    @media (hover: none) {
+      .box-popup { display: block; position: static; margin-top: 12px; box-shadow: none; border-style: dashed; }
+      .box-popup::before { display: none; }
+    }
+
+    /* ── Section: closing CTA ────────────────────────────────────── */
+    .close-section {
+      max-width: 1080px;
+      margin: 120px auto 64px;
+      padding: 0 0 24px;
+      text-align: center;
+    }
+    .close-title {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-size: clamp(40px, 6vw, 64px);
+      line-height: 1;
+      color: var(--domi-color-text-default);
+      margin: 0 0 16px;
+    }
+    .close-sub {
+      font-size: 16px;
+      color: var(--domi-color-text-default);
+      opacity: 0.75;
+      max-width: 52ch;
+      margin: 0 auto 32px;
+    }
+    .close-install {
+      max-width: 560px;
+      margin: 0 auto 32px;
+      background: linear-gradient(160deg, #2a1631 0%, #3d2342 100%);
+      color: #ffd6b3;
+      border: 1px solid rgba(255, 214, 179, 0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: var(--domi-type-label-family);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 0 #1a0e1f, 0 8px 20px rgba(61, 35, 66, 0.25);
+    }
+    .close-install-title {
+      font-family: var(--domi-type-label-family);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #a89cc8;
+      margin-bottom: 8px;
+    }
+    .close-install-cmd {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+    }
+    .close-install-row { margin-bottom: 8px; }
+    .close-install-row:last-child { margin-bottom: 0; }
+    .close-install-row .close-install-cmd { align-items: flex-start; }
+    .close-install-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a89cc8;
+      min-width: 100px;
+      padding: 12px 0 0;
+    }
+    .close-install-prompt-text {
+      white-space: normal;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .close-install-prompt { color: #9caf88; font-size: 14px; }
+    .close-install-text {
+      color: #ffd6b3; font-size: 14px;
+      flex: 1; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .close-install-copy {
+      font-size: 10px;
+      color: #a89cc8;
+      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      user-select: none;
+    }
+    .close-install-copy:hover { background: rgba(255, 214, 179, 0.15); color: #fff1e6; }
+    .close-links {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 22px;
+      margin-top: 24px;
+      font-family: 'Space Mono', 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .close-link {
+      color: var(--domi-color-text-default);
+      text-decoration: none;
+      opacity: 0.85;
+      transition: opacity .15s ease;
+      border-bottom: 1px solid rgba(61, 35, 66, 0.3);
+      padding-bottom: 1px;
+    }
+    .close-link:hover { opacity: 1; border-bottom-color: rgba(61, 35, 66, 0.8); }
+    .close-footer {
+      display: inline-block;
+      margin-top: 48px;
+      padding: 12px 22px;
+      background: linear-gradient(135deg, rgba(194, 65, 12, 0.95) 0%, rgba(168, 156, 200, 0.95) 100%);
+      border: 2px solid #3d2342;
+      border-radius: 12px;
+      box-shadow: 0 4px 0 #1a0e1f, 0 6px 16px rgba(61, 35, 66, 0.25);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff1e6;
+    }
+    .close-footer .close-link {
+      color: #fff1e6;
+      opacity: 1;
+      border-bottom: 1px solid rgba(255, 241, 230, 0.4);
+    }
+    .close-footer .close-link:hover {
+      border-bottom-color: #fff1e6;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="domi-page">
+      <!-- ─── Hero ────────────────────────────────────────────── -->
+      <header class="hero">
+        <div class="hero-col">
+          <a class="hero-wordmark" href="#top" aria-label="DOMicile">
+            <span class="hero-wordmark-text">DOMicile</span>
+          </a>
+
+          <span class="hero-eyebrow">
+            <span class="dot"></span> AI-agent design system
+          </span>
+
+          <h1 class="hero-headline">
+            Stop wasting<br>
+            <em>your time</em> and your <em class="secondary">agents'</em>.
+          </h1>
+
+          <p class="hero-subhead">
+            DOMicile makes the page <em>the conversation</em>. Open it,
+            click what's wrong, type <code>six words</code>, and the
+            agent revises just that part. Same primitives, three languages.
+          </p>
+
+          <div class="hero-install" role="group" aria-label="Install commands">
+            <div class="hero-install-title">Install</div>
+            <div class="hero-install-row is-primary">
+              <span class="label">for your agent</span>
+              <span class="prompt">$</span>
+              <span class="cmd">npx skills add zaco-tm/DOMicile -g</span>
+              <span class="copy" data-copy="npx skills add zaco-tm/DOMicile -g" title="Copy">copy</span>
+            </div>
+            <div class="hero-install-row">
+              <span class="label">for your project</span>
+              <span class="prompt">$</span>
+              <span class="cmd">npm install domicile-react react-dom</span>
+              <span class="copy" data-copy="npm install domicile-react react-dom" title="Copy">copy</span>
+            </div>
+          </div>
+
+          <p class="hero-meta">
+            <span>15 primitives</span>
+            <span>5 archetypes</span>
+            <span>React · Astro · Rust</span>
+            <span>MIT</span>
+          </p>
+        </div>
+
+        <img class="hero-mascot"
+             src="domi-mascot-200.png"
+             alt="DOMi, the DOMicile mascot">
+      </header>
+
+      <!-- ─── 60-sec loop ──────────────────────────────────────── -->
+      <section class="loop-section" id="loop" aria-labelledby="loop-section-title">
+        <div class="loop-section-head">
+          <h2 class="loop-section-title" id="loop-section-title">
+            The loop
+          </h2>
+          <p class="loop-section-sub">
+            Four steps. No screenshots, no re-pastes. <code>click → note → revise → done</code>.
+          </p>
+        </div>
+
+        <div class="loop-diagram">
+          <!-- The "not yet?" loop arrow drawn above the row, desktop only -->
+          <svg class="loop-loop-arrow" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="arrowhead-back" viewBox="0 0 10 10" refX="8" refY="5"
+                      markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3d2342"/>
+              </marker>
+            </defs>
+            <!-- Curve from above step 3 (~75% width) back to step 2 (~50% width) -->
+            <path d="M 750 60 C 750 10, 500 10, 500 60"
+                  fill="none" stroke="#3d2342" stroke-width="2"
+                  stroke-dasharray="6 4" marker-end="url(#arrowhead-back)"/>
+            <text x="625" y="22" text-anchor="middle"
+                  font-family="SF Mono, monospace" font-size="13" font-weight="700"
+                  fill="#3d2342">
+              not yet?
+            </text>
+          </svg>
+
+          <ol class="loop-track">
+            <li class="loop-step">
+              <span class="loop-step-num">1</span>
+              <svg class="loop-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <h3 class="loop-step-title">Agent writes HTML</h3>
+              <p class="loop-step-body">
+                A real page lands in your browser. The agent's
+                primitives are the same ones your finished
+                product will use.
+              </p>
+            </li>
+
+            <li class="loop-step">
+              <span class="loop-step-num">2</span>
+              <svg class="loop-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 9l3 9 3-9-3-3z"></path>
+                <path d="M3 3l7 7"></path>
+                <path d="M14 14l7 7"></path>
+              </svg>
+              <h3 class="loop-step-title">Click what's wrong</h3>
+              <p class="loop-step-body">
+                You scan the page. Spot what's off. Click
+                it — outline goes terracotta, comment
+                form opens. Type a note.
+              </p>
+            </li>
+
+            <li class="loop-step">
+              <span class="loop-step-num">3</span>
+              <svg class="loop-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 0 1-9 9"></path>
+                <path d="M3 12a9 9 0 0 1 9-9"></path>
+                <polyline points="21 3 21 9 15 9"></polyline>
+                <polyline points="3 21 3 15 9 15"></polyline>
+              </svg>
+              <h3 class="loop-step-title">Revise just that part</h3>
+              <p class="loop-step-body">
+                Not the whole page. Just the element. The
+                note stays attached; resolve or reply.
+              </p>
+            </li>
+
+            <li class="loop-step is-exit">
+              <span class="loop-step-num">4</span>
+              <svg class="loop-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 2 11 13"></path>
+                <path d="M22 2 15 22 11 13 2 9 22 2z"></path>
+              </svg>
+              <h3 class="loop-step-title">Ship it</h3>
+              <p class="loop-step-body">
+                Say <code>ship it</code>. The agent hands you
+                clean HTML — no rail, no chrome.
+              </p>
+              <span class="loop-step-shipped">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 8 7 12 13 4"></polyline></svg>
+                Shipped
+              </span>
+            </li>
+          </ol>
+        </div>
+
+        <div class="loop-callout">
+          <span class="loop-callout-label">The whole point</span>
+          <h3 class="loop-callout-title">
+            The document <em>is</em> the conversation.
+          </h3>
+          <p class="loop-callout-body">
+            No screenshots, no re-pastes, no re-reading. The thing
+            you're arguing about is the thing itself — and you can
+            <em>click on it</em>.
+          </p>
+        </div>
+      </section>
+
+      <!-- ─── What's in the box ────────────────────────────── -->
+      <section class="box-section" id="box" aria-labelledby="box-section-title">
+        <div class="box-section-head">
+          <h2 class="box-section-title" id="box-section-title">
+            What's in the box
+          </h2>
+          <p class="box-section-sub">
+            A complete design system. 15 HTML primitives, 5 ready-made
+            layouts, three native runtimes.
+          </p>
+        </div>
+
+        <div class="box-grid">
+          <!-- Archetypes: top row, full width. Show 3, hover for all 5. -->
+          <article class="box-card">
+            <header class="box-card-head">
+              <h3 class="box-card-title">Archetypes</h3>
+              <span class="box-card-count">5</span>
+              <span class="box-card-hint">hover for all 5 →</span>
+            </header>
+            <div class="box-archetype-grid">
+              <div class="box-archetype">
+                <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="0" y="0" width="10" height="32" fill="#3d2342" rx="2"/>
+                  <rect x="13" y="4" width="9" height="9" fill="#a89cc8" rx="1"/>
+                  <rect x="24" y="4" width="9" height="9" fill="#9caf88" rx="1"/>
+                  <rect x="13" y="16" width="20" height="12" fill="#ffd6b3" rx="1"/>
+                </svg>
+                <div class="box-archetype-name">dashboard</div>
+              </div>
+              <div class="box-archetype">
+                <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="0" y="0" width="44" height="6" fill="#3d2342" rx="1"/>
+                  <rect x="0" y="9" width="10" height="23" fill="#a89cc8" opacity="0.5" rx="1"/>
+                  <rect x="13" y="11" width="28" height="18" fill="#ffd6b3" opacity="0.6" rx="1"/>
+                </svg>
+                <div class="box-archetype-name">webapp-shell</div>
+              </div>
+              <div class="box-archetype">
+                <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="14" y="0" width="16" height="30" rx="3" fill="#3d2342"/>
+                  <rect x="16" y="4" width="12" height="22" fill="#fff1e6" rx="1"/>
+                  <circle cx="22" cy="28" r="1" fill="#a89cc8"/>
+                </svg>
+                <div class="box-archetype-name">mobile-app-shell</div>
+              </div>
+            </div>
+            <div class="box-popup" role="tooltip">
+              <div class="box-popup-label">All 5 archetypes</div>
+              <div class="box-popup-grid">
+                <div class="box-archetype">
+                  <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="0" y="0" width="10" height="32" fill="#3d2342" rx="2"/>
+                    <rect x="13" y="4" width="9" height="9" fill="#a89cc8" rx="1"/>
+                    <rect x="24" y="4" width="9" height="9" fill="#9caf88" rx="1"/>
+                    <rect x="13" y="16" width="20" height="12" fill="#ffd6b3" rx="1"/>
+                  </svg>
+                  <div class="box-archetype-name">dashboard</div>
+                </div>
+                <div class="box-archetype">
+                  <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="0" y="0" width="44" height="6" fill="#3d2342" rx="1"/>
+                    <rect x="0" y="9" width="10" height="23" fill="#a89cc8" opacity="0.5" rx="1"/>
+                    <rect x="13" y="11" width="28" height="18" fill="#ffd6b3" opacity="0.6" rx="1"/>
+                  </svg>
+                  <div class="box-archetype-name">webapp-shell</div>
+                </div>
+                <div class="box-archetype">
+                  <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="14" y="0" width="16" height="30" rx="3" fill="#3d2342"/>
+                    <rect x="16" y="4" width="12" height="22" fill="#fff1e6" rx="1"/>
+                    <circle cx="22" cy="28" r="1" fill="#a89cc8"/>
+                  </svg>
+                  <div class="box-archetype-name">mobile-app-shell</div>
+                </div>
+                <div class="box-archetype">
+                  <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="0" y="3" width="44" height="3" fill="#3d2342" rx="1"/>
+                    <rect x="0" y="9" width="44" height="2" fill="#a89cc8" opacity="0.5"/>
+                    <rect x="0" y="13" width="44" height="2" fill="#a89cc8" opacity="0.5"/>
+                    <rect x="0" y="17" width="44" height="2" fill="#a89cc8" opacity="0.5"/>
+                    <rect x="0" y="21" width="44" height="2" fill="#a89cc8" opacity="0.5"/>
+                  </svg>
+                  <div class="box-archetype-name">admin-tool</div>
+                </div>
+                <div class="box-archetype">
+                  <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="2"  y="4"  width="8" height="8" fill="#9caf88" rx="1"/>
+                    <rect x="12" y="4"  width="8" height="8" fill="#a89cc8" rx="1"/>
+                    <rect x="22" y="4"  width="8" height="8" fill="#ffd6b3" rx="1"/>
+                    <rect x="32" y="4"  width="8" height="8" fill="#c2410c" rx="1"/>
+                    <rect x="2"  y="16" width="8" height="8" fill="#ffd6b3" rx="1"/>
+                    <rect x="12" y="16" width="8" height="8" fill="#c2410c" rx="1"/>
+                    <rect x="22" y="16" width="8" height="8" fill="#9caf88" rx="1"/>
+                    <rect x="32" y="16" width="8" height="8" fill="#a89cc8" rx="1"/>
+                  </svg>
+                  <div class="box-archetype-name">pos-kiosk</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Primitives: bottom-left. Show 4, hover for all 15. -->
+          <article class="box-card">
+            <header class="box-card-head">
+              <h3 class="box-card-title">Primitives</h3>
+              <span class="box-card-count">15</span>
+              <span class="box-card-hint">hover for all 15 →</span>
+            </header>
+            <div class="box-primitive-grid">
+              <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Button</div>
+              <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Card</div>
+              <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Form</div>
+              <div class="box-primitive" style="--mark: #6b3a7a"><span class="box-primitive-mark"></span>Table</div>
+              <div class="box-primitive" style="--mark: #3d2342"><span class="box-primitive-mark"></span>Nav</div>
+              <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Modal</div>
+              <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Alert</div>
+              <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Badge</div>
+            </div>
+            <div class="box-popup" role="tooltip">
+              <div class="box-popup-label">All 15 primitives</div>
+              <div class="box-popup-grid">
+                <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Button</div>
+                <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Card</div>
+                <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Form</div>
+                <div class="box-primitive" style="--mark: #6b3a7a"><span class="box-primitive-mark"></span>Table</div>
+                <div class="box-primitive" style="--mark: #3d2342"><span class="box-primitive-mark"></span>Nav</div>
+                <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Modal</div>
+                <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Alert</div>
+                <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Badge</div>
+                <div class="box-primitive" style="--mark: #6b3a7a"><span class="box-primitive-mark"></span>Tabs</div>
+                <div class="box-primitive" style="--mark: #3d2342"><span class="box-primitive-mark"></span>Toast</div>
+                <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Tooltip</div>
+                <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Input</div>
+                <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Select</div>
+                <div class="box-primitive" style="--mark: #6b3a7a"><span class="box-primitive-mark"></span>Checkbox</div>
+                <div class="box-primitive" style="--mark: #3d2342"><span class="box-primitive-mark"></span>Radio</div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Languages: bottom-right. Show all 3, no popup. -->
+          <article class="box-card">
+            <header class="box-card-head">
+              <h3 class="box-card-title">Languages</h3>
+              <span class="box-card-count">3</span>
+            </header>
+            <div class="box-lang-list">
+              <div class="box-lang">
+                <span class="box-lang-icon react">R</span>
+                <div class="box-lang-body">
+                  <div class="box-lang-name">React</div>
+                  <span class="box-lang-desc">npm install domicile-react</span>
+                </div>
+              </div>
+              <div class="box-lang">
+                <span class="box-lang-icon astro">A</span>
+                <div class="box-lang-body">
+                  <div class="box-lang-name">Astro</div>
+                  <span class="box-lang-desc">npm install domicile-astro</span>
+                </div>
+              </div>
+              <div class="box-lang">
+                <span class="box-lang-icon rust">R</span>
+                <div class="box-lang-body">
+                  <div class="box-lang-name">Rust</div>
+                  <span class="box-lang-desc">cargo add domi-egui · WASM</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ─── Closing CTA ────────────────────────────────────── -->
+      <section class="close-section" id="close" aria-labelledby="close-title">
+        <h2 class="close-title" id="close-title">
+          Now go build.
+        </h2>
+        <p class="close-sub">
+          One install. Three runtimes. The loop starts when you do.
+        </p>
+
+        <div class="close-install" role="group" aria-label="Install options">
+          <div class="close-install-title">Install</div>
+
+          <div class="close-install-row">
+            <span class="close-install-label">yourself</span>
+            <div class="close-install-cmd">
+              <span class="close-install-prompt">$</span>
+              <span class="close-install-text">npx skills add zaco-tm/DOMicile -g</span>
+              <span class="close-install-copy" data-copy="npx skills add zaco-tm/DOMicile -g" title="Copy">copy</span>
+            </div>
+          </div>
+
+          <div class="close-install-row">
+            <span class="close-install-label">or tell your agent</span>
+            <div class="close-install-cmd">
+              <span class="close-install-text close-install-prompt-text">Install the DOMicile design system from github.com/zaco-tm/DOMicile so you can use its primitives and the audit-rail loop when building UI for me.</span>
+              <span class="close-install-copy" data-copy="Install the DOMicile design system from github.com/zaco-tm/DOMicile so you can use its primitives and the audit-rail loop when building UI for me." title="Copy">copy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="close-links">
+          <a class="close-link" href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener">github →</a>
+          <a class="close-link" href="https://www.npmjs.com/package/domicile-react" target="_blank" rel="noopener">npm →</a>
+          <a class="close-link" href="https://crates.io/crates/domi-server" target="_blank" rel="noopener">crates.io →</a>
+          <a class="close-link" href="https://github.com/zaco-tm/DOMicile/blob/main/INSTALL.md" target="_blank" rel="noopener">install docs →</a>
+        </div>
+
+        <p class="close-footer">
+          Built by <a class="close-link" href="https://github.com/zaco-tm" target="_blank" rel="noopener">@zaco-tm</a>
+          · sponsored by <a class="close-link" href="https://stoopery.app" target="_blank" rel="noopener">stoopery</a>
+          · MIT
+        </p>
+      </section>
+    </div>
+
+    </main>
+
+  <script>// Copy-to-clipboard for each install row. No deps, no fluff.
+    document.querySelectorAll('.hero-install .copy').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-copy');
+        if (!cmd || !navigator.clipboard) return;
+        navigator.clipboard.writeText(cmd).then(() => {
+          const original = btn.textContent;
+          btn.textContent = 'copied';
+          setTimeout(() => { btn.textContent = original; }, 1200);
+        });
+      });
+    });
+    // Same for the closing install card.
+    document.querySelectorAll('.close-install .close-install-copy').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-copy');
+        if (!cmd || !navigator.clipboard) return;
+        navigator.clipboard.writeText(cmd).then(() => {
+          const original = btn.textContent;
+          btn.textContent = 'copied';
+          setTimeout(() => { btn.textContent = original; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

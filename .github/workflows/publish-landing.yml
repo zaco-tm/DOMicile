@@ -1,0 +1,41 @@
+name: publish-landing
+
+# Sync `templates/landing-page/index.html` (+ companion mascot) to the
+# repo root so GitHub Pages can serve the public site at the root URL.
+# Source of truth lives in the archetype; the root copy is a build artifact.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'templates/landing-page/**'
+      - '.github/workflows/publish-landing.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: sync landing-page → root
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy landing-page archetype to repo root
+        run: |
+          set -euo pipefail
+          cp templates/landing-page/index.html     index.html
+          cp templates/landing-page/domi-mascot-200.png domi-mascot-200.png
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git add index.html domi-mascot-200.png
+            git commit -m "chore: sync landing-page archetype to root"
+            git push
+          fi
