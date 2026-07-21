@@ -164,6 +164,94 @@ describe('domi-audit.js runtime', () => {
     expect(after.entries).toHaveLength(1);
     expect(after.removed ?? []).toEqual([]);
   });
+
+  it('render groups entries by iteration (initial group last)', () => {
+    // seed: one entry before any iteration + one entry in iteration 1
+    const seed = {
+      version: 1, name: 'x',
+      entries: [
+        { id: 'PRE', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:00Z', body: 'before iter', resolved: false },
+        { id: 'IN1', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:30Z', body: 'in iter 1', resolved: false },
+      ],
+      removed: [],
+    };
+    localStorage.setItem('domicile:x', JSON.stringify(seed));
+    // Also need agent-iterating events in the localStorage mirror so
+    // computeIterations has the iteration signal. The audit runtime currently
+    // doesn't store agent-iterating events in standalone mode — for now, the
+    // runtime derives iterations from the events it has in memory. Since
+    // standalone mode has no agent-iterating events, IN1 ends up in the
+    // "initial" group alongside PRE. This is a known limitation; covered
+    // by the server-mode test below.
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const groups = document.querySelectorAll('[data-iter]');
+    expect(groups.length).toBe(1);
+    expect(groups[0].getAttribute('data-iter')).toBe('initial');
+  });
+
+  it('render emits short ID chips with click-to-copy and remove buttons', () => {
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    globalThis.DomiAudit.addComment({ targetId: 'btn-save', body: 'too prominent' });
+    const entry = document.querySelector('[data-entry-id]');
+    expect(entry).toBeTruthy();
+    const idChip = entry.querySelector('.entry-id');
+    expect(idChip).toBeTruthy();
+    expect(idChip.textContent).toMatch(/^#[0-9A-HJKMNP-TV-Z]{6}$/);
+    expect(idChip.getAttribute('data-copy')).toMatch(/^[0-9A-HJKMNP-TV-Z]{26}$/);
+    const removeBtn = entry.querySelector('.entry-remove');
+    expect(removeBtn).toBeTruthy();
+    expect(removeBtn.getAttribute('data-remove-id')).toMatch(/^[0-9A-HJKMNP-TV-Z]{26}$/);
+  });
+
+  it('clicking the remove button calls removeEntry', () => {
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    globalThis.DomiAudit.addComment({ targetId: null, body: 'first' });
+    const before = JSON.parse(globalThis.DomiAudit.export());
+    const id = before.entries[0].id;
+    const removeBtn = document.querySelector('.entry-remove');
+    fireClick(removeBtn);
+    const after = JSON.parse(globalThis.DomiAudit.export());
+    expect(after.entries).toHaveLength(0);
+    expect(after.removed).toContain(id);
+  });
+
+  it('render does not include removed entries', () => {
+    const seed = {
+      version: 1, name: 'x',
+      entries: [
+        { id: 'KEEP', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:00Z', body: 'kept', resolved: false },
+        { id: 'GONE', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:01Z', body: 'gone', resolved: false },
+      ],
+      removed: ['GONE'],
+    };
+    localStorage.setItem('domicile:x', JSON.stringify(seed));
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const visible = document.querySelectorAll('[data-entry-id]');
+    expect(visible.length).toBe(1);
+    expect(visible[0].getAttribute('data-entry-id')).toBe('KEEP');
+  });
+
+  it('render parses @<id> cross-references into ref chips', () => {
+    const seed = {
+      version: 1, name: 'x',
+      entries: [
+        { id: 'AAAAAAAAAAAA00000000000000', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:00Z', body: 'first', resolved: false },
+        { id: 'BBBBBBBBBBBB00000000000000', targetId: null, author: 'user', timestamp: '2026-07-05T10:00:01Z', body: 'see @AAAAAA', resolved: false },
+      ],
+      removed: [],
+    };
+    localStorage.setItem('domicile:x', JSON.stringify(seed));
+    document.body.innerHTML = `<div data-domini-rail></div>`;
+    globalThis.DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    const ref = document.querySelector('.entry-ref');
+    expect(ref).toBeTruthy();
+    expect(ref.getAttribute('data-ref-id')).toBe('AAAAAAAAAAAA00000000000000');
+    expect(ref.textContent).toBe('#AAAAAA');
+  });
 });
 
 describe('domi-audit.js server mode', () => {
@@ -337,5 +425,38 @@ describe('domi-audit.js server mode', () => {
     // still present and no error was thrown.
     const exported = JSON.parse(DomiAudit.export());
     expect(exported.entries).toHaveLength(1);
+  });
+
+  it('render in server mode groups entries by agent-iterating windows', async () => {
+    loadAsServerMode();
+    document.body.innerHTML = `<aside data-domini-rail></aside>`;
+    const events = [
+      { id: 'INIT', ts: '2026-07-05T10:00:00Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'first', targetId: null } },
+      { id: 'S1', ts: '2026-07-05T10:01:00Z', src: 'domi-server', doc: 'x', kind: 'agent-iterating',
+        target: null, data: { state: 'start', source: 'watcher' } },
+      { id: 'IN1', ts: '2026-07-05T10:01:30Z', src: 'domi-audit.js', doc: 'x', kind: 'rail-add',
+        target: null, data: { body: 'in iter 1', targetId: null } },
+      { id: 'E1', ts: '2026-07-05T10:02:00Z', src: 'domi-server', doc: 'x', kind: 'agent-iterating',
+        target: null, data: { state: 'end', source: 'watcher' } },
+    ];
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ events, nextSince: 'E1' }) });
+    DomiAudit.mount({ statePath: '.domi/state/x.json', docName: 'x' });
+    await new Promise((r) => setTimeout(r, 10));
+    const groups = document.querySelectorAll('[data-iter]');
+    expect(groups.length).toBe(2);
+    // Latest first: iteration 1, then initial.
+    expect(groups[0].getAttribute('data-iter')).toBe('1');
+    expect(groups[0].getAttribute('data-open')).toBe('true');
+    expect(groups[1].getAttribute('data-iter')).toBe('initial');
+    expect(groups[1].getAttribute('data-open')).toBe('true');
+    // Iteration 1 has only IN1.
+    const iter1Entries = groups[0].querySelectorAll('[data-entry-id]');
+    expect(iter1Entries.length).toBe(1);
+    expect(iter1Entries[0].getAttribute('data-entry-id')).toBe('IN1');
+    // Initial has only INIT.
+    const initialEntries = groups[1].querySelectorAll('[data-entry-id]');
+    expect(initialEntries.length).toBe(1);
+    expect(initialEntries[0].getAttribute('data-entry-id')).toBe('INIT');
   });
 });
