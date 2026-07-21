@@ -794,20 +794,26 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
       .box-primitive, .box-archetype, .box-lang { animation: none !important; opacity: 1; }
     }
 
-    /* Touch devices: make the popup always visible since :hover is unreliable. */
-    @media (hover: none) {
-      .box-popup { display: block; position: static; margin-top: 12px; box-shadow: none; border-style: dashed; }
-      .box-popup::before { display: none; }
+    /* The <details> wrapper is a mobile-only disclosure. On desktop we keep
+       the details element "open" (via a small inline JS that responds to
+       resize) so the existing hover-driven .box-popup rule keeps working
+       unchanged — the only thing hidden is the <summary>. */
+    @media (min-width: 901px) {
+      .box-summary { display: none; }
     }
+
     .box-grid {
       display: grid;
-      grid-template-columns: 1.6fr 1fr;
+      /* minmax(0, 1fr) lets columns shrink below their min-content size
+         so cards on small viewports don't push the page into horizontal
+         overflow. The default `1fr` resolves to `minmax(auto, 1fr)`. */
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
       grid-template-rows: auto auto;
       gap: 16px;
     }
     .box-card.box-archetypes { grid-column: 1 / -1; }
     @media (max-width: 900px) {
-      .box-grid { grid-template-columns: 1fr; }
+      .box-grid { grid-template-columns: minmax(0, 1fr); }
       .box-card.box-archetypes { grid-column: 1; }
     }
     .box-card {
@@ -858,7 +864,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
     /* Primitives: 2x2 grid of 4 featured, popup reveals all 15 on hover. */
     .box-primitive-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
     }
     .box-primitive {
@@ -881,7 +887,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
     /* Archetypes: 3 in a row, popup reveals all 5 on hover. */
     .box-archetype-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
     .box-archetype {
@@ -988,17 +994,98 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
     }
     .box-popup-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
     .box-popup-grid .box-primitive { padding: 8px 10px; font-size: 11px; }
     .box-popup-grid .box-archetype { padding: 8px 10px; }
     .box-popup-grid .box-archetype-name { font-size: 11px; }
 
-    /* Touch devices: always show the popup since :hover is unreliable. */
-    @media (hover: none) {
-      .box-popup { display: block; position: static; margin-top: 12px; box-shadow: none; border-style: dashed; }
+    /* Mobile (≤900px): the "hover for more" pattern doesn't work on touch,
+       so swap it for a native tap-to-expand <details> disclosure. */
+    @media (max-width: 900px) {
+      .box-card-hint { display: none; }
+      .box-details { margin-top: 4px; }
+      /* 3-up archetype tiles overflow at phone widths — drop to 2-up
+         and shrink the icon so the name has room to breathe. */
+      .box-archetype-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .box-archetype svg { width: 36px; height: 26px; }
+      .box-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1.5px dashed rgba(61, 35, 66, 0.35);
+        border-radius: 10px;
+        font-family: var(--domi-type-label-family);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        color: var(--domi-color-text-default);
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      .box-summary::-webkit-details-marker { display: none; }
+      .box-summary::marker { display: none; content: ""; }
+      .box-summary:focus-visible {
+        outline: 2px solid #c2410c;
+        outline-offset: 2px;
+      }
+      .box-summary:active { background: rgba(255, 255, 255, 0.9); }
+      .box-summary-text::before { content: attr(data-show); }
+      .box-details[open] .box-summary-text::before { content: attr(data-hide); }
+      .box-summary-icon {
+        position: relative;
+        width: 14px; height: 14px;
+        flex-shrink: 0;
+      }
+      .box-summary-icon::before,
+      .box-summary-icon::after {
+        content: "";
+        position: absolute;
+        background: var(--domi-color-text-default);
+        transition: transform 0.2s ease;
+        border-radius: 1px;
+      }
+      .box-summary-icon::before {
+        top: 50%; left: 0;
+        width: 100%; height: 2px;
+        transform: translateY(-50%);
+      }
+      .box-summary-icon::after {
+        left: 50%; top: 0;
+        width: 2px; height: 100%;
+        transform: translateX(-50%);
+      }
+      .box-details[open] .box-summary-icon::after {
+        transform: translateX(-50%) scaleY(0);
+      }
+      .box-popup {
+        display: none;
+        position: static;
+        margin-top: 10px;
+        box-shadow: none;
+        border-style: dashed;
+      }
       .box-popup::before { display: none; }
+      .box-details[open] .box-popup { display: block; }
+    }
+    @media (max-width: 520px) {
+      .box-popup-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    /* Very small phones: the icon + name archetype tile is too wide for a
+       2-up grid (cell ≈ 90px). Drop to a single column and shrink the icon
+       so the name has room without breaking the layout. */
+    @media (max-width: 380px) {
+      .box-archetype-grid { grid-template-columns: minmax(0, 1fr); }
+      .box-popup-grid { grid-template-columns: minmax(0, 1fr); }
+      .box-archetype { padding: 10px 12px; }
+      .box-archetype svg { width: 28px; height: 20px; }
+      .box-popup-grid .box-archetype { padding: 8px 10px; }
     }
 
     /* ── Section: closing CTA ────────────────────────────────────── */
@@ -1333,9 +1420,14 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
                 <div class="box-archetype-name">mobile-app-shell</div>
               </div>
             </div>
-            <div class="box-popup" role="tooltip">
-              <div class="box-popup-label">All 5 archetypes</div>
-              <div class="box-popup-grid">
+            <details class="box-details">
+              <summary class="box-summary">
+                <span class="box-summary-text" data-show="Show all 5 archetypes" data-hide="Hide full list"></span>
+                <span class="box-summary-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="box-popup">
+                <div class="box-popup-label">All 5 archetypes</div>
+                <div class="box-popup-grid">
                 <div class="box-archetype">
                   <svg viewBox="0 0 44 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect x="0" y="0" width="10" height="32" fill="#3d2342" rx="2"/>
@@ -1386,6 +1478,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
                 </div>
               </div>
             </div>
+            </details>
           </article>
 
           <!-- Primitives: bottom-left. Show 4, hover for all 15. -->
@@ -1405,9 +1498,14 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
               <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Alert</div>
               <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Badge</div>
             </div>
-            <div class="box-popup" role="tooltip">
-              <div class="box-popup-label">All 15 primitives</div>
-              <div class="box-popup-grid">
+            <details class="box-details">
+              <summary class="box-summary">
+                <span class="box-summary-text" data-show="Show all 15 primitives" data-hide="Hide full list"></span>
+                <span class="box-summary-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="box-popup">
+                <div class="box-popup-label">All 15 primitives</div>
+                <div class="box-popup-grid">
                 <div class="box-primitive" style="--mark: #c2410c"><span class="box-primitive-mark"></span>Button</div>
                 <div class="box-primitive" style="--mark: #a89cc8"><span class="box-primitive-mark"></span>Card</div>
                 <div class="box-primitive" style="--mark: #9caf88"><span class="box-primitive-mark"></span>Form</div>
@@ -1425,6 +1523,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
                 <div class="box-primitive" style="--mark: #3d2342"><span class="box-primitive-mark"></span>Radio</div>
               </div>
             </div>
+            </details>
           </article>
 
           <!-- Languages: bottom-right. Show all 3, no popup. -->
@@ -1531,6 +1630,19 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
         });
       });
     });
+
+    // Box-section "hover for more" — on desktop we keep the <details> open so
+    // the existing .box-card:hover .box-popup rule reveals the full list, and
+    // on mobile the user can tap the <summary> to toggle (no JS needed there).
+    // We pin `open` to viewport size so resizing between modes resets cleanly.
+    (() => {
+      const details = document.querySelectorAll('.box-details');
+      if (!details.length) return;
+      const mq = window.matchMedia('(min-width: 901px)');
+      const sync = () => details.forEach((d) => { d.open = mq.matches; });
+      sync();
+      mq.addEventListener('change', sync);
+    })();
   </script>
 </body>
 </html>
