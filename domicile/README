@@ -1,0 +1,7 @@
+This directory is a generated Agent Skills install dir. Its bundled files
+are produced by `tools/build-skill-bundle.sh` from the canonical sources
+in this repo. Do not edit the bundled files here directly — your edits
+will be silently overwritten on the next bundle build. To change a
+bundled file, edit the canonical source and re-run the build script.
+The SKILL.md at the root is the canonical entry; the build script does
+not regenerate it.

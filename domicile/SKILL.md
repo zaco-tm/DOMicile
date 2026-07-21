@@ -23,6 +23,22 @@ Do NOT use this skill for: pure markdown reports, server-side code, anything the
 
 Before writing ANY HTML, answer the four questions below in order. If a question is ambiguous, ASK — do not pattern-match to a default. A wrong mode choice costs the user a full re-do.
 
+## First-run install check (once per fresh install)
+
+Before the first iteration-eligible task in a session, run the bundled verify script and read its JSON. The script does the file walk and binary lookup; you don't need to.
+
+```bash
+node "$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")/scripts/runtime/domi-verify.mjs"
+# or, if you don't know the install path:
+node ~/.agents/skills/domicile/scripts/runtime/domi-verify.mjs
+```
+
+- `ok: true` → proceed (skill is intact).
+- `ok: false` → read `missing_files`. Re-run the install command from INSTALL.md (or `npx skills add zaco-tm/DOMicile -g`). Do not proceed with a broken install.
+- `domi_server: null` and the user wants server mode → run `tools/domi-serve.sh start` to auto-install the binary, then re-run this check. Standalone mode never needs it; do not block on it for standalone.
+
+This is a one-shot per session, not a per-task gate. After the first pass, trust the report until the user re-installs or you see a runtime error.
+
 The most common failure mode (verified in production): an agent sees a phrase like "create a website for the public to view," pattern-matches to "deliverable," generates the entire artifact in one turn, and skips every gate. **Do not be that agent.** Even public-facing artifacts default to working-doc mode unless the user has used an explicit ship-it phrase (see table below).
 
 **Rule of thumb:** unless the user has explicitly said one of `"ship it"`, `"give me the final"`, `"hand off"`, `"ship me a marketing page"`, or `"final HTML I can host"`, treat any UI build ask as iteration-eligible: build **one section**, hand off, **WAIT** for the user to click that section and leave a comment before producing the next.

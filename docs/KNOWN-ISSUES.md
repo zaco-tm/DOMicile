@@ -59,7 +59,7 @@ readers aren't surprised; this file tracks the deeper cleanup.
 
 ## Resolution
 
-This issue was closed by the skill-bundle-restructure change. The skill now ships as a generated directory (`domicile/domicile/`) that includes the prompt, the audit-rail runtime JS, the CSS, and one starter template. Install is `cp -R domicile/domicile <skills-dir>/domicile`. The build is reproducible from canonical sources via `tools/build-skill-bundle.sh` (idempotent), with a `--check` mode used by `npm run test:bundle` to catch drift.
+This issue was closed by the skill-bundle-restructure change. The skill now ships as the install-root directory (`domicile/`) — `SKILL.md` at the root, runtime JS at `scripts/runtime/`, CSS at `components/domi.css`, and the working-doc template at `templates/working-doc/index.html`. Install is `cp -R domicile <skills-dir>/domicile` (or `npx skills add zaco-tm/DOMicile -g`). The build is reproducible from canonical sources via `tools/build-skill-bundle.sh` (idempotent), with a `--check` mode used by `npm run test:bundle` to catch drift.
 
 Remaining follow-ups (not closed by this change; tracked elsewhere):
 

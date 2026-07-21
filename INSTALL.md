@@ -1,6 +1,6 @@
 # Install DOMicile
 
-DOMicile ships as an [Agent Skills](https://agentskills.io/)-compatible **skill bundle** — a directory (`domicile/domicile/`) containing the prompt (`SKILL.md`), the audit-rail runtime (`scripts/runtime/domi*.js`), the design system CSS, and one starter template. The cross-platform wrappers (`@domi/react`, `@domi/astro`, `domi-egui`) are installed separately. This page covers three audiences:
+DOMicile ships as an [Agent Skills](https://agentskills.io/)-compatible **skill** — a single directory (`domicile/`) containing the prompt (`SKILL.md`), the audit-rail runtime (`scripts/runtime/domi*.js`), the design system CSS, and one starter template. The cross-platform wrappers (`@domi/react`, `@domi/astro`, `domi-egui`) are installed separately. This page covers three audiences:
 
 1. **AI agents** installing the skill for themselves
 2. **Developers** using the design system or wrappers in their own code
@@ -22,16 +22,16 @@ All of these agents consume the [Agent Skills open standard](https://agentskills
 |---|---|
 | Universal one-line (vercel-labs/skills, 15+ agents) | `npx skills add zaco-tm/DOMicile -g` |
 | Universal one-line (agent-install, 14+ agents) | `npx agent-install skill add zaco-tm/DOMicile -g` |
-| Universal (`~/.agents/skills/` — fallback for clients without their own discovery) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
-| [OpenCode](https://opencode.ai/docs/skills/) | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
-| [Claude Code](https://code.claude.com/docs/en/skills) | `cp -R domicile/domicile ~/.claude/skills/domicile` |
-| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `cp -R domicile/domicile .roo/skills/domicile` |
-| [PI](https://github.com/badlogic/pi-mono) | `cp -R domicile/domicile ~/.pi/skills/domicile` |
-| [Crush](https://github.com/charmbracelet/crush) | `cp -R domicile/domicile ~/.config/crush/skills/domicile` |
-| Dirac | `cp -R domicile/domicile ~/.config/dirac/skills/domicile` |
-| Any other Agent Skills–compatible client | `cp -R domicile/domicile <config-dir>/skills/domicile` |
+| Universal (`~/.agents/skills/` — fallback for clients without their own discovery) | `cp -R domicile ~/.agents/skills/domicile` |
+| [OpenCode](https://opencode.ai/docs/skills/) | `cp -R domicile ~/.config/opencode/skills/domicile` |
+| [Claude Code](https://code.claude.com/docs/en/skills) | `cp -R domicile ~/.claude/skills/domicile` |
+| [Kilo Code](https://docs.roocode.com/features/skills) (Roo Code fork) | `cp -R domicile .roo/skills/domicile` |
+| [PI](https://github.com/badlogic/pi-mono) | `cp -R domicile ~/.pi/skills/domicile` |
+| [Crush](https://github.com/charmbracelet/crush) | `cp -R domicile ~/.config/crush/skills/domicile` |
+| Dirac | `cp -R domicile ~/.config/dirac/skills/domicile` |
+| Any other Agent Skills–compatible client | `cp -R domicile <config-dir>/skills/domicile` |
 
-Each command copies the full bundle (`SKILL.md` plus runtime and assets). The two `npx` rows install for any agent on a one-liner and support 15+ agents each (Claude Code, OpenCode, Cursor, Cline, Amp, etc.). The bundle is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts the bundle is in sync via `npm run test:bundle`.
+Each command copies the full skill (`SKILL.md` plus runtime and assets) into the agent's discovery dir. The two `npx` rows install for any agent on a one-liner and support 15+ agents each (Claude Code, OpenCode, Cursor, Cline, Amp, etc.). The skill dir is built from canonical sources via `tools/build-skill-bundle.sh`; CI asserts it is in sync via `npm run test:bundle`.
 
 Once the skill is installed, the agent asks you "standalone or server?" on the first iteration-eligible task. Standalone needs nothing extra. For server-backed iteration, the skill's wrapper (`tools/domi-serve.sh start`) auto-installs `domi-server` from GitHub Releases into `~/.local/bin/` on first run (~3–10 sec, no Rust toolchain required). The server serves the DOMicile design system from a `--library-root` it discovers automatically (the repo root), so working docs can use absolute asset paths like `/components/domi.css` directly — no path-rewriting required from your agent beyond the one rule the skill prompt already specifies. For maintainers who want the source build instead, `cargo build --release -p domi-server` still works and is preferred. See [Server mode (auto-install)](#server-mode-auto-install) below.
 
@@ -39,24 +39,24 @@ Once the skill is installed, the agent asks you "standalone or server?" on the f
 
 ### Install shape
 
-The skill ships as a single directory (`domicile/domicile/`) whose contents match the Agent Skills open-standard bundle shape. Installation is one recursive copy.
+The skill ships as a single directory (`domicile/`) whose contents match the Agent Skills open-standard bundle shape. Installation is one recursive copy.
 
 If you'd rather **symlink** (so edits to the repo immediately reflect in your agent config):
 
 ```bash
-ln -s "$(pwd)/domicile/domicile" ~/.claude/skills/domicile
+ln -s "$(pwd)/domicile" ~/.claude/skills/domicile
 ```
 
 ### <a id="full-bundle"></a>Full bundle
 
-The install path above copies the full bundle, generated from canonical sources by `tools/build-skill-bundle.sh`. The bundle contains:
+The install path above copies the full skill, generated from canonical sources by `tools/build-skill-bundle.sh`. The skill ships:
 
 - `SKILL.md` — the prompt the agent reads.
-- `scripts/runtime/{domi.js, domi-audit.js, domi-server.js, domi-wire.js}` — the audit-rail runtime JS.
+- `scripts/runtime/{domi.js, domi-audit.js, domi-audit-render.js, domi-server.js, domi-wire.js, domi-verify.js}` — the audit-rail runtime JS plus the first-run install verifier.
 - `components/domi.css` — the design-system stylesheet.
 - `templates/working-doc/index.html` — the canonical starter template for any working-doc-mode artifact.
 
-To rebuild the bundle from canonical sources: `tools/build-skill-bundle.sh`. CI asserts the bundle is in sync via `npm run test:bundle`.
+To rebuild from canonical sources: `tools/build-skill-bundle.sh`. CI asserts the skill is in sync via `npm run test:bundle`.
 
 What the bundle does **not** ship (and requires a full repo checkout via `git clone`):
 

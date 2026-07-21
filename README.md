@@ -89,12 +89,12 @@ DOMicile ships as an [Agent Skills](https://agentskills.io)-compatible `SKILL.md
 |---|---|
 | Universal one-line (vercel-labs/skills, 15+ agents) | `npx skills add zaco-tm/DOMicile -g` |
 | Universal one-line (agent-install, 14+ agents) | `npx agent-install skill add zaco-tm/DOMicile -g` |
-| Universal (`~/.agents/skills/`) | `cp -R domicile/domicile ~/.agents/skills/domicile` |
-| OpenCode | `cp -R domicile/domicile ~/.config/opencode/skills/domicile` |
-| Claude Code | `cp -R domicile/domicile ~/.claude/skills/domicile` |
-| Kilo Code | `cp -R domicile/domicile .roo/skills/domicile` |
-| PI | `cp -R domicile/domicile ~/.pi/skills/domicile` |
-| Any other Agent Skills client (Crush, Dirac, …) | `cp -R domicile/domicile <config-dir>/skills/domicile` |
+| Universal (`~/.agents/skills/`) | `cp -R domicile ~/.agents/skills/domicile` |
+| OpenCode | `cp -R domicile ~/.config/opencode/skills/domicile` |
+| Claude Code | `cp -R domicile ~/.claude/skills/domicile` |
+| Kilo Code | `cp -R domicile .roo/skills/domicile` |
+| PI | `cp -R domicile ~/.pi/skills/domicile` |
+| Any other Agent Skills client (Crush, Dirac, …) | `cp -R domicile <config-dir>/skills/domicile` |
 
 > ⚠️ **Skill scope.** Each install path above copies the full bundle (`SKILL.md` plus runtime JS plus CSS plus one starter template). The full library (other archetypes, primitives) still requires `git clone`. **Server mode works out of the box for skill users** — when the agent asks for server mode, the skill auto-installs `domi-server` from [GitHub Releases](https://github.com/zaco-tm/DOMicile/releases) into `~/.local/bin/`. ~3–10 sec, no Rust toolchain required. See [`INSTALL.md`](INSTALL.md#server-mode-auto-install).
 
