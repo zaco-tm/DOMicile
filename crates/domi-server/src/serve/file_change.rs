@@ -9,7 +9,7 @@
 pub use crate::serve::classify::{classify, ReloadTarget};
 pub use crate::serve::debouncer::{Debouncer, WatchEvent, WatchEventKind};
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration;
 use tokio::sync::broadcast;
 

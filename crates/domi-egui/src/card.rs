@@ -32,7 +32,7 @@ pub fn domi_card(ui: &mut egui::Ui, props: CardProps) -> egui::Response {
         painter.rect_filled(rect, r, theme.surface_glass);
         painter.rect_stroke(
             rect, r,
-            egui::Stroke::new(1.0, theme.text_default.gamma_multiply(0.25)),
+            egui::Stroke::new(1.0_f32, theme.text_default.gamma_multiply(0.25)),
             egui::StrokeKind::Inside,
         );
         let mut y = rect.top() + pad;

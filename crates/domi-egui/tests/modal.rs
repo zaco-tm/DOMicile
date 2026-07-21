@@ -1,4 +1,4 @@
-use domi_egui::modal::{domi_modal, ModalProps};
+use domi_egui::modal::ModalProps;
 
 #[test]
 fn modal_props_carries_title_and_content() {

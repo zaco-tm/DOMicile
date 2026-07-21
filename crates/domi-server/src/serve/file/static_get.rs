@@ -10,7 +10,7 @@
 //! `root` returns `ServeError::EscapedRoot`.
 
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use super::safety::{content_type_for_path, ensure_no_parent_dir_components};
 use crate::serve::shim::{SHIM_BYTES, STATUS_SHIM_BYTES};

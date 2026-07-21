@@ -168,7 +168,7 @@ mod tests {
     use crate::events::event::{EventData, Kind, Rect, Source, Target};
     use tempfile::tempdir;
 
-    fn ev(kind: Kind, data: EventData, body: &str) -> Event {
+    fn ev(kind: Kind, data: EventData, _body: &str) -> Event {
         Event {
             v: 2,
             id: ulid::Ulid::from_string("01H8XZQ5K2J9Z9Q4X5Y6Z7XYZ1").unwrap(),

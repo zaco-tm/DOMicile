@@ -49,7 +49,7 @@ pub fn domi_input(ui: &mut egui::Ui, props: InputProps) -> egui::Response {
     let r = if props.error { theme.radius.0 } else { theme.radius.1 };
     painter.rect_stroke(
         rect, r,
-        egui::Stroke::new(1.0, theme.text_default),
+        egui::Stroke::new(1.0_f32, theme.text_default),
         egui::StrokeKind::Inside,
     );
     response

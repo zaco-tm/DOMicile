@@ -29,7 +29,6 @@ fn serves_html_with_domi_js_injects_shim_before_script() {
         &file,
         r#"<!doctype html><html><body><script src="../scripts/runtime/domi.js"></script></body></html>"#,
     );
-    let body = std::fs::read(&file).unwrap();
     let requested = Path::new("dashboard.html");
     let s = serve_file(root, requested).expect("serve ok");
     assert_eq!(s.content_type, ContentType::Html);
@@ -103,14 +102,14 @@ fn css_returns_unchanged() {
 }
 
 #[test]
-fn missing_file_returns_NotFound() {
+fn missing_file_returns_not_found() {
     let dir = tempdir().unwrap();
     let s = serve_file(dir.path(), Path::new("nope.html"));
     assert!(matches!(s, Err(ServeError::NotFound)));
 }
 
 #[test]
-fn directory_returns_NotAFile() {
+fn directory_returns_not_a_file() {
     let dir = tempdir().unwrap();
     let sub = dir.path().join("subdir");
     std::fs::create_dir(&sub).unwrap();
@@ -119,7 +118,7 @@ fn directory_returns_NotAFile() {
 }
 
 #[test]
-fn path_escape_returns_EscapedRoot() {
+fn path_escape_returns_escaped_root() {
     let dir = tempdir().unwrap();
     let root = dir.path();
     let outside = dir.path().parent().unwrap().join("outside.html");
@@ -179,7 +178,6 @@ fn symlink_under_root_to_directory_traversal_still_blocked() {
     // happens to have.
     #[cfg(unix)]
     {
-        use std::os::unix::fs::symlink;
         let dir = tempdir().unwrap();
         let outside = dir.path().parent().unwrap();
         std::fs::write(outside.join("secret.html"), "<html>secret</html>").unwrap();

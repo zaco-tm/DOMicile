@@ -37,7 +37,7 @@ pub fn domi_select(ui: &mut egui::Ui, props: SelectProps) -> egui::Response {
     let painter = ui.painter_at(rect);
     painter.rect_stroke(
         rect, theme.radius.1,
-        egui::Stroke::new(1.0, theme.text_default),
+        egui::Stroke::new(1.0_f32, theme.text_default),
         egui::StrokeKind::Inside,
     );
     response
