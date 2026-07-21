@@ -87,6 +87,13 @@ The repo assumes `rtk` is on PATH (`brew install rtk` if missing). It's a CLI pr
 - **Subagent discipline.** If dispatching subagents, follow `superpowers:subagent-driven-development`. Fresh subagent per task + reviewer per task + whole-branch review at the end.
 - **Cross-language drift.** The Rust `Event` struct (`crates/domi-server/src/events/event.rs`) and the JS test fixtures (`tests/wire-protocol.test.js`) both reference the wire protocol. If one changes, check the other.
 - **Don't auto-commit.** The user has explicit instructions in AGENTS.md to never commit without request. Confirm before any `git commit`, `git push`, or PR creation.
+- **Worktree lifecycle.** A worktree is scratch space, not a permanent workspace. After a worktree's branch is fully merged into `main` (working tree clean, `git log origin/main..HEAD` empty, branch tip == `origin/main`), delete both the worktree and the remote branch as the default close-out:
+  ```bash
+  # from anywhere outside the worktree:
+  git worktree remove /path/to/worktree
+  git push origin --delete <branch-name>
+  ```
+  Do not leave merged worktrees on disk or merged branches on `origin` — they accumulate. The user can always re-create a worktree from `main` when the next piece of work starts. If there's a reason to keep one (active follow-up, in-flight review, the user says so), leave it.
 
 ## Failure modes to watch for
 
