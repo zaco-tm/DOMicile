@@ -16,7 +16,7 @@
           }
         },
         "secondary": { "type": "object", "required": ["sage", "sage_light"], "properties": { "sage": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "sage_light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } } },
-        "accent":    { "type": "object", "required": ["plum", "plum_light"], "properties": { "plum": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "plum_light": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } } },
+        "accent":    { "type": "object", "required": ["primary", "secondary"], "properties": { "primary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } } },
         "text":      { "type": "object", "required": ["default", "muted", "inverse"], "properties": { "default": { "type": "string" }, "muted": { "type": "string" }, "inverse": { "type": "string" } } },
         "surface":   { "type": "object", "required": ["glass", "glass_strong", "tint"], "properties": { "glass": { "type": "string" }, "glass_strong": { "type": "string" }, "tint": { "type": "string" } } }
       }

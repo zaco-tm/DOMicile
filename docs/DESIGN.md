@@ -16,7 +16,7 @@ A warm, slightly terminal/technical vibe built on three layers:
 |---|---|---|
 | `--domi-color-primary-gradient` | `#a89cc8, #f4978e, #ffd6b3` | Page bg, primary buttons, hero blocks |
 | `--domi-color-secondary-sage` | `#9caf88` | Success states, positive deltas |
-| `--domi-color-accent-plum` | `#a89cc8` | Focus rings, tertiary surfaces |
+| `--domi-color-accent-primary` | `#a89cc8` | Focus rings, tertiary surfaces |
 | `--domi-color-text-default` | `#3d2342` | All body text, icons |
 | `--domi-color-text-muted` | `#3d2342aa` | Captions, helper text |
 | `--domi-color-surface-glass` | `#ffffff60` | Card bg, modal bg, button bg |

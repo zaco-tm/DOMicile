@@ -1,11 +1,14 @@
-/* AUTO-GENERATED from tokens/tokens.json — do not edit by hand */
+/* AUTO-GENERATED from tokens/index.json — do not edit by hand */
 :root {
   --domi-color-primary-gradient: #a89cc8, #f4978e, #ffd6b3;
+  --domi-color-primary-gradient-c1: #a89cc8;
+  --domi-color-primary-gradient-c2: #f4978e;
+  --domi-color-primary-gradient-c3: #ffd6b3;
   --domi-color-primary-angle: 135deg;
   --domi-color-secondary-sage: #9caf88;
   --domi-color-secondary-sage-light: #c8d6b8;
-  --domi-color-accent-plum: #a89cc8;
-  --domi-color-accent-plum-light: #d8d0e8;
+  --domi-color-accent-primary: #a89cc8;
+  --domi-color-accent-secondary: #d8d0e8;
   --domi-color-text-default: #3d2342;
   --domi-color-text-muted: #3d2342aa;
   --domi-color-text-inverse: #fff1e6;
@@ -42,16 +45,62 @@
   --domi-breakpoint-xl: 1280px;
 }
 
+[data-theme="bundoro"] {
+  --domi-color-primary-gradient: #f4ead5, #faf3e7, #f0e2c4;
+  --domi-color-primary-gradient-c1: #f4ead5;
+  --domi-color-primary-gradient-c2: #faf3e7;
+  --domi-color-primary-gradient-c3: #f0e2c4;
+  --domi-color-primary-angle: 135deg;
+  --domi-color-secondary-sage: #9caf88;
+  --domi-color-secondary-sage-light: #c8d6b8;
+  --domi-color-accent-primary: #e87a5d;
+  --domi-color-accent-secondary: #f4a08a;
+  --domi-color-text-default: #1d3a3a;
+  --domi-color-text-muted: #1d3a3aaa;
+  --domi-color-text-inverse: #faf3e7;
+  --domi-color-surface-glass: #faf3e7;
+  --domi-color-surface-glass-strong: #f4ead5;
+  --domi-color-surface-tint: #1d3a3a08;
+  --domi-type-display-family: CourbeSans, 'Arial Black', sans-serif;
+  --domi-type-display-weight: 900;
+  --domi-type-display-transform: uppercase;
+  --domi-type-display-letterSpacing: -0.02em;
+  --domi-type-body-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-body-weight: 400;
+  --domi-type-label-family: 'SF Mono', 'JetBrains Mono', monospace;
+  --domi-type-label-weight: 700;
+  --domi-radius-sm: 4px;
+  --domi-radius-md: 8px;
+  --domi-radius-lg: 16px;
+  --domi-radius-pill: 9999px;
+  --domi-glass-blur: 0px;
+  --domi-glass-bgOpacity: 1;
+  --domi-glass-borderOpacity: 1;
+  --domi-border-thin: 2px solid #1d3a3a;
+  --domi-border-thick: 3px solid #1d3a3a;
+  --domi-space-xs: 4px;
+  --domi-space-sm: 8px;
+  --domi-space-md: 16px;
+  --domi-space-lg: 24px;
+  --domi-space-xl: 40px;
+  --domi-shadow-soft: none;
+  --domi-shadow-offset: 0 4px 0 #1d3a3a;
+  --domi-breakpoint-sm: 640px;
+  --domi-breakpoint-md: 768px;
+  --domi-breakpoint-lg: 1024px;
+  --domi-breakpoint-xl: 1280px;
+}
+
 .domi-bg-primary {
-  background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3);
+  background-image: linear-gradient(var(--domi-color-primary-angle), var(--domi-color-primary-gradient-c1), var(--domi-color-primary-gradient-c2), var(--domi-color-primary-gradient-c3));
 }
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: 'SF Mono', 'JetBrains Mono', monospace;
-  font-weight: 400;
+  font-family: var(--domi-type-body-family);
+  font-weight: var(--domi-type-body-weight);
   color: var(--domi-color-text-default);
   background: var(--domi-color-surface-glass);
   min-height: 100vh;
@@ -59,15 +108,15 @@ body {
 
 /* Typography utilities */
 .domi-display {
-  font-family: 'Helvetica Neue', 'Arial Black', sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
+  font-family: var(--domi-type-display-family);
+  font-weight: var(--domi-type-display-weight);
+  text-transform: var(--domi-type-display-transform);
+  letter-spacing: var(--domi-type-display-letterSpacing);
   margin: 0;
 }
 .domi-label {
-  font-family: 'SF Mono', 'JetBrains Mono', monospace;
-  font-weight: 700;
+  font-family: var(--domi-type-label-family);
+  font-weight: var(--domi-type-label-weight);
 }
 .domi-glass {
   background: var(--domi-color-surface-glass);
@@ -77,8 +126,34 @@ body {
   border-radius: var(--domi-radius-md);
 }
 
-html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }/* DOMicile primitive styles — appended to domi.css by build
-   Tokens come from :root custom properties (see tokens-to-css generator). */
+html, body { background-image: linear-gradient(var(--domi-color-primary-angle), var(--domi-color-primary-gradient-c1), var(--domi-color-primary-gradient-c2), var(--domi-color-primary-gradient-c3)); }
+
+/* @font-face declarations for bundoro display family */
+@font-face {
+  font-family: 'CourbeSans';
+  src: url('/fonts/CourbeSans.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pavot';
+  src: url('/fonts/Pavot-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* .domi-glass redefinition under bundoro — flat fills, no blur, thick border */
+[data-theme="bundoro"] .domi-glass {
+  background: var(--domi-color-surface-glass);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: var(--domi-border-thick);
+  border-radius: var(--domi-radius-md);
+}
+/* DOMicile primitive styles — appended to domi.css by build */
+/* Tokens come from :root custom properties (see tokens-to-css generator). */
 
 /* button */
 .domi-btn {
@@ -101,8 +176,8 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
 }
 .domi-btn:hover { box-shadow: var(--domi-shadow-soft); }
 .domi-btn:active { transform: translateY(1px); }
-.domi-btn:focus-visible { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 2px; }
-.domi-btn--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); color: var(--domi-color-text-default); }
+.domi-btn:focus-visible { outline: 2px solid var(--domi-color-accent-primary); outline-offset: 2px; }
+.domi-btn--primary { background-image: linear-gradient(var(--domi-color-primary-angle), var(--domi-color-primary-gradient-c1), var(--domi-color-primary-gradient-c2), var(--domi-color-primary-gradient-c3)); color: var(--domi-color-text-default); }
 .domi-btn--ghost { background: transparent; border-color: transparent; }
 .domi-btn--danger { border-color: #c2410c; color: #c2410c; }
 .domi-btn--sm { padding: 5px 10px; font-size: 11px; }
@@ -134,7 +209,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
   color: var(--domi-color-text-default);
   width: 100%;
 }
-.domi-input:focus, .domi-select:focus { outline: 2px solid var(--domi-color-accent-plum); outline-offset: 1px; }
+.domi-input:focus, .domi-select:focus { outline: 2px solid var(--domi-color-accent-primary); outline-offset: 1px; }
 .domi-input--sm, .domi-select--sm { padding: 5px 10px; font-size: 11px; }
 .domi-input--lg, .domi-select--lg { padding: 12px 18px; font-size: 15px; }
 .domi-input--error, .domi-select--error { border-color: #c2410c; color: #c2410c; }
@@ -153,7 +228,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
 }
 .domi-check { border-radius: 4px; }
 .domi-radio { border-radius: 50%; }
-.domi-check:checked, .domi-radio:checked { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); border-color: var(--domi-color-accent-plum); }
+.domi-check:checked, .domi-radio:checked { background-image: linear-gradient(var(--domi-color-primary-angle), var(--domi-color-primary-gradient-c1), var(--domi-color-primary-gradient-c2), var(--domi-color-primary-gradient-c3)); border-color: var(--domi-color-accent-primary); }
 .domi-check:checked::after { content: '✓'; color: var(--domi-color-text-default); position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; font-size: 13px; }
 .domi-radio:checked::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--domi-color-text-default); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 .domi-check-label, .domi-radio-label { display: inline-flex; align-items: center; gap: 8px; font-family: 'SF Mono', 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; }
@@ -225,7 +300,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
   background: var(--domi-color-surface-glass);
   backdrop-filter: blur(var(--domi-glass-blur));
 }
-.domi-alert--info    { border-color: var(--domi-color-accent-plum); }
+.domi-alert--info    { border-color: var(--domi-color-accent-primary); }
 .domi-alert--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
 .domi-alert--warning { border-color: #f59e0b; }
 .domi-alert--danger  { border-color: #c2410c; color: #c2410c; }
@@ -245,7 +320,7 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
   background: var(--domi-color-surface-glass);
   backdrop-filter: blur(var(--domi-glass-blur));
 }
-.domi-badge--primary { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3); }
+.domi-badge--primary { background-image: linear-gradient(var(--domi-color-primary-angle), var(--domi-color-primary-gradient-c1), var(--domi-color-primary-gradient-c2), var(--domi-color-primary-gradient-c3)); }
 .domi-badge--success { border-color: var(--domi-color-secondary-sage); color: var(--domi-color-secondary-sage); }
 .domi-badge--warning { border-color: #f59e0b; color: #f59e0b; }
 .domi-badge--danger  { border-color: #c2410c; color: #c2410c; }

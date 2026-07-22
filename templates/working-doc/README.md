@@ -15,3 +15,9 @@ Use this archetype when the user says "let's work on X," "review this," or anywh
 
 - A real-time server (Phase 2).
 - A pre-populated feedback thread. The JSON file is seeded empty; the first comment creates the first entry.
+
+## Theme
+
+The working doc is stamped with a theme at clone time via a `data-theme="<name>"` attribute on the root `<html>` element. The template itself does not include the attribute — the skill adds it during the clone step, using the answer to the "Theme: neo or bundoro?" question.
+
+Once written, the working doc's `data-theme` attribute is fixed. The user does not toggle it from inside the page. To switch a doc to the other theme, regenerate the doc.

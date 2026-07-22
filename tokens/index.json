@@ -1,0 +1,7 @@
+{
+  "default": "neo",
+  "themes": {
+    "neo": "tokens/tokens.json",
+    "bundoro": "tokens/tokens.bundoro.json"
+  }
+}

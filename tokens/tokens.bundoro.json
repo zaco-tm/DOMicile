@@ -1,0 +1,23 @@
+{
+  "color": {
+    "primary": {
+      "gradient": ["#f4ead5", "#faf3e7", "#f0e2c4"],
+      "angle": "135deg"
+    },
+    "secondary": { "sage": "#9caf88", "sage_light": "#c8d6b8" },
+    "accent":    { "primary": "#e87a5d", "secondary": "#f4a08a" },
+    "text":      { "default": "#1d3a3a", "muted": "#1d3a3aaa", "inverse": "#faf3e7" },
+    "surface":   { "glass": "#faf3e7", "glass_strong": "#f4ead5", "tint": "#1d3a3a08" }
+  },
+  "type": {
+    "display": { "family": "CourbeSans, 'Arial Black', sans-serif", "weight": 900, "transform": "uppercase", "letterSpacing": "-0.02em" },
+    "body":    { "family": "'SF Mono', 'JetBrains Mono', monospace", "weight": 400 },
+    "label":   { "family": "'SF Mono', 'JetBrains Mono', monospace", "weight": 700 }
+  },
+  "radius":   { "sm": "4px", "md": "8px", "lg": "16px", "pill": "9999px" },
+  "glass":    { "blur": "0px", "bgOpacity": 1, "borderOpacity": 1 },
+  "border":   { "thin": "2px solid #1d3a3a", "thick": "3px solid #1d3a3a" },
+  "space":    { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "40px" },
+  "shadow":   { "soft": "none", "offset": "0 4px 0 #1d3a3a" },
+  "breakpoint": { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px" }
+}

@@ -14,6 +14,10 @@ A theme is a JSON file that overrides any subset of `tokens/tokens.json`. Declar
 
 Don't rename existing tokens — override them.
 
+**Library themes vs user themes.** The DOMicile library ships with two first-class themes (`neo` and `bundoro`) defined in `tokens/tokens.json` and `tokens/tokens.bundoro.json`, listed in the `tokens/index.json` manifest. The library's themes are integrated as siblings of the default and follow the manifest-driven generator in `tools/tokens-to-css.mjs`.
+
+The `tokens/themes/<name>.json` pattern documented above is the **user-extension path** — a separate mechanism for end users to add their own custom themes that override CSS variables. The library itself does not use this pattern. If you're adding a theme that should ship as a first-class library option (alongside neo and bundoro), use the parallel-file + manifest model instead.
+
 ## New primitive
 
 Path: `components/primitives/<name>/`

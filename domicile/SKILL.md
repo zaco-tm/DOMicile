@@ -75,13 +75,30 @@ If you're not sure which mode, ASK ONE QUESTION with the linguistic signal you s
 
 Do NOT edit the library to do a one-off artifact. Edit the library only when the user explicitly says "add a primitive," "make a new theme," etc. — see `docs/EXTENDING.md`.
 
-## Runtime mode: standalone or server
+## Runtime + theme: server mode, then theme
 
-Before writing any iteration-eligible artifact (Working doc — create or audit, never Deliverable), the agent must ask the user one question:
+Before writing any iteration-eligible artifact (Working doc — create or audit, never Deliverable), the agent must ask the user **two questions, in this order**:
 
-**"Standalone (`file://` + `localStorage`) or server (event-backed, comments persist across devices)?"**
+1. **"Server mode (event-backed, comments persist across devices) or standalone (`file://` + `localStorage`)?"**
+2. **"Theme: `neo` or `bundoro`?"**
 
-Default to standalone if the user doesn't pick — it works in any environment without setup. Recommend server when the user says they'll iterate across machines, share the doc, or want comments to survive a tab close + reopen cycle.
+Both answers are required. If the user says "you pick" or "I don't care," the skill picks the default (standalone + neo) and tells the user what it picked before proceeding. The theme choice is fixed for the lifetime of the working doc — the user does not toggle it from inside the page.
+
+Default to standalone if the user doesn't pick a runtime mode — it works in any environment without setup. Recommend server when the user says they'll iterate across machines, share the doc, or want comments to survive a tab close + reopen cycle.
+
+Default to **neo** if the user doesn't pick a theme — today's default, the warm-gradient + glass aesthetic. **bundoro** is the flat-cream + sticker-style alternative.
+
+### Setting the theme on the working doc
+
+When the skill clones `templates/working-doc/index.html` to `.domi/output/<name>.html`, it **adds** a `data-theme="<chosen>"` attribute to the cloned `<html>` element. The template's `<html>` is `<html lang="en">` today — the attribute is new and is not present in the canonical template.
+
+For example, after cloning, the working doc's root element reads:
+
+```html
+<html lang="en" data-theme="bundoro">
+```
+
+Once written, the working doc's `data-theme` attribute is fixed for the lifetime of the doc. To switch a doc to the other theme, the user (or skill, on request) regenerates the doc.
 
 ### If standalone (the default)
 
