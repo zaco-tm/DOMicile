@@ -157,7 +157,13 @@ The agent handles primitives, tokens, and the working-doc chrome. You focus on w
 
 ## See it in action
 
-GIF/MP4 walkthroughs of the loop in action are coming soon — this section will host them once they're cut.
+A 74-second walkthrough of the loop: the agent writes a working doc, you click what's wrong, the agent revises just that part, you ship. No screenshots, no re-pastes.
+
+<video src="DomicileDemo.mp4" poster="DomicileDemo-poster.jpg" controls width="100%" playsinline></video>
+
+*[Direct download](DomicileDemo.mp4) · [poster frame](DomicileDemo-poster.jpg) · 1920×1080 · ~12&nbsp;MB · H.264*
+
+The video lives in [`templates/landing-page/`](templates/landing-page/) (the GitHub Pages source of truth) and is synced to the repo root by [`.github/workflows/publish-landing.yml`](.github/workflows/publish-landing.yml). The same DOMicile primitives and tokens power every page in this repo.
 
 **Troubleshooting?** See [`INSTALL.md`](INSTALL.md) for per-client install paths, prompt-injection fallback, and common-error fixes.
 

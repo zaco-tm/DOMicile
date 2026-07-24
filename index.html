@@ -600,6 +600,65 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
       margin: 0 auto;
     }
 
+    /* ── Section: see it in action (74s voiceover demo) ─────────── */
+    .showcase-section {
+      max-width: 1080px;
+      margin: 80px auto 0;
+      padding: 0 0 24px;
+    }
+    .showcase-section-head { text-align: center; margin-bottom: 40px; }
+    .showcase-section-title {
+      font-family: var(--domi-type-display-family);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.05;
+      color: var(--domi-color-text-default);
+      margin: 0 0 12px;
+    }
+    .showcase-section-sub {
+      font-size: 16px;
+      color: var(--domi-color-text-default);
+      opacity: 0.75;
+      max-width: 56ch;
+      margin: 0 auto;
+    }
+    .showcase-video {
+      max-width: 960px;
+      margin: 0 auto 56px;
+    }
+    .showcase-video-el {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border: 2px solid #3d2342;
+      background: #1a0e1f;
+      box-shadow:
+        0 6px 0 #1a0e1f,
+        0 14px 36px rgba(61, 35, 66, 0.32);
+    }
+    .showcase-video-cap {
+      font-family: var(--domi-type-label-family);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      margin: 18px 0 0;
+      color: var(--domi-color-text-default);
+      opacity: 0.72;
+    }
+    .showcase-video-cap .pip {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #c2410c;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
     /* The diagram: 4 cards in a row with a "not yet?" loop above. */
     .loop-diagram {
       position: relative;
@@ -1177,6 +1236,34 @@ html, body { background-image: linear-gradient(135deg, #a89cc8, #f4978e, #ffd6b3
              src="domi-mascot-200.png"
              alt="DOMi, the DOMicile mascot">
       </header>
+
+      <!-- ─── See it in action (74s voiceover demo) ────────────── -->
+      <section class="showcase-section" id="showcase" aria-labelledby="showcase-section-title">
+        <div class="showcase-section-head">
+          <h2 class="showcase-section-title" id="showcase-section-title">
+            See it in action
+          </h2>
+          <p class="showcase-section-sub">
+            A 74-second walkthrough with voiceover — what DOMicile is, and the whole loop in action. Click play, then keep scrolling.
+          </p>
+        </div>
+
+        <div class="showcase-video">
+          <video class="showcase-video-el"
+                 src="DomicileDemo.mp4"
+                 poster="DomicileDemo-poster.jpg"
+                 controls
+                 preload="metadata"
+                 playsinline
+                 aria-label="74-second DOMicile demo with voiceover: what DOMicile is, and the write-click-revise-ship loop in action.">
+            Your browser doesn't support embedded video.
+            <a href="DomicileDemo.mp4">Download the demo (MP4, 12&nbsp;MB)</a>.
+          </video>
+          <p class="showcase-video-cap">
+            <span class="pip" aria-hidden="true"></span>74 seconds. The whole loop — write, click, revise, ship.
+          </p>
+        </div>
+      </section>
 
       <!-- ─── 60-sec loop ──────────────────────────────────────── -->
       <section class="loop-section" id="loop" aria-labelledby="loop-section-title">

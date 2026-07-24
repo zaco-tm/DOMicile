@@ -1,15 +1,14 @@
 name: publish-landing
 
-# Sync `templates/landing-page/index.html` (+ companion mascot) to the
-# repo root so GitHub Pages can serve the public site at the root URL.
-# Source of truth lives in the archetype; the root copy is a build artifact.
+# DISABLED — manual run only.
+# Originally synced `templates/landing-page/index.html` (+ companion
+# assets) to the repo root so GitHub Pages could serve them at the
+# root URL. The root files are now maintained directly; running this
+# workflow would clobber hand-edits. Re-enable by uncommenting the
+# `push` trigger below and updating the `cp` step to the current
+# source-of-truth layout.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'templates/landing-page/**'
-      - '.github/workflows/publish-landing.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,25 +16,13 @@ permissions:
 
 jobs:
   sync:
-    name: sync landing-page → root
+    name: sync landing-page → root (disabled, manual only)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy landing-page archetype to repo root
+      - name: no-op (workflow disabled)
         run: |
-          set -euo pipefail
-          cp templates/landing-page/index.html     index.html
-          cp templates/landing-page/domi-mascot-200.png domi-mascot-200.png
-
-      - name: Commit if changed
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet; then
-            echo "No changes to commit."
-          else
-            git add index.html domi-mascot-200.png
-            git commit -m "chore: sync landing-page archetype to root"
-            git push
-          fi
+          echo "publish-landing is disabled. Root index.html is maintained directly."
+          echo "Re-enable by editing .github/workflows/publish-landing.yml."
+          exit 0
