@@ -86,6 +86,13 @@ describe('StudioFrame postMessage bridge', () => {
       <button data-feedback="btn-a">A</button>
       <button data-feedback="btn-b">B</button>
     `;
+    // Mark the stub as a fully-loaded real document (not the browser's
+    // initial about:blank) so the bridge's wireBridge gate
+    // (readyState==='complete' AND URL !== 'about:blank') passes and
+    // exercises the immediate-wire code path — the path that catches
+    // "mount() runs after the iframe has navigated to its body".
+    Object.defineProperty(fakeDoc, 'URL', { value: 'http://localhost/body', configurable: true });
+    Object.defineProperty(fakeDoc, 'readyState', { value: 'complete', configurable: true });
     Object.defineProperty(frame, 'contentDocument', { value: fakeDoc, configurable: true });
     Object.defineProperty(frame, 'contentWindow', { value: fakeDoc.defaultView, configurable: true });
   });
