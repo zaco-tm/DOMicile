@@ -1,25 +1,20 @@
-# templates/working-doc/AGENTS.md
+# templates/working-doc/ — AGENTS
 
-Owner: The audit-rail archetype (Phase 1.x).
+Owner: The body half of the studio-frame archetype (2026-08-17 design).
 
 ## Safe zones
 
-- Adding `data-feedback="..."` hooks on user-likely-to-comment
-  elements.
-- New status-chip variants (`v2`, `v3`, …).
-- Mirroring comments to a new persistence mechanism (e.g. an
-  IndexedDB shim alongside the existing localStorage path).
+- Adding `data-feedback="..."` hooks on user-likely-to-comment elements.
+- Loading `domi.js` (click feedback, form capture) in the body if the shipped artifact needs it. This is a per-artifact decision; the template itself does not include it.
+- Adding `data-theme="bundoro"` to the root `<html>` if the user picked bundoro.
 
 ## Ask-first zones
 
-- Changing the audit runtime itself
-  (`scripts/runtime/domi-audit.js`) — that's a library invariant.
-- Removing the rail entirely (the working-doc loop depends on it).
+- Adding the rail, status chip, or `domi-audit.js` back into the body. The whole point of the new design is that the body is a clean shippable artifact — putting audit chrome back in defeats it.
+- Renaming the template. `working-doc` is the canonical name; the role changed but the name didn't.
+- Adding a second body theme. `neo` and `bundoro` are the only body themes for v1.
 
 ## Notes
 
-- This archetype is what `.domi/output/<name>.html` should clone
-  verbatim. Keep it small and grep-able.
-- The HTML loads `scripts/runtime/domi-audit.js` (NOT
-  `scripts/runtime/domi.js`) — the audit rail is the entry point
-  for server-mode communication via `window.__DOMI_SERVER__`.
+- This template is what the agent (or the skill at clone time) writes the body of an artifact into. The chrome loads the body via the iframe's `src`.
+- The body's `data-feedback` attribute is the contract with the chrome's bridge. Renaming the attribute is a breaking change for the chrome.
