@@ -99,6 +99,16 @@
       const el = doc.querySelector('[data-feedback="' + id.replace(/"/g, '\\"') + '"]');
       if (el) el.classList.add('studio-iframe-target');
     });
+
+    // Announce the discovered target list so consumers (rail UI, etc.) can
+    // render a picker without re-walking the iframe's DOM. Dispatched once
+    // per wireBridge invocation, after both the click and domi-target-changed
+    // listeners are attached, so any consumer that listens to this event can
+    // immediately drive setTarget() and the outline listener above picks it up.
+    const ids = Array.from(doc.querySelectorAll('[data-feedback]'))
+      .map((el) => el.getAttribute('data-feedback'))
+      .filter((id) => id);
+    document.dispatchEvent(new CustomEvent('domi-targets-loaded', { detail: { ids } }));
   }
 
   function mount({ frameSelector } = {}) {
