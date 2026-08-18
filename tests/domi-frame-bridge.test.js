@@ -112,4 +112,14 @@ describe('StudioFrame postMessage bridge', () => {
     btnA.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     expect(globalThis.DomiAudit.setTarget).toHaveBeenCalledWith('btn-a');
   });
+
+  it('dispatches domi-targets-loaded with the list of [data-feedback] ids', () => {
+    const handler = vi.fn();
+    document.addEventListener('domi-targets-loaded', handler);
+    const StudioFrame = loadBridge();
+    StudioFrame.mount({ frameSelector: '#studio-frame' });
+    expect(handler).toHaveBeenCalled();
+    const detail = handler.mock.calls[0][0].detail;
+    expect(detail.ids).toEqual(['btn-a', 'btn-b']);
+  });
 });

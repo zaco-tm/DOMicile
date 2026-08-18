@@ -96,15 +96,15 @@ Default to **neo** if the user doesn't pick a theme — today's default, the war
 
 ### Setting the theme on the working doc
 
-When the skill clones `templates/working-doc/index.html` to `.domi/output/<name>.html`, it **adds** a `data-theme="<chosen>"` attribute to the cloned `<html>` element. The template's `<html>` is `<html lang="en">` today — the attribute is new and is not present in the canonical template.
-
-For example, after cloning, the working doc's root element reads:
+Theme choice (neo or bundoro) applies to the **body** file only. The body template `templates/working-doc/index.html` ships with `<html lang="en" data-theme="neo">` as a placeholder — the skill rewrites that value to `"bundoro"` when the user picks bundoro, leaves it as `"neo"` otherwise. Concretely, when the skill clones the body template to `.domi/output/<name>-body.html`, the body file's root element ends up reading:
 
 ```html
 <html lang="en" data-theme="bundoro">
 ```
 
-Once written, the working doc's `data-theme` attribute is fixed for the lifetime of the doc. To switch a doc to the other theme, the user (or skill, on request) regenerates the doc.
+Once written, the body's `data-theme` is fixed for the lifetime of the doc. To switch a doc to the other theme, the user (or skill, on request) regenerates the body file.
+
+The chrome (cloned from `templates/working-doc-chrome/index.html` to `.domi/output/<name>.html`) does **not** take a theme attribute — it wears the studio skin (loaded from `components/studio.css`), a fixed chrome-only look. See next subsection.
 
 ### Studio theme (chrome only)
 
