@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 // skill-smoke — wire the local DOMicile skill loop end-to-end.
 //
-//   1. Clone templates/working-doc/index.html into .domi/output/<name>.html
-//      (rewriting ../../components and ../../scripts paths to root-relative
-//      so they resolve under the served URL).
+//   1. Clone templates/working-doc-chrome/index.html into
+//      .domi/output/<name>.html (rewriting ../../components and
+//      ../../scripts paths to root-relative so they resolve under the
+//      served URL, and pointing the iframe at the sibling body file
+//      .domi/output/<name>-body.html which the agent or test harness
+//      is expected to create alongside).
 //   2. Serve the project root on http://127.0.0.1:<port>/ so the cloned
-//      doc, the library's components/domi.css, and scripts/runtime/domi-audit.js
+//      chrome, the library's components/domi.css, and scripts/runtime/*.js
 //      all resolve.
 //   3. Print the URL a human reviewer can open. Ctrl-C to stop.
 //
@@ -28,7 +31,7 @@ import { dirname, extname, join, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
-const archetypePath = join(projectRoot, 'templates/working-doc/index.html');
+const archetypePath = join(projectRoot, 'templates/working-doc-chrome/index.html');
 
 const args = process.argv.slice(2);
 function arg(name, fallback) {
@@ -39,7 +42,9 @@ function arg(name, fallback) {
   return fallback;
 }
 
-const docName = arg('--doc', args[0] && !args[0].startsWith('--') ? args[0] : 'smoke');
+// --name and --doc are aliases; --name is the documented public flag.
+const positional = args[0] && !args[0].startsWith('--') ? args[0] : null;
+const docName = arg('--name', arg('--doc', positional || 'smoke'));
 const port = Number(arg('--port', process.env.PORT || '8123'));
 const host = arg('--host', '127.0.0.1');
 
@@ -61,6 +66,10 @@ const archetype = readFileSync(archetypePath, 'utf8');
 const cloned = archetype
   .replaceAll('../../components/', '/components/')
   .replaceAll('../../scripts/', '/scripts/')
+  // The chrome template's iframe points at the example body file; rewrite
+  // it to the sibling body file the agent / test harness is expected to
+  // create at .domi/output/<name>-body.html.
+  .replace(/src="\.\/example-body\.html"/, `src="./${docName}-body.html"`)
   .replace(/docName:\s*'[^']*'/g, `docName: '${docName}'`)
   .replace(/statePath:\s*'[^']*'/g, `statePath: '.domi/state/${docName}.json'`)
   .replace(/<title>[^<]*<\/title>/, `<title>Working Doc — ${docName}</title>`)
@@ -156,10 +165,15 @@ setTimeout(() => {
     r.on('data', (c) => { buf += c; });
     r.on('end', () => {
       const checks = [
-        ['data-feedback hooks present', /data-feedback="[^"]+"/.test(buf)],
+        // The chrome is the audit rail itself; data-feedback hooks live
+        // in the body file, not in the chrome. We assert the chrome's
+        // own wiring (audit rail scripts + frame bridge) and the
+        // iframe→body pointer, but do not require data-feedback here.
         ['scripts/runtime/domi-audit.js loaded', /\/scripts\/(runtime\/)?domi-audit\.js/.test(buf)],
         ['scripts/runtime/domi-audit-render.js loaded', /\/scripts\/(runtime\/)?domi-audit-render\.js/.test(buf)],
+        ['scripts/runtime/domi-frame-bridge.js loaded', /\/scripts\/(runtime\/)?domi-frame-bridge\.js/.test(buf)],
         ['DomiAudit.mount invoked', /DomiAudit\.mount/.test(buf)],
+        [`iframe src points at ${docName}-body.html`, new RegExp(`src="\\./${docName}-body\\.html"`).test(buf)],
         // The status chip should reflect the docName (not the archetype's
         // default text "v0.1.0-working"); regression-tested after a rewrite
         // bug shipped silently.

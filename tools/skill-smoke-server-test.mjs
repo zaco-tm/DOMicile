@@ -111,15 +111,39 @@ async function run() {
   // exposes /components/* and /scripts/* directly — no path rewrite or
   // symlink dance needed (this test previously hand-rolled both, masking
   // the underlying library-routing gap).
-  const archetypePath = join(projectRoot, 'templates/working-doc/index.html');
-  const archetype = readFileSync(archetypePath, 'utf8');
-  const cloned = archetype
+  //
+  // The chrome (templates/working-doc-chrome/) hosts the audit rail and an
+  // iframe pointing at a sibling body file; the body file
+  // (templates/working-doc/) is the actual content under review. Clone
+  // both so the iframe loads and the rail is wired against a real
+  // body — the static smoke (`tools/skill-smoke.mjs`) leaves body
+  // creation to the agent / test harness, but this e2e test owns its
+  // hermetic world and should be self-contained.
+  const chromePath = join(projectRoot, 'templates/working-doc-chrome/index.html');
+  const bodyPath = join(projectRoot, 'templates/working-doc/index.html');
+  const chrome = readFileSync(chromePath, 'utf8');
+  const body = readFileSync(bodyPath, 'utf8');
+
+  // The chrome's iframe points at ./example-body.html by default; rewrite
+  // to the sibling body file we clone below so the preview actually
+  // loads. The body carries the same ../../components/ + ../../scripts/
+  // relative references the chrome does, so apply the same root-relative
+  // rewrite the static smoke uses — the Rust server with --library-root
+  // already exposes those at /components/ and /scripts/ respectively.
+  const bodyCloned = body
+    .replaceAll('../../components/', '/components/')
+    .replaceAll('../../scripts/', '/scripts/');
+  const chromeCloned = chrome
+    .replaceAll('../../components/', '/components/')
+    .replaceAll('../../scripts/', '/scripts/')
+    .replace(/src="\.\/example-body\.html"/, `src="./${docName}-body.html"`)
     .replace(/docName:\s*'[^']*'/g, `docName: '${docName}'`)
     .replace(/statePath:\s*'[^']*'/g, `statePath: '.domi/state/${docName}.json'`)
     .replace(/<title>[^<]*<\/title>/, `<title>Working Doc — ${docName}</title>`)
     .replace(/data-domini-status-chip(?:="[^"]*")?>([^<]*)/, `data-domini-status-chip>${docName} v0`);
   const { writeFileSync } = await import('node:fs');
-  writeFileSync(join(rootDir, `${docName}.html`), cloned, 'utf8');
+  writeFileSync(join(rootDir, `${docName}.html`), chromeCloned, 'utf8');
+  writeFileSync(join(rootDir, `${docName}-body.html`), bodyCloned, 'utf8');
 
   const url = `http://127.0.0.1:${port}/${docName}.html`;
   let browser;
