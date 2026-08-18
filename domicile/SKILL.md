@@ -66,10 +66,16 @@ If you're not sure which mode, ASK ONE QUESTION with the linguistic signal you s
 
 ## Output locations
 
-- Working artifacts: `.domi/output/<name>.html`
+- Working artifacts (chrome + body, both required):
+  - `.domi/output/<name>.html` — the chrome. Rail, status chip, snap bar, drag handle, iframe, postMessage bridge. The user opens this for iteration.
+  - `.domi/output/<name>-body.html` — the body. The actual artifact, ship-ready, no strip step. The iframe inside the chrome loads this file.
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
-- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `templates/<archetype>/index.html`
-- Reference working doc: `templates/working-doc/index.html` — **clone it as your starting point** for any working-doc-mode artifact (audit rail, status chip, `data-feedback` hooks, neo skin all in place). `tools/skill-smoke.mjs` does the same clone + serves it on `http://127.0.0.1:8123/` for review. The smoke serves until SIGINT — foreground run with Ctrl-C; if you background it (common for non-interactive agents), record the PID and `kill <pid>` when finished.
+- Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `components/studio.css` (chrome only), `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `scripts/runtime/domi-frame-bridge.js` (chrome only), `templates/<archetype>/index.html`, `templates/working-doc-chrome/index.html` (the chrome template)
+- Reference working doc (two files, both required):
+  - `templates/working-doc-chrome/index.html` — **clone this as the starting point** for the chrome (rail, status chip, snap bar, drag handle, iframe, postMessage bridge, studio skin in place). Rename to `<name>.html`.
+  - `templates/working-doc/index.html` — **clone this as the starting point for the body** (the artifact, no chrome, no audit JS, no `data-feedback` defaults). Rename to `<name>-body.html`. Add `data-theme="<neo|bundoro>"` to the root `<html>` based on the user's choice.
+  - The chrome's iframe `<src>` must point to the body file. The skill does this rewriting at clone time.
+  - `tools/skill-smoke.mjs` clones the chrome and serves it on `http://127.0.0.1:8123/`. The body file is expected alongside the chrome; the agent creates it. The smoke serves until SIGINT — foreground run with Ctrl-C; if you background it (common for non-interactive agents), record the PID and `kill <pid>` when finished.
 - Event-backed serving: see §"Runtime mode" below. The high-level mechanics haven't changed — the server still auto-injects the `window.__DOMI_SERVER__` shim and `domi-audit.js` still routes comments to `POST /api/events` — but the user-facing flow is now mediated by `tools/domi-serve.sh`. `tools/skill-smoke-server-test.mjs` is still the right end-to-end verification tool.
 - Server process metadata (runtime mode = server only): `.domi/server.url` (full URL, e.g. `http://127.0.0.1:54321/`), `.domi/server.pid` (PID of the running `domi-server`). Both written by `tools/domi-serve.sh start`, both removed by `tools/domi-serve.sh stop`. Gitignored.
 
@@ -99,6 +105,12 @@ For example, after cloning, the working doc's root element reads:
 ```
 
 Once written, the working doc's `data-theme` attribute is fixed for the lifetime of the doc. To switch a doc to the other theme, the user (or skill, on request) regenerates the doc.
+
+### Studio theme (chrome only)
+
+The chrome wears the **studio** theme — bundoro's visual language (paper, sticker, soft, flat) painted in neo's color palette (plum, coral, peach, warm pastel). The studio theme is loaded from `components/studio.css` and is fixed for the lifetime of the chrome. It is NOT user-selectable; the user's only theme choice (neo vs bundoro) is for the body file. The studio theme is its own palette, independent of the body's theme, so the chrome looks the same regardless of whether the body wears neo or bundoro.
+
+If the user asks for a "dark chrome" or "second chrome theme," escalate — studio is the only chrome theme in v1. Adding a second one is a deliberate library change.
 
 ### If standalone (the default)
 
@@ -174,6 +186,8 @@ The agent includes on every working-doc page:
 If the user explicitly asks for "the full thing" or "draft the whole page," you may draft the entire doc in one turn — but the section hooks, status chip, and click-to-target wiring must all be in place so iteration can begin immediately, and your hand-off message must still say *"I've drafted everything. Click any element that looks off and I'll revise just that piece."*
 
 **Do NOT delegate construction to a subagent.** Piece-by-piece iteration requires you to be the one in the loop with the user. A subagent cannot read a comment, click an element, or react to thread entries between sections. If you delegate the full build to a subagent, you have collapsed the loop into a single dump — the artifact has the same shape as the post-loop deliverable and the user has no way to iterate on it. Subagents are fine for bounded, *non-iteration* tasks (e.g., "render this JSON spec as a single component," "rewrite the hero copy in three variants") but they do not own the loop.
+
+**Ship mode:** The body file is ship-ready by construction. When the user signals "ship it," take `.domi/output/<name>-body.html`, rename or copy it to the destination filename. The chrome is not shipped. There is no strip step.
 
 See `docs/AUDIT.md` for the JSON schema, domi-audit API, and end-to-end loop.
 
