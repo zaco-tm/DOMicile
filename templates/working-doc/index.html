@@ -7,12 +7,8 @@
   <script src="../../scripts/runtime/domi.js" defer></script>
   <style>
     body { margin: 0; padding: 24px; }
-    /* The runtime sets [data-domini-target] on the element whose hook the next
-       comment will attach to. The outline is the user's only signal that they
-       clicked the right thing before submitting. */
-    [data-feedback] { cursor: copy; transition: outline-color .15s ease; }
+    [data-feedback] { cursor: copy; }
     [data-feedback]:hover { outline: 1px dashed rgba(60, 35, 66, 0.35); outline-offset: 4px; }
-    [data-feedback][data-domini-target] { outline: 2px solid #c2410c; outline-offset: 4px; }
   </style>
 </head>
 <body>
