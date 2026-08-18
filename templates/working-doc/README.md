@@ -1,23 +1,25 @@
-# Working Doc Archetype
+# working-doc (body template)
 
-A working doc is a working-doc-mode artifact: feedback rail, status chip, and `data-feedback` hooks on the elements the user is likely to comment on.
-
-Use this archetype when the user says "let's work on X," "review this," or anywhere a working doc is appropriate (see `../../domicile/SKILL.md` for the mode-choosing rules).
+The body half of a working doc. The artifact that the agent is iterating on. Loads into the chrome (`templates/working-doc-chrome/`) inside an iframe.
 
 ## What it ships with
 
-- `index.html` — the template; clone it.
-- It loads `../../scripts/runtime/domi-audit.js` to mount the rail.
-- It expects `.domi/state/<docName>.json` to be writable; in Phase 1, `domi-audit.js` mirrors to `localStorage`.
-- It wears the neo skin via `../../components/domi.css`.
+- `index.html` — the template; clone it to `<doc>-body.html`.
+- It wears the chosen body theme (neo or bundoro) via the `data-theme` attribute on the root `<html>` element. The theme is fixed for the lifetime of the body.
+- It carries `data-feedback="..."` attributes on user-likely-to-comment elements. The chrome's postMessage bridge reads them.
 
 ## What it does NOT ship with
 
-- A real-time server (Phase 2).
-- A pre-populated feedback thread. The JSON file is seeded empty; the first comment creates the first entry.
+- The rail (`<aside data-domini-rail>`) — that's in the chrome.
+- The status chip — that's in the chrome.
+- The `domi-audit.js` / `domi-audit-render.js` scripts — those are in the chrome.
+- The `DomiAudit` global. The body has no audit thread of its own; comments live in the chrome's audit thread.
 
-## Theme
+## Ship mode
 
-The working doc is stamped with a theme at clone time via a `data-theme="<name>"` attribute on the root `<html>` element. The template itself does not include the attribute — the skill adds it during the clone step, using the answer to the "Theme: neo or bundoro?" question.
+When the user says "ship it," take `<doc>-body.html` and rename or copy it to the destination filename. No strip step. The body is already clean.
 
-Once written, the working doc's `data-theme` attribute is fixed. The user does not toggle it from inside the page. To switch a doc to the other theme, regenerate the doc.
+## See also
+
+- `../working-doc-chrome/README.md` — the chrome half.
+- `../../../docs/superpowers/specs/2026-08-17-studio-frame-design.md` — the full design.

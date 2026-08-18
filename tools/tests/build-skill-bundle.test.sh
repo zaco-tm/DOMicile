@@ -29,9 +29,14 @@ for entry in \
   "scripts/runtime/domi-audit-render.js:scripts/runtime/domi-audit-render.js" \
   "scripts/runtime/domi-server.js:scripts/runtime/domi-server.js" \
   "scripts/runtime/domi-wire.js:scripts/runtime/domi-wire.js" \
+  "scripts/runtime/domi-frame-bridge.js:scripts/runtime/domi-frame-bridge.js" \
   "scripts/runtime/domi-verify.mjs:scripts/runtime/domi-verify.mjs" \
   "components/domi.css:components/domi.css" \
-  "templates/working-doc/index.html:templates/working-doc/index.html"; do
+  "components/studio.css:components/studio.css" \
+  "templates/working-doc/index.html:templates/working-doc/index.html" \
+  "templates/working-doc-chrome/index.html:templates/working-doc-chrome/index.html" \
+  "templates/working-doc-chrome/README.md:templates/working-doc-chrome/README.md" \
+  "templates/working-doc-chrome/AGENTS.md:templates/working-doc-chrome/AGENTS.md"; do
   installed_rel="${entry%%:*}"
   canonical_rel="${entry#*:}"
   src="$REPO_ROOT/$canonical_rel"

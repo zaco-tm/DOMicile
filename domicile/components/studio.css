@@ -1,0 +1,78 @@
+/* DOMicile chrome theme — studio.
+   Bundoro's visual language (paper, sticker, soft, flat) in neo's color palette.
+   Loaded only by the chrome; never loaded by the body. Theme-agnostic. */
+
+:root {
+  /* Page */
+  --studio-bg:           #faf6ee;            /* warm cream paper, from bundoro */
+  --studio-bg-elevated:  #fffdf7;            /* off-white surfaces, from bundoro */
+  --studio-border:       rgba(61, 35, 66, 0.18);  /* plum-tinted 1px, neo */
+
+  /* Text */
+  --studio-text:         #3d2342;            /* dark plum, neo */
+  --studio-text-muted:    rgba(61, 35, 66, 0.65);
+
+  /* Accent */
+  --studio-accent:       #f4978e;            /* coral, neo */
+  --studio-accent-hover: rgba(244, 151, 142, 0.4);
+
+  /* Sticker shadow (bundoro) */
+  --studio-shadow-sticker: 0 1px 0 rgba(61, 35, 66, 0.12), 0 2px 4px rgba(61, 35, 66, 0.06);
+
+  /* Type */
+  --studio-mono:         'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+}
+
+/* Page */
+html, body {
+  background: var(--studio-bg);
+  color: var(--studio-text);
+  font-family: var(--studio-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Display headings in the chrome (status chip text, snap bar) */
+.studio-display {
+  font-family: var(--studio-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  color: var(--studio-text);
+}
+
+/* Status chip */
+[data-domini-status-chip] {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--studio-border);
+  border-radius: 9999px;
+  background: var(--studio-bg-elevated);
+  color: var(--studio-text);
+  font-family: var(--studio-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--studio-shadow-sticker);
+  z-index: 100;
+}
+
+/* Feedback rail (replaces the inlined styles in templates/working-doc/index.html) */
+aside[data-domini-rail] {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 12px;
+  background: var(--studio-bg-elevated);
+  border: 1px solid var(--studio-border);
+  border-radius: 8px;
+  box-shadow: var(--studio-shadow-sticker);
+}
+.domini-rail-form textarea { width: 100%; }
+.domini-rail-form button { margin-top: 4px; }
+.domini-rail-list { padding-left: 16px; }

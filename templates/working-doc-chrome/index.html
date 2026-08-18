@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">  <!-- chrome: no data-theme; studio is fixed for the lifetime of the chrome -->
+<head>
+  <meta charset="utf-8">
+  <title>Working Doc — example</title>
+  <link rel="stylesheet" href="../../components/domi.css">
+  <link rel="stylesheet" href="../../components/studio.css">
+  <style>
+    /* Chrome-specific styles (snap bar, resizer, in-iframe target outline). */
+    .studio-snap {
+      display: flex; gap: 6px; align-items: center;
+      padding: 8px 12px;
+      font-family: var(--studio-mono);
+      font-size: 12px;
+    }
+    .studio-snap button {
+      background: transparent; border: 1px solid var(--studio-border);
+      border-radius: 4px; padding: 2px 8px; cursor: pointer;
+      font: inherit; color: var(--studio-text);
+    }
+    .studio-snap button[aria-pressed="true"] {
+      color: var(--studio-accent); border-color: var(--studio-accent);
+    }
+    .studio-snap button:hover { color: var(--studio-accent); }
+    .studio-snap-readout { margin-left: auto; color: var(--studio-text-muted); }
+
+    .studio-frame-wrap { position: relative; display: inline-block; }
+    .studio-frame {
+      display: block; border: 1px solid var(--studio-border);
+      background: #fff; border-radius: 4px;
+    }
+    .studio-resizer {
+      position: absolute; right: -3px; top: 0; bottom: 0;
+      width: 6px; cursor: ew-resize; background: transparent;
+    }
+    .studio-resizer:hover,
+    .studio-resizer:focus-visible { background: var(--studio-accent-hover); outline: 0; }
+
+    body { padding: 24px; }
+
+    /* In the chrome the snap bar sits at top-right; move the chip to the bottom so they don't collide. */
+    [data-domini-status-chip] { top: auto; bottom: 12px; }
+
+    /* The bridge adds this class to the active element inside the iframe. */
+    .studio-iframe-target {
+      outline: 2px solid var(--studio-accent) !important;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="studio-snap" role="toolbar" aria-label="Viewport width">
+      <button type="button" data-snap="375">375</button>
+      <button type="button" data-snap="768">768</button>
+      <button type="button" data-snap="1024" aria-pressed="true">1024</button>
+      <button type="button" data-snap="1280">1280</button>
+      <span class="studio-snap-readout" data-domini-frame-readout>1024px</span>
+    </div>
+    <div class="studio-frame-wrap">
+      <iframe
+        src="./example-body.html"
+        class="studio-frame"
+        id="studio-frame"
+        width="1024"
+        height="780"
+        title="Preview"
+      ></iframe>
+      <div
+        class="studio-resizer"
+        id="studio-resizer"
+        role="separator"
+        aria-orientation="vertical"
+        tabindex="0"
+        aria-label="Resize preview width"
+      ></div>
+    </div>
+  </main>
+  <aside data-domini-rail></aside>
+  <span data-domini-status-chip>v0.1.0-working</span>
+
+  <script src="../../scripts/runtime/domi-audit.js" defer></script>
+  <script src="../../scripts/runtime/domi-audit-render.js" defer></script>
+  <script src="../../scripts/runtime/domi-frame-bridge.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      DomiAudit.mount({ statePath: '.domi/state/example-audit.json', docName: 'example-audit' });
+      StudioFrame.mount({ frameSelector: '#studio-frame' });
+    });
+  </script>
+</body>
+</html>

@@ -29,6 +29,21 @@
   let _hydrationDone = false;
   let _activeTargetId = null;
 
+  // Single source of truth for target changes. Called by the public
+  // DomiAudit.setTarget API and by the click handler inside mount(). The
+  // dispatch fires AFTER the DOM updates so listeners see a consistent
+  // state when they read the rail hint or [data-domini-target] attribute.
+  function setTarget(id, el) {
+    _activeTargetId = id || null;
+    const hint = document.querySelector('[data-domini-target-id]');
+    if (hint) hint.textContent = id ? `${id}` : '(doc — click an element)';
+    document.querySelectorAll('[data-feedback][data-domini-target]').forEach((n) => {
+      n.removeAttribute('data-domini-target');
+    });
+    if (el) el.setAttribute('data-domini-target', '');
+    document.dispatchEvent(new CustomEvent('domi-target-changed', { detail: { id: _activeTargetId } }));
+  }
+
   function fetchFromServer(docName) {
     if (!SERVER || typeof fetch === 'undefined') return Promise.resolve(_state);
     if (!window.location?.origin) return Promise.resolve(_state);
@@ -251,25 +266,16 @@
         if (!body) return;
         addComment({ targetId: _activeTargetId, body });
         form.elements['body'].value = '';
-        setActiveTarget(null);
+        setTarget(null);
       });
 
       document.addEventListener('click', (ev) => {
         if (ev.target.closest('aside[data-domini-rail]')) return;
         if (ev.target.closest('form')) return;
         const el = ev.target.closest('[data-feedback]');
-        if (!el) { setActiveTarget(null); return; }
-        setActiveTarget(el.getAttribute('data-feedback'), el);
+        if (!el) { setTarget(null); return; }
+        setTarget(el.getAttribute('data-feedback'), el);
       });
-      function setActiveTarget(id, el) {
-        _activeTargetId = id || null;
-        const hint = rail.querySelector('[data-domini-target-id]');
-        if (hint) hint.textContent = id ? `${id}` : '(doc — click an element)';
-        document.querySelectorAll('[data-feedback][data-domini-target]').forEach((n) => {
-          n.removeAttribute('data-domini-target');
-        });
-        if (el) el.setAttribute('data-domini-target', '');
-      }
       const list = document.createElement('ul');
       list.setAttribute('data-domini-rail-list', '');
       rail.appendChild(list);
@@ -387,6 +393,7 @@
 
   globalThis.DomiAudit = {
     mount, addComment, resolveEntry, removeEntry, export: exportJSON,
+    setTarget,
     _internals: { computeIterations, parseRefs, getState: () => _state },
   };
 })();

@@ -48,6 +48,19 @@ const REQUIRED_FILES = [
   'templates/working-doc/index.html',
 ];
 
+// New files for the chrome + body pair refactor (studio frame).
+// Tracked but NOT required for `ok: true` — mid-plan they may not all
+// exist yet, and that's expected. The report shows presence/absence for
+// each so the operator can see rollout progress at a glance.
+const NEW_FILES = [
+  'components/studio.css',
+  'scripts/runtime/domi-frame-bridge.js',
+  'templates/working-doc-chrome/index.html',
+  'templates/working-doc-chrome/README.md',
+  'templates/working-doc-chrome/AGENTS.md',
+  'tools/skill-smoke-studio-test.mjs',
+];
+
 // Best-effort search locations for the `domi-server` binary. The agent
 // does not need it for standalone mode, but server mode requires it.
 // The skill's own `tools/domi-serve.sh start` is the canonical install
@@ -94,6 +107,7 @@ const report = {
   install_path_exists: false,
   files: {},
   missing_files: [],
+  new_files: {},
   domi_server: null,
   domi_server_note:
     'null means standalone mode is the only option. For server mode, run `tools/domi-serve.sh start` (auto-installs).',
@@ -115,6 +129,11 @@ if (!report.install_path_exists) {
     const exists = isFile(join(INSTALL_PATH, f));
     report.files[f] = exists;
     if (!exists) report.missing_files.push(f);
+  }
+  // 2b. New (chrome + body pair) files: report-only. Mid-plan they
+  // may not all exist yet; their absence is informational, not a fail.
+  for (const f of NEW_FILES) {
+    report.new_files[f] = isFile(join(INSTALL_PATH, f));
   }
 }
 
