@@ -123,3 +123,84 @@ describe('StudioFrame postMessage bridge', () => {
     expect(detail.ids).toEqual(['btn-a', 'btn-b']);
   });
 });
+
+describe('StudioFrame viewport-fit height', () => {
+  // jsdom returns zero for getBoundingClientRect by default. Stub it on the
+  // prototype so any HTMLIFrameElement we create gets a known layout value.
+  function stubFrameRect(top, width = 940, height = 0) {
+    const orig = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      // Only stub for our test frame; let other elements fall through.
+      if (this && this.id === 'studio-frame') {
+        return { top, left: 0, right: width, bottom: top + height, width, height, x: 0, y: top };
+      }
+      return orig.call(this);
+    };
+  }
+  function restoreFrameRect() {
+    delete HTMLElement.prototype.getBoundingClientRect;
+  }
+  function stubViewport(innerHeight, scrollY = 0) {
+    Object.defineProperty(window, 'innerHeight', { value: innerHeight, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: scrollY, configurable: true });
+  }
+  beforeEach(() => {
+    document.body.innerHTML = `<iframe id="studio-frame" width="940" height="780"></iframe>`;
+    // Stub a contentDocument so mount() doesn't try to wire the bridge.
+    const fakeDoc = document.implementation.createHTMLDocument('');
+    Object.defineProperty(fakeDoc, 'readyState', { value: 'complete', configurable: true });
+    const frame = document.getElementById('studio-frame');
+    Object.defineProperty(frame, 'contentDocument', { value: fakeDoc, configurable: true });
+    Object.defineProperty(frame, 'contentWindow', { value: null, configurable: true });
+  });
+  afterEach(() => {
+    restoreFrameRect();
+  });
+
+  it('mount sets frame.style.height to viewport - docTop - 40', () => {
+    stubFrameRect(80);        // iframe's top in the viewport
+    stubViewport(900);        // window.innerHeight
+    const StudioFrame = loadBridge();
+    StudioFrame.mount({ frameSelector: '#studio-frame' });
+    const frame = document.getElementById('studio-frame');
+    // 900 - (80 + 0) - 40 = 780
+    expect(frame.style.height).toBe('780px');
+  });
+
+  it('mount respects the MIN_FRAME_HEIGHT floor on short viewports', () => {
+    stubFrameRect(80);
+    stubViewport(200);        // way too short
+    const StudioFrame = loadBridge();
+    StudioFrame.mount({ frameSelector: '#studio-frame' });
+    const frame = document.getElementById('studio-frame');
+    // 200 - 80 - 40 = 80, but the floor is 240
+    expect(frame.style.height).toBe('240px');
+  });
+
+  it('mount uses docTop (rect.top + scrollY), not viewport-relative top', () => {
+    stubFrameRect(-50);       // scrolled past the iframe (negative viewport top)
+    stubViewport(900, 200);   // scrollY = 200, so docTop = -50 + 200 = 150
+    const StudioFrame = loadBridge();
+    StudioFrame.mount({ frameSelector: '#studio-frame' });
+    const frame = document.getElementById('studio-frame');
+    // 900 - 150 - 40 = 710
+    expect(frame.style.height).toBe('710px');
+  });
+
+  it('window resize event triggers a refit', () => {
+    stubFrameRect(80);
+    stubViewport(900);
+    const StudioFrame = loadBridge();
+    StudioFrame.mount({ frameSelector: '#studio-frame' });
+    const frame = document.getElementById('studio-frame');
+    expect(frame.style.height).toBe('780px');
+    // Shrink the viewport and dispatch a resize event.
+    stubViewport(500);
+    window.dispatchEvent(new Event('resize'));
+    // rAF-coalesced — flush it.
+    return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))).then(() => {
+      // 500 - 80 - 40 = 380
+      expect(frame.style.height).toBe('380px');
+    });
+  });
+});

@@ -68,7 +68,7 @@ If you're not sure which mode, ASK ONE QUESTION with the linguistic signal you s
 
 - Working artifacts (chrome + body, both required):
   - `.domi/output/<name>.html` — the chrome. Rail, status chip, snap bar, drag handle, iframe, postMessage bridge. The user opens this for iteration.
-  - `.domi/output/<name>-body.html` — the body. The actual artifact, ship-ready, no strip step. The iframe inside the chrome loads this file.
+  - `.domi/output/<name>-body.html` — the body. The working-doc artifact the user is iterating on. Carries `data-feedback="..."` hooks + a small annotation `<style>` block + the `domi.js` click-feedback runtime; **must be stripped** before it ships — see §"Ship mode — strip the body" below. The iframe inside the chrome loads this file.
 - Audit thread state: `.domi/state/<name>.json` (read or seed; mirror to `localStorage` for portability)
 - Library paths: `tokens/tokens.json`, `components/primitives/<name>/`, `components/domi.css`, `components/studio.css` (chrome only), `scripts/runtime/domi.js`, `scripts/runtime/domi-audit.js`, `scripts/runtime/domi-frame-bridge.js` (chrome only), `templates/<archetype>/index.html`, `templates/working-doc-chrome/index.html` (the chrome template)
 - Reference working doc (two files, both required):
@@ -187,7 +187,7 @@ If the user explicitly asks for "the full thing" or "draft the whole page," you 
 
 **Do NOT delegate construction to a subagent.** Piece-by-piece iteration requires you to be the one in the loop with the user. A subagent cannot read a comment, click an element, or react to thread entries between sections. If you delegate the full build to a subagent, you have collapsed the loop into a single dump — the artifact has the same shape as the post-loop deliverable and the user has no way to iterate on it. Subagents are fine for bounded, *non-iteration* tasks (e.g., "render this JSON spec as a single component," "rewrite the hero copy in three variants") but they do not own the loop.
 
-**Ship mode:** The body file is ship-ready by construction. When the user signals "ship it," take `.domi/output/<name>-body.html`, rename or copy it to the destination filename. The chrome is not shipped. There is no strip step.
+**Ship mode:** see §"Ship mode — strip the body" below — the body has working-doc chrome (`data-feedback` hooks, the data-feedback `<style>` rules, the `domi.js` click-feedback script) that must be stripped before delivery.
 
 See `docs/AUDIT.md` for the JSON schema, domi-audit API, and end-to-end loop.
 
@@ -238,6 +238,45 @@ This protocol is not gate-keeping theatre. The skill exists because iteration ma
 - Do NOT touch the library (`tokens/`, `components/`, original `templates/`, `scripts/runtime/domi*.js`, `examples/`) for a one-off artifact. Library changes require explicit user sign-off — see `docs/EXTENDING.md`.
 - Do NOT delegate the full build to a subagent. The loop must stay in your hands.
 - Do NOT preempt the user's next comment by building the next section, even if you have a strong opinion about what should come next.
+
+## Ship mode — strip the body
+
+When the user signals "ship it" / "give me the final" / "hand off" / "final HTML I can host," exit the iteration loop and produce a clean deliverable. The chrome is not shipped — only the body. The body carries working-doc chrome that must be stripped before delivery.
+
+### What gets stripped (3 things)
+
+1. **Every `data-feedback="..."` attribute** on every element. These are per-element comment targets the chrome's postMessage bridge reads; they have no rendering purpose in the shipped product.
+2. **The `[data-feedback]` and `[data-feedback]:hover` CSS rules** in any inline `<style>` block. These add the `cursor: copy` and dashed-hover outline that mark elements as commentable.
+3. **The `<script src="...domi.js">` tag.** This is the click-feedback runtime that powers the cursor/outline and logs clicks to the audit thread. It has no purpose in the shipped product.
+
+### What stays
+
+- `data-theme="<neo|bundoro>"` on `<html>` (the body theme).
+- The `<link rel="stylesheet" href="...domi.css">` (the design system CSS).
+- All `domi-*` classes (the design system primitives).
+- All other body-owned CSS (e.g. `body { margin: 0; padding: 24px; }`).
+
+### How to do the strip (canonical path — works in any install)
+
+Use your file-editing tool to apply these three transforms to `.domi/output/<name>-body.html`. The patterns below are regex; apply them in order:
+
+1. Remove every `data-feedback="..."` attribute. Match ` data-feedback="[^"]*"` (with the leading space) → replace with empty.
+2. Remove the two CSS rules in any `<style>` block. Match `\s*\[\s*data-feedback\s*\](?::[a-z-]+)?\s*\{[^}]*\}` → replace with empty.
+3. Remove the domi.js script tag and any preceding whitespace/newline. Match `[\s\n]*<script[^>]*src="[^"]*domi\.js"[^>]*>\s*<\/script>` → replace with empty.
+
+Write the result. Default destination: a sibling file `.domi/output/<name>-body.shipped.html` (so the working-doc is preserved and you can re-iterate if the user wants changes). Then rename or copy the `.shipped.html` to whatever filename the user asked for.
+
+If you don't have a regex-capable edit tool, do it as three passes with your `edit` tool — one pass per pattern, anchored on a unique surrounding snippet.
+
+### CLI convenience (repo users only)
+
+`tools/strip-annotations.mjs` in the DOMicile repo does the same three transforms in one command. It is **not** part of the skill bundle (`npx skills` installs don't include `tools/`), so the canonical path above is what an `npx skills` install will use. The CLI is for repo users who want a faster invocation:
+
+```bash
+node tools/strip-annotations.mjs .domi/output/<name>-body.html              # writes <name>-body.shipped.html
+node tools/strip-annotations.mjs .domi/output/<name>-body.html --in-place   # overwrites the input
+node tools/strip-annotations.mjs .domi/output/<name>-body.html --dry-run    # preview to stdout
+```
 
 ## Authoring new UI work (not consuming existing)
 

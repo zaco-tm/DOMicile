@@ -6,7 +6,20 @@
   <link rel="stylesheet" href="../../components/domi.css">
   <link rel="stylesheet" href="../../components/studio.css">
   <style>
-    /* Chrome-specific styles (snap bar, resizer, in-iframe target outline). */
+    /* Chrome-specific styles (wordmark, snap bar, resizer, in-iframe target outline). */
+    .studio-wordmark {
+      display: inline-block;
+      margin: 0 0 14px 0;
+      font-family: var(--studio-mono);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      user-select: none;
+    }
+    .studio-wordmark-mark { color: var(--studio-accent); }
+    .studio-wordmark-rest { color: var(--studio-text); }
+
     .studio-snap {
       display: flex; gap: 6px; align-items: center;
       padding: 8px 12px;
@@ -36,10 +49,57 @@
     .studio-resizer:hover,
     .studio-resizer:focus-visible { background: var(--studio-accent-hover); outline: 0; }
 
+    .studio-chrome-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 0 0 14px 0;
+      position: relative;
+      z-index: 60;          /* sit above the rail (z-index 50) so the selector is never hidden */
+    }
+    .rail-pos {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--studio-bg-elevated);
+      border: 1px solid var(--studio-border);
+      border-radius: 6px;
+      box-shadow: var(--studio-shadow-sticker);
+    }
+    .rail-pos button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 22px;
+      padding: 0;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--studio-text-muted);
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    }
+    .rail-pos button:hover {
+      color: var(--studio-text);
+      background: var(--studio-accent-hover);
+    }
+    .rail-pos button[aria-pressed="true"] {
+      color: #fff;
+      background: var(--studio-accent);
+      border-color: var(--studio-accent);
+    }
+    .rail-pos button:focus-visible {
+      outline: 2px solid var(--studio-text);
+      outline-offset: 2px;
+    }
+
     body { padding: 24px; }
 
-    /* In the chrome the snap bar sits at top-right; move the chip to the bottom so they don't collide. */
-    [data-domini-status-chip] { top: auto; bottom: 12px; }
+    /* The feedback rail sits on the right (theme owns the layout via
+       display:flex on body); pin the chip to the bottom-LEFT so it doesn't
+       collide with the rail. The base theme positions the chip at top-right. */
+    [data-domini-status-chip] { top: auto; right: auto; bottom: 12px; left: 12px; }
 
     /* The bridge adds this class to the active element inside the iframe. */
     .studio-iframe-target {
@@ -50,19 +110,43 @@
 </head>
 <body>
   <main>
-    <div class="studio-snap" role="toolbar" aria-label="Viewport width">
-      <button type="button" data-snap="375">375</button>
-      <button type="button" data-snap="768">768</button>
-      <button type="button" data-snap="1024" aria-pressed="true">1024</button>
+    <div class="studio-chrome-head">
+      <div class="studio-wordmark" aria-label="DOMicile">
+        <span class="studio-wordmark-mark">DOM</span><span class="studio-wordmark-rest">icile</span>
+      </div>
+      <div class="rail-pos" role="group" aria-label="Rail position">
+        <button type="button" data-rail-position="top-right" aria-pressed="true" title="Top right">
+          <svg viewBox="0 0 22 16" width="22" height="16" aria-hidden="true">
+            <rect x="0.5" y="0.5" width="21" height="15" fill="none" stroke="currentColor" stroke-width="1" />
+            <rect x="13" y="2" width="7" height="6" fill="currentColor" />
+          </svg>
+        </button>
+        <button type="button" data-rail-position="bottom-right" aria-pressed="false" title="Bottom right">
+          <svg viewBox="0 0 22 16" width="22" height="16" aria-hidden="true">
+            <rect x="0.5" y="0.5" width="21" height="15" fill="none" stroke="currentColor" stroke-width="1" />
+            <rect x="13" y="8" width="7" height="6" fill="currentColor" />
+          </svg>
+        </button>
+        <button type="button" data-rail-position="bottom-center" aria-pressed="false" title="Bottom center">
+          <svg viewBox="0 0 22 16" width="22" height="16" aria-hidden="true">
+            <rect x="0.5" y="0.5" width="21" height="15" fill="none" stroke="currentColor" stroke-width="1" />
+            <rect x="7.5" y="8" width="7" height="6" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="studio-snap" role="toolbar" aria-label="Frame width">
+      <button type="button" data-snap="734">734</button>
+      <button type="button" data-snap="940" aria-pressed="true">940</button>
       <button type="button" data-snap="1280">1280</button>
-      <span class="studio-snap-readout" data-domini-frame-readout>1024px</span>
+      <span class="studio-snap-readout" data-domini-frame-readout>940px</span>
     </div>
     <div class="studio-frame-wrap">
       <iframe
         src="./example-body.html"
         class="studio-frame"
         id="studio-frame"
-        width="1024"
+        width="940"
         height="780"
         title="Preview"
       ></iframe>
@@ -76,7 +160,7 @@
       ></div>
     </div>
   </main>
-  <aside data-domini-rail></aside>
+  <aside data-domini-rail data-rail-position="top-right"></aside>
   <span data-domini-status-chip>v0.1.0-working</span>
 
   <script src="../../scripts/runtime/domi-audit.js" defer></script>
@@ -86,6 +170,22 @@
     document.addEventListener('DOMContentLoaded', () => {
       DomiAudit.mount({ statePath: '.domi/state/example-audit.json', docName: 'example-audit' });
       StudioFrame.mount({ frameSelector: '#studio-frame' });
+
+      // Rail position selector: clicking a button moves the rail card to
+      // the chosen position. Three options only (top-right, bottom-right,
+      // bottom-center) — top-left and bottom-left are intentionally
+      // excluded because they would cover the wordmark and the status chip.
+      const rail = document.querySelector('[data-domini-rail]');
+      const posButtons = document.querySelectorAll('[data-rail-position]');
+      posButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const pos = btn.getAttribute('data-rail-position');
+          if (rail) rail.setAttribute('data-rail-position', pos);
+          posButtons.forEach((b) => {
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+        });
+      });
     });
   </script>
 </body>

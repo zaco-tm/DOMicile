@@ -3,6 +3,9 @@
    - Snap buttons: set iframe width to a fixed breakpoint.
    - Drag handle: free-resize the iframe, clamped to [320, 1920].
    - Keyboard: arrow keys on the focused resizer.
+   - Viewport-fit height: the iframe's height tracks window.innerHeight so
+     the working doc fills the available screen, with a sane minimum to
+     stay usable on short viewports.
    - PostMessage bridge: click in iframe -> DomiAudit.setTarget(id).
    See docs/superpowers/specs/2026-08-17-studio-frame-design.md. */
 
@@ -30,6 +33,28 @@
     document.querySelectorAll('[data-snap]').forEach((b) => {
       b.setAttribute('aria-pressed', String(parseInt(b.getAttribute('data-snap'), 10) === w));
     });
+  }
+
+  // Floor for the viewport-fit height. Keeps the iframe usable on short
+  // viewports (split-screen, mobile landscape) where the calc would
+  // otherwise collapse the frame to a few pixels.
+  const MIN_FRAME_HEIGHT = 240;
+  // Body padding-bottom (24px) + a small breathing space (16px). The
+  // iframe's bottom edge lands at `viewport - BOTTOM_BUFFER` in document
+  // coordinates — clears the body's bottom padding with a touch of margin.
+  const BOTTOM_BUFFER = 40;
+
+  // Set the iframe's height so it fills the available vertical space below
+  // the chrome's header (wordmark + snap bar) and stops at the body's
+  // bottom padding. docTop = rect.top + scrollY so the calc is independent
+  // of the current scroll position. A no-op if the frame isn't laid out yet.
+  function _fitHeightToViewport(frame) {
+    if (!frame) return;
+    const rect = frame.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return;
+    const docTop = rect.top + window.scrollY;
+    const available = window.innerHeight - docTop - BOTTOM_BUFFER;
+    frame.style.height = Math.max(MIN_FRAME_HEIGHT, Math.floor(available)) + 'px';
   }
 
   function wireSnapButtons(frame) {
@@ -130,7 +155,20 @@
     }
     // Initial readout
     setWidth(frame, parseWidthPx(frame.style.width || frame.getAttribute('width') || DEFAULT_WIDTH));
+    // Initial viewport-fit height
+    _fitHeightToViewport(frame);
+    // Keep the height fitted as the user resizes the window, zooms, or
+    // opens dev tools. rAF-coalesced so a burst of resize events triggers
+    // one reflow.
+    let raf = 0;
+    window.addEventListener('resize', () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        _fitHeightToViewport(frame);
+      });
+    });
   }
 
-  globalThis.StudioFrame = { mount, MIN_WIDTH, MAX_WIDTH, DEFAULT_WIDTH };
+  globalThis.StudioFrame = { mount, MIN_WIDTH, MAX_WIDTH, DEFAULT_WIDTH, _fitHeightToViewport };
 })();

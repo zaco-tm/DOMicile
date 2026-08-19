@@ -10,14 +10,16 @@
 
   /* Text */
   --studio-text:         #3d2342;            /* dark plum, neo */
-  --studio-text-muted:    rgba(61, 35, 66, 0.65);
+  --studio-text-muted:   rgba(61, 35, 66, 0.65);
 
   /* Accent */
   --studio-accent:       #f4978e;            /* coral, neo */
   --studio-accent-hover: rgba(244, 151, 142, 0.4);
+  --studio-accent-deep:  #e57f76;            /* darker coral for :hover/:active on filled buttons */
 
   /* Sticker shadow (bundoro) */
   --studio-shadow-sticker: 0 1px 0 rgba(61, 35, 66, 0.12), 0 2px 4px rgba(61, 35, 66, 0.06);
+  --studio-shadow-lift:    0 2px 0 rgba(61, 35, 66, 0.10), 0 6px 14px rgba(61, 35, 66, 0.08);
 
   /* Type */
   --studio-mono:         'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
@@ -31,6 +33,25 @@ html, body {
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
+}
+
+/* === Chrome layout ===
+   The body is a flex row: main column (frame + snap bar) on the left, fixed-width
+   feedback rail on the right. align-items: flex-start lets the rail keep its
+   own intrinsic height so position: sticky behaves as expected. The body's
+   padding gives breathing room from the viewport edge; main's min-width: 0
+   permits the iframe to shrink when the column narrows. */
+body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Display headings in the chrome (status chip text, snap bar) */
@@ -61,18 +82,383 @@ html, body {
   z-index: 100;
 }
 
-/* Feedback rail (replaces the inlined styles in templates/working-doc/index.html) */
+/* === Feedback rail ===
+   Paper-sticker card, 360px wide, floats over the frame at one of three
+   positions chosen by the chrome's position selector (data-rail-position).
+   Defaults to top-right; the chrome's selector switches it to bottom-right
+   or bottom-center. Top-left and bottom-left are intentionally unavailable
+   — they collide with the wordmark (top) and the status chip (bottom).
+
+   Children:
+     [data-domini-rail-head]   sticky wrapper containing the form + tab bar
+       [data-domini-rail-form]    (target hint + textarea + submit)
+       .rail-tabs [role=tab]      (current / history)
+     [data-domini-rail-list]   tabpanel <ul> (value = "current" | "history")
+   The form/list/data-* hooks are emitted by scripts/runtime/domi-audit.js
+   and scripts/runtime/domi-audit-render.js; selectors below are
+   data-attribute based to match. */
 aside[data-domini-rail] {
-  position: sticky;
-  top: 24px;
+  position: fixed;
+  width: 360px;
   max-height: calc(100vh - 48px);
   overflow: auto;
-  padding: 12px;
+  padding: 16px;
   background: var(--studio-bg-elevated);
   border: 1px solid var(--studio-border);
-  border-radius: 8px;
-  box-shadow: var(--studio-shadow-sticker);
+  border-radius: 10px;
+  box-shadow: var(--studio-shadow-lift);
+  font-family: var(--studio-mono);
+  color: var(--studio-text);
+  z-index: 50;
 }
-.domini-rail-form textarea { width: 100%; }
-.domini-rail-form button { margin-top: 4px; }
-.domini-rail-list { padding-left: 16px; }
+aside[data-domini-rail][data-rail-position="top-right"] {
+  top: 24px;
+  right: 24px;
+}
+aside[data-domini-rail][data-rail-position="bottom-right"] {
+  bottom: 24px;
+  right: 24px;
+}
+aside[data-domini-rail][data-rail-position="bottom-center"] {
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Sticky head: form + tab bar stick together at the top of the rail's
+   scroll area so the user can always reach the comment input and the
+   current/history tabs while scrolling through entries. */
+[data-domini-rail-head] {
+  position: sticky;
+  top: -16px;               /* offset the rail's 16px padding */
+  margin: -16px -16px 12px -16px;  /* bleed to rail's padding edge */
+  padding: 16px 16px 12px 16px;
+  background: var(--studio-bg-elevated);
+  border-bottom: 1px solid var(--studio-border);
+  z-index: 2;
+}
+
+/* --- Form: targeting pill, textarea, submit --- */
+[data-domini-rail-form] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 12px 0;
+  padding: 0 0 12px 0;
+  border-bottom: 1px dashed var(--studio-border);
+}
+
+[data-domini-target-hint] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--studio-text-muted);
+}
+[data-domini-target-hint] [data-domini-target-id] {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--studio-accent);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* When no element is targeted, dim the pill to a neutral state. */
+[data-domini-target-hint] [data-domini-target-id]:empty,
+[data-domini-target-hint] [data-domini-target-id] {
+  /* default state — already styled above */
+}
+
+[data-domini-rail-form] textarea {
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--studio-text);
+  background: var(--studio-bg);
+  border: 1px solid var(--studio-border);
+  border-radius: 6px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+[data-domini-rail-form] textarea::placeholder {
+  color: var(--studio-text-muted);
+  opacity: 0.7;
+}
+[data-domini-rail-form] textarea:focus {
+  border-color: var(--studio-accent);
+  box-shadow: 0 0 0 3px var(--studio-accent-hover);
+}
+
+[data-domini-rail-form] button {
+  align-self: flex-end;
+  padding: 6px 14px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: var(--studio-accent);
+  border: 1px solid var(--studio-accent);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+}
+[data-domini-rail-form] button:hover {
+  background: var(--studio-accent-deep);
+  border-color: var(--studio-accent-deep);
+}
+[data-domini-rail-form] button:active {
+  transform: translateY(1px);
+}
+[data-domini-rail-form] button:focus-visible {
+  outline: 2px solid var(--studio-text);
+  outline-offset: 2px;
+}
+
+/* --- Tab bar: current / history --- */
+.rail-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+}
+.rail-tabs button[role="tab"] {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--studio-text-muted);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.rail-tabs button[role="tab"]:hover {
+  color: var(--studio-text);
+  background: var(--studio-accent-hover);
+}
+.rail-tabs button[role="tab"][aria-selected="true"] {
+  color: #fff;
+  background: var(--studio-accent);
+  border-color: var(--studio-accent);
+}
+.rail-tabs button[role="tab"]:focus-visible {
+  outline: 2px solid var(--studio-text);
+  outline-offset: 2px;
+}
+.rail-tab-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 9999px;
+  background: var(--studio-bg);
+  color: var(--studio-text-muted);
+  letter-spacing: 0;
+}
+.rail-tabs button[role="tab"][aria-selected="true"] .rail-tab-count {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+/* --- List: iterations and entry cards --- */
+[data-domini-rail-list] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+[data-domini-rail-list][hidden] {
+  display: none;
+}
+[data-domini-rail-list] > li {
+  list-style: none;
+}
+
+/* Iteration header (label + meta, with collapse toggle) */
+.iter-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 6px 0;
+  border-bottom: 1px solid var(--studio-border);
+  margin-bottom: 8px;
+}
+.iter-toggle {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--studio-text-muted);
+  font: inherit;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.iter-toggle:hover {
+  color: var(--studio-accent);
+  background: var(--studio-accent-hover);
+}
+.iter-toggle:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 1px;
+}
+.iter-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  color: var(--studio-text);
+}
+.iter-meta {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--studio-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Collapsed iteration hides its entries */
+[data-iter][data-open="false"] .iter-entries {
+  display: none;
+}
+
+.iter-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Entry card: a soft paper note with a coral left rule. */
+.entry {
+  position: relative;
+  padding: 8px 28px 8px 10px;
+  background: var(--studio-bg);
+  border: 1px solid var(--studio-border);
+  border-left: 3px solid var(--studio-accent);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.entry[data-flash] {
+  animation: studio-entry-flash 1s ease-out;
+}
+@keyframes studio-entry-flash {
+  0%   { background: var(--studio-accent-hover); border-left-color: var(--studio-accent-deep); }
+  100% { background: var(--studio-bg);           border-left-color: var(--studio-accent); }
+}
+
+.entry-id {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  font-family: var(--studio-mono);
+  font-size: 10px;
+  color: var(--studio-text-muted);
+  background: transparent;
+  border: 1px solid var(--studio-border);
+  border-radius: 3px;
+  cursor: pointer;
+  vertical-align: 1px;
+  user-select: all;
+  transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.entry-id:hover {
+  color: var(--studio-accent);
+  border-color: var(--studio-accent);
+}
+.entry-id[data-copied] {
+  background: var(--studio-accent);
+  color: #fff;
+  border-color: var(--studio-accent);
+}
+
+.entry-body {
+  color: var(--studio-text);
+  word-break: break-word;
+}
+
+.entry-ref {
+  display: inline-block;
+  padding: 0 5px;
+  margin: 0 1px;
+  background: var(--studio-accent-hover);
+  color: var(--studio-text);
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 11px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.entry-ref:hover {
+  background: var(--studio-accent);
+  color: #fff;
+}
+.entry-ref[data-target-state="removed"] {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.entry-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--studio-text-muted);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+.entry:hover .entry-remove,
+.entry:focus-within .entry-remove {
+  opacity: 1;
+}
+.entry-remove:hover {
+  color: #fff;
+  background: var(--studio-accent);
+}
+.entry-remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--studio-text);
+  outline-offset: 1px;
+}

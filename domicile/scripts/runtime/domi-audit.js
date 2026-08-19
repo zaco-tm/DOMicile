@@ -250,6 +250,13 @@
   function mount({ statePath, docName }) {
     const rail = document.querySelector('[data-domini-rail]');
     if (rail && !rail.querySelector('[data-domini-rail-form]')) {
+      // Sticky head: form (targeting pill + textarea + submit) + tab bar
+      // (current / history). The list panels are appended to the rail
+      // directly so they scroll under the head.
+      const head = document.createElement('div');
+      head.setAttribute('data-domini-rail-head', '');
+      rail.appendChild(head);
+
       const form = document.createElement('form');
       form.setAttribute('data-domini-rail-form', '');
       form.innerHTML = `
@@ -259,7 +266,7 @@
         <textarea name="body" rows="2" placeholder="Comment on this doc…"></textarea>
         <button type="submit">Add</button>
       `;
-      rail.appendChild(form);
+      head.appendChild(form);
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const body = form.elements['body'].value.trim();
@@ -276,9 +283,11 @@
         if (!el) { setTarget(null); return; }
         setTarget(el.getAttribute('data-feedback'), el);
       });
-      const list = document.createElement('ul');
-      list.setAttribute('data-domini-rail-list', '');
-      rail.appendChild(list);
+
+      // Defer tab bar + panel creation to the render module.
+      if (globalThis.DomiAudit?._internals?.setupTabs) {
+        globalThis.DomiAudit._internals.setupTabs(rail, head);
+      }
     }
 
     _statePath = statePath;
