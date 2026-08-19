@@ -9,6 +9,11 @@
   <link rel="icon" type="image/png" href="domi-mascot-200.png">
   <link rel="canonical" href="https://zaco-tm.github.io/DOMicile/">
 
+  <!-- Fonts: JetBrains Mono for the new design's mono fallback, plus the v28 fonts (Press Start 2P + Space Mono) for parity. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap">
+
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="DOMicile — The page is the conversation.">
@@ -31,9 +36,6 @@
       font-display: swap;
     }
     /* ─── Editorial Brutalist overrides (cream + dark ink) ─── */
-    [data-feedback] { cursor: copy; }
-    [data-feedback]:hover { outline: 1px dashed #1d3a3a; outline-offset: 4px; }
-
     .page { max-width: 1180px; margin: 0 auto; padding: 0 32px 96px; }
 
     /* Top bar — plain ink, thick rule, no glass */
@@ -755,142 +757,142 @@
 <body>
   <main class="page">
     <!-- ─── Top bar ───────────────────────────────────────────── -->
-    <nav class="brutal-nav" data-feedback="nav">
-      <span class="brutal-nav__brand" data-feedback="nav-brand">DOMICILE</span>
+    <nav class="brutal-nav">
+      <span class="brutal-nav__brand">DOMICILE</span>
       <div class="brutal-nav__group">
-        <a class="brutal-nav__link" href="#install" data-feedback="nav-link-install">Install →</a>
-        <a class="brutal-nav__link" href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener" data-feedback="nav-link-github">GitHub →</a>
-        <a class="brutal-nav__link" href="https://www.npmjs.com/package/domicile-react" target="_blank" rel="noopener" data-feedback="nav-link-npm">npm →</a>
-        <a class="brutal-nav__link" href="https://crates.io/crates/domi-server" target="_blank" rel="noopener" data-feedback="nav-link-crates">crates.io →</a>
+        <a class="brutal-nav__link" href="#install">Install →</a>
+        <a class="brutal-nav__link" href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener">GitHub →</a>
+        <a class="brutal-nav__link" href="https://www.npmjs.com/package/domicile-react" target="_blank" rel="noopener">npm →</a>
+        <a class="brutal-nav__link" href="https://crates.io/crates/domi-server" target="_blank" rel="noopener">crates.io →</a>
       </div>
     </nav>
 
     <!-- ─── Hero ─────────────────────────────────────────────── -->
-    <section class="brutal-hero" data-feedback="hero">
+    <section class="brutal-hero">
       <div class="brutal-meta">
-        <span data-feedback="hero-section">§ 01 / Hero</span>
-        <span data-feedback="hero-vol">Vol. 1 — Working document</span>
+        <span>§ 01 / Hero</span>
+        <span>Vol. 1 — Working document</span>
       </div>
 
-      <h1 class="brutal-headline" data-feedback="hero-headline">
+      <h1 class="brutal-headline">
         The page is<br>the conversation
       </h1>
 
       <div class="brutal-hero-body">
-        <p class="brutal-deck" data-feedback="hero-deck">
+        <p class="brutal-deck">
           <strong>DOMicile</strong> is an AI-agent design system. Click any element on <em>that</em> page, leave a comment, and the agent revises <em>just that piece</em> — HTML is the communication layer, a Rust server persists the audit thread. No full redrafts, no waiting.
         </p>
-        <div class="brutal-ctas" data-feedback="hero-ctas">
-          <a class="btn-brutal btn-brutal--accent" href="#install" data-feedback="hero-cta-primary">Get started →</a>
-          <a class="btn-brutal" href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener" data-feedback="hero-cta-secondary">View on GitHub</a>
+        <div class="brutal-ctas">
+          <a class="btn-brutal btn-brutal--accent" href="#install">Get started →</a>
+          <a class="btn-brutal" href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener">View on GitHub</a>
         </div>
       </div>
 
       <hr class="rule-thick">
 
-      <div class="brutal-stats" data-feedback="hero-stats">
-        <div class="brutal-stat" data-feedback="stat-primitives"><b>15</b>Primitives</div>
-        <div class="brutal-stat" data-feedback="stat-archetypes"><b>5</b>Archetypes</div>
-        <div class="brutal-stat" data-feedback="stat-languages"><b>3</b>Languages</div>
-        <div class="brutal-stat brutal-stat--accent" data-feedback="stat-conversation"><b>1</b>Conversation</div>
+      <div class="brutal-stats">
+        <div class="brutal-stat"><b>15</b>Primitives</div>
+        <div class="brutal-stat"><b>5</b>Archetypes</div>
+        <div class="brutal-stat"><b>3</b>Languages</div>
+        <div class="brutal-stat brutal-stat--accent"><b>1</b>Conversation</div>
       </div>
     </section>
 
     <!-- ─── Theme showcase ───────────────────────────────────── -->
-    <section class="brutal-showcase" id="themes" data-feedback="theme-showcase">
+    <section class="brutal-showcase" id="themes">
       <div class="brutal-section-meta">
-        <span data-feedback="showcase-section">§ 02 / Showcase</span>
-        <span data-feedback="showcase-tag">Two skins, one system</span>
+        <span>§ 02 / Showcase</span>
+        <span>Two skins, one system</span>
       </div>
       <hr class="rule-thick">
-      <h2 class="brutal-section-title" data-feedback="showcase-title">
+      <h2 class="brutal-section-title">
         The same<br>primitives<br>Two languages
       </h2>
-      <p class="brutal-section-deck" data-feedback="showcase-deck">
+      <p class="brutal-section-deck">
         Every primitive on this page reads from design tokens. Toggle the theme and the card repaints — same DOM, same semantics, different aesthetic.
       </p>
 
-      <div class="brutal-toggle" role="tablist" aria-label="Theme" data-feedback="theme-toggle">
-        <button type="button" class="brutal-toggle-btn" data-theme-pick="neo" aria-pressed="false" data-feedback="toggle-neo">neo</button>
-        <button type="button" class="brutal-toggle-btn" data-theme-pick="bundoro" aria-pressed="true" data-feedback="toggle-bundoro">bundoro</button>
+      <div class="brutal-toggle" role="tablist" aria-label="Theme">
+        <button type="button" class="brutal-toggle-btn" data-theme-pick="neo" aria-pressed="false">neo</button>
+        <button type="button" class="brutal-toggle-btn" data-theme-pick="bundoro" aria-pressed="true">bundoro</button>
       </div>
 
       <div class="brutal-card-frame">
-        <article class="domi-card domi-card--lg editorial-card" data-theme="bundoro" data-feedback="theme-card">
+        <article class="domi-card domi-card--lg editorial-card" data-theme="bundoro">
           <div class="brutal-card-meta">
             <span class="brutal-card-name" data-theme-name>bundoro</span>
             <span class="brutal-card-tag" data-theme-tag>default · flat · sticker</span>
           </div>
-          <div class="brutal-card-palette" data-feedback="theme-card-palette">
+          <div class="brutal-card-palette">
             <span data-theme-swatch="0"></span>
             <span data-theme-swatch="1"></span>
             <span data-theme-swatch="2"></span>
           </div>
-          <div class="brutal-card-row" data-feedback="theme-card-font">
+          <div class="brutal-card-row">
             <span class="brutal-card-label">Font</span>
             <span class="brutal-card-font-sample">Aa Bb Cc 123</span>
           </div>
-          <div class="brutal-card-row" data-feedback="theme-card-ui">
+          <div class="brutal-card-row">
             <span class="brutal-card-label">UI</span>
             <span class="brutal-card-badge">v1</span>
             <span class="brutal-card-input">Type here…</span>
           </div>
           <h3 class="brutal-sample-title">Hello, DOMicile</h3>
           <p class="brutal-sample-body" data-theme-body>Cream paper, thick dark borders, hard offset shadow, no blur. CourbeSans display, monospace body. Reads as a printed zine.</p>
-          <button type="button" class="domi-btn domi-btn--primary" data-feedback="theme-card-cta">Primary action →</button>
+          <button type="button" class="domi-btn domi-btn--primary">Primary action →</button>
         </article>
       </div>
     </section>
 
     <!-- ─── Primitives mention ───────────────────────────────────── -->
-    <section class="brutal-primitives" id="primitives" data-feedback="primitives">
+    <section class="brutal-primitives" id="primitives">
       <div class="brutal-section-meta">
-        <span data-feedback="primitives-section">§ 03 / Primitives</span>
-        <span data-feedback="primitives-count">The vocabulary</span>
+        <span>§ 03 / Primitives</span>
+        <span>The vocabulary</span>
       </div>
       <hr class="rule-thick">
-      <h2 class="brutal-section-title" data-feedback="primitives-title">
+      <h2 class="brutal-section-title">
         Fifteen primitives<br>One vocabulary
       </h2>
-      <p class="brutal-section-deck" data-feedback="primitives-deck">
+      <p class="brutal-section-deck">
         Every component reads from the same design tokens — all themed, all clickable, all revisable.
       </p>
     </section>
 
     <!-- ─── Archetypes ───────────────────────────────────── -->
-    <section class="brutal-archetypes" id="archetypes" data-feedback="archetypes">
+    <section class="brutal-archetypes" id="archetypes">
       <div class="brutal-section-meta">
-        <span data-feedback="archetypes-section">§ 04 / Archetypes</span>
-        <span data-feedback="archetypes-count">The five templates</span>
+        <span>§ 04 / Archetypes</span>
+        <span>The five templates</span>
       </div>
       <hr class="rule-thick">
-      <h2 class="brutal-section-title" data-feedback="archetypes-title">
+      <h2 class="brutal-section-title">
         Five archetypes<br>Five starting points
       </h2>
-      <p class="brutal-section-deck" data-feedback="archetypes-deck">
+      <p class="brutal-section-deck">
         Dashboard, webapp shell, mobile-app shell, admin tool, POS kiosk — five full-page templates, each composed from the same primitives. Clone one, revise just the piece you need.
       </p>
 
       <div class="brutal-archetypes-grid">
-        <article class="brutal-archetype" data-feedback="archetype-dashboard">
+        <article class="brutal-archetype">
           <div class="brutal-archetype-visual"><div class="av-dashboard"><div></div><div></div><div></div></div></div>
           <span class="brutal-archetype-num">01</span>
           <span class="brutal-archetype-name">Dashboard</span>
           <span class="brutal-archetype-desc">KPI grid, charts, activity</span>
         </article>
-        <article class="brutal-archetype" data-feedback="archetype-webapp">
+        <article class="brutal-archetype">
           <div class="brutal-archetype-visual"><div class="av-webapp"><div></div><div></div></div></div>
           <span class="brutal-archetype-num">02</span>
           <span class="brutal-archetype-name">Webapp shell</span>
           <span class="brutal-archetype-desc">Sidebar, top bar, content</span>
         </article>
-        <article class="brutal-archetype" data-feedback="archetype-mobile">
+        <article class="brutal-archetype">
           <div class="brutal-archetype-visual"><div class="av-mobile"></div></div>
           <span class="brutal-archetype-num">03</span>
           <span class="brutal-archetype-name">Mobile-app shell</span>
           <span class="brutal-archetype-desc">Tab bar, nav, sheets</span>
         </article>
-        <article class="brutal-archetype" data-feedback="archetype-admin">
+        <article class="brutal-archetype">
           <div class="brutal-archetype-visual">
             <div class="av-admin">
               <div class="av-admin-sidebar"><div></div><div></div><div></div></div>
@@ -906,7 +908,7 @@
           <span class="brutal-archetype-name">Admin tool</span>
           <span class="brutal-archetype-desc">Tables, filters, actions</span>
         </article>
-        <article class="brutal-archetype" data-feedback="archetype-pos">
+        <article class="brutal-archetype">
           <div class="brutal-archetype-visual">
             <div class="av-pos">
               <div class="av-pos-tiles"><div></div><div></div><div></div><div></div></div>
@@ -921,21 +923,21 @@
     </section>
 
     <!-- ─── Install ───────────────────────────────────── -->
-    <section class="brutal-install" id="install" data-feedback="install">
+    <section class="brutal-install" id="install">
       <div class="brutal-section-meta">
-        <span data-feedback="install-section">§ 05 / Install</span>
-        <span data-feedback="install-count">Get started</span>
+        <span>§ 05 / Install</span>
+        <span>Get started</span>
       </div>
       <hr class="rule-thick">
-      <h2 class="brutal-section-title" data-feedback="install-title">
+      <h2 class="brutal-section-title">
         Two ways to start
       </h2>
-      <p class="brutal-section-deck" data-feedback="install-deck">
+      <p class="brutal-section-deck">
         Install DOMicile for yourself, or tell your agent to use it. Either way takes about ten seconds.
       </p>
 
       <div class="brutal-install-grid">
-        <article class="brutal-install-card" data-feedback="install-self">
+        <article class="brutal-install-card">
           <div class="brutal-install-head">
             <span class="brutal-install-num">01</span>
             <span class="brutal-install-lang">For you</span>
@@ -948,7 +950,7 @@
           <p class="brutal-install-desc">Installs the DOMicile skill globally. Works with any Agent Skills-compatible client.</p>
         </article>
 
-        <article class="brutal-install-card" data-feedback="install-agent">
+        <article class="brutal-install-card">
           <div class="brutal-install-head">
             <span class="brutal-install-num">02</span>
             <span class="brutal-install-lang">For your agent</span>
@@ -961,7 +963,7 @@
         </article>
       </div>
 
-      <details class="brutal-install-dev" data-feedback="install-dev">
+      <details class="brutal-install-dev">
         <summary>For developers — React · Astro · Rust</summary>
         <div class="brutal-install-dev-list">
           <div>
@@ -981,38 +983,37 @@
     </section>
 
     <!-- ─── Closing ───────────────────────────────────── -->
-    <section class="brutal-closing" id="closing" data-feedback="closing">
+    <section class="brutal-closing" id="closing">
       <div class="brutal-section-meta">
-        <span data-feedback="closing-section">§ 06 / Closing</span>
-        <span data-feedback="closing-count">The end</span>
+        <span>§ 06 / Closing</span>
+        <span>The end</span>
       </div>
       <hr class="rule-thick">
-      <h2 class="brutal-closing-headline" data-feedback="closing-headline">
+      <h2 class="brutal-closing-headline">
         Now go build.
       </h2>
-      <p class="brutal-closing-deck" data-feedback="closing-deck">
+      <p class="brutal-closing-deck">
         One install. Three runtimes. The loop starts when you do.
       </p>
 
-      <nav class="brutal-closing-links" data-feedback="closing-links">
-        <a href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener" data-feedback="closing-link-github">GitHub →</a>
-        <a href="https://www.npmjs.com/package/domicile-react" target="_blank" rel="noopener" data-feedback="closing-link-npm">npm →</a>
-        <a href="https://crates.io/crates/domi-server" target="_blank" rel="noopener" data-feedback="closing-link-crates">crates.io →</a>
-        <a href="https://github.com/zaco-tm/DOMicile/blob/main/LICENSE" target="_blank" rel="noopener" data-feedback="closing-link-license">MIT License</a>
+      <nav class="brutal-closing-links">
+        <a href="https://github.com/zaco-tm/DOMicile" target="_blank" rel="noopener">GitHub →</a>
+        <a href="https://www.npmjs.com/package/domicile-react" target="_blank" rel="noopener">npm →</a>
+        <a href="https://crates.io/crates/domi-server" target="_blank" rel="noopener">crates.io →</a>
+        <a href="https://github.com/zaco-tm/DOMicile/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
       </nav>
 
       <hr class="rule-thick">
 
       <div class="brutal-colophon">
-        <p data-feedback="colophon-credits">Built by <a href="https://github.com/zaco-tm" target="_blank" rel="noopener">@zaco-tm</a> · MIT · 2026</p>
-        <p class="brutal-colophon-note" data-feedback="colophon-note">
+        <p>Built by <a href="https://github.com/zaco-tm" target="_blank" rel="noopener">@zaco-tm</a> · MIT · 2026</p>
+        <p class="brutal-colophon-note">
           This page is a working document. Click any element to leave a comment, the agent revises just that piece.
         </p>
       </div>
     </section>
   </main>
 
-  <script src="/scripts/runtime/domi.js" defer></script>
   <script>
     // Theme toggle: repaints the showcase card by flipping its data-theme,
     // and updates the palette swatches so each theme's signature colors are visible.
@@ -1031,7 +1032,7 @@
           palette: ['#faf3e7', '#1d3a3a', '#e87a5d'],
         },
       };
-      const card = document.querySelector('[data-feedback="theme-card"]');
+      const card = document.querySelector('.editorial-card');
       const buttons = document.querySelectorAll('[data-theme-pick]');
       if (!card || !buttons.length) return;
 
